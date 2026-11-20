@@ -1,0 +1,796 @@
+{
+ "_readme": "Звёздная карта. Галактики — группы модов, планеты — моды (изучаются, когда в инвентаре появляется предмет мода), метеоры — боссы, врата — измерения. Координаты можно двигать.",
+ "root": {
+  "id": "home",
+  "name": "Звёздный стол",
+  "x": 0,
+  "y": 0,
+  "color": "#FFFFFF",
+  "desc": "Здесь жил тот, кто оставил дневник.",
+  "unlock": {
+   "type": "table"
+  }
+ },
+ "galaxies": [
+  {
+   "id": "g_cradle",
+   "name": "Колыбель",
+   "color": "#7FD36B",
+   "x": -230,
+   "y": -20,
+   "requires": [
+    "home"
+   ],
+   "desc": "Выжить, накормить себя и обжиться.",
+   "radius": 70,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_farmersdelight",
+     "name": "Farmer's Delight",
+     "mod": "farmersdelight",
+     "hint": "Возьми в руки что-нибудь с кухни: нож, кастрюлю, урожай"
+    },
+    {
+     "id": "p_gpr",
+     "name": "Добрый урожай",
+     "mod": "gpr",
+     "hint": "Собери урожай правым кликом",
+     "unlock": {
+      "type": "item",
+      "value": "minecraft:wheat"
+     }
+    },
+    {
+     "id": "p_naturalist",
+     "name": "Naturalist",
+     "mod": "naturalist",
+     "hint": "Найди что-нибудь от диких животных"
+    },
+    {
+     "id": "p_critters",
+     "name": "Critters & Companions",
+     "mod": "crittersandcompanions",
+     "hint": "Подружись с мелкими зверьками — добудь их предмет"
+    },
+    {
+     "id": "p_starcatcher",
+     "name": "Starcatcher",
+     "mod": "starcatcher",
+     "hint": "Порыбачь: любая снасть или улов Starcatcher"
+    },
+    {
+     "id": "p_backpacked",
+     "name": "Backpacked",
+     "mod": "backpacked",
+     "hint": "Сшей рюкзак",
+     "requires": [
+      "p_farmersdelight"
+     ]
+    },
+    {
+     "id": "p_toms",
+     "name": "Tom's Storage",
+     "mod": "toms_storage",
+     "hint": "Наведи порядок в сундуках",
+     "requires": [
+      "p_backpacked"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g_gear",
+   "name": "Шестерня",
+   "color": "#E0A64B",
+   "x": -10,
+   "y": -210,
+   "requires": [
+    "home"
+   ],
+   "desc": "Механика Create — сердце всего, что будет дальше.",
+   "radius": 72,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_create",
+     "name": "Create",
+     "mod": "create",
+     "hint": "Добудь андезитовый сплав или любую деталь Create",
+     "requires": [
+      "g_gear"
+     ]
+    },
+    {
+     "id": "p_copycats",
+     "name": "Copycats+",
+     "mod": "copycats",
+     "hint": "Скопируй форму блока",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_connected",
+     "name": "Create Connected",
+     "mod": "create_connected",
+     "hint": "Расширь механизмы",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_wires",
+     "name": "Create: Wires",
+     "mod": "create_wires",
+     "hint": "Протяни красный провод",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_controllers",
+     "name": "Tweaked Controllers",
+     "mod": "create_tweaked_controllers",
+     "hint": "Собери пульт управления",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_packages",
+     "name": "Mobile Packages",
+     "mod": "create_mobile_packages",
+     "hint": "Отправь посылку с дроном",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_radiologistics",
+     "name": "Radiologistics",
+     "mod": "radiologistics",
+     "hint": "Логистика по радио",
+     "requires": [
+      "p_packages"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g_power",
+   "name": "Ток",
+   "color": "#5EC8F2",
+   "x": 230,
+   "y": -150,
+   "requires": [
+    "p_create"
+   ],
+   "desc": "Электричество и топливо.",
+   "radius": 55,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_powergrid",
+     "name": "Power Grid",
+     "mod": "powergrid",
+     "hint": "Получи электричество",
+     "requires": [
+      "g_power"
+     ]
+    },
+    {
+     "id": "p_mcvota",
+     "name": "MC Vota",
+     "mod": "mcvota",
+     "hint": "Собери компактный генератор",
+     "requires": [
+      "p_powergrid"
+     ]
+    },
+    {
+     "id": "p_diesel",
+     "name": "Diesel Generators",
+     "mod": "createdieselgenerators",
+     "hint": "Перегони нефть в топливо",
+     "requires": [
+      "g_power"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g_sky",
+   "name": "Небосвод",
+   "color": "#B8A2FF",
+   "x": 300,
+   "y": 90,
+   "requires": [
+    "p_powergrid"
+   ],
+   "desc": "Небо — следующая граница.",
+   "radius": 64,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_aeronautics",
+     "name": "Create Aeronautics",
+     "mod": "aeronautics",
+     "hint": "Подними в воздух первую конструкцию",
+     "requires": [
+      "g_sky"
+     ]
+    },
+    {
+     "id": "p_linkage",
+     "name": "Transmission Linkage",
+     "mod": "aeronautics_utility_objects",
+     "hint": "Передай вращение на борт",
+     "requires": [
+      "p_aeronautics"
+     ]
+    },
+    {
+     "id": "p_aircraft",
+     "name": "Immersive Aircraft",
+     "mod": "immersive_aircraft",
+     "hint": "Построй самолёт или дирижабль",
+     "requires": [
+      "g_sky"
+     ]
+    },
+    {
+     "id": "p_sable",
+     "name": "Sable",
+     "mod": "sable",
+     "hint": "Физика летающих кораблей",
+     "requires": [
+      "p_aeronautics"
+     ]
+    },
+    {
+     "id": "p_beforespace",
+     "name": "Before Going Into Space",
+     "mod": "beforespace",
+     "hint": "Реактивная тяга",
+     "requires": [
+      "p_aeronautics",
+      "p_diesel"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g_arsenal",
+   "name": "Арсенал",
+   "color": "#E85D5D",
+   "x": 60,
+   "y": 220,
+   "requires": [
+    "home"
+   ],
+   "desc": "Чем встречать метеоры.",
+   "radius": 55,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_gunsmithing",
+     "name": "Create Gunsmithing",
+     "mod": "cgs",
+     "hint": "Собери оружие на механизмах",
+     "requires": [
+      "p_create"
+     ]
+    },
+    {
+     "id": "p_trinkets",
+     "name": "Ancient Trinkets",
+     "mod": "ancienttrinkets",
+     "hint": "Найди древнюю реликвию",
+     "requires": [
+      "g_arsenal"
+     ]
+    },
+    {
+     "id": "p_explosive",
+     "name": "Explosive Enhancement",
+     "mod": "explosiveenhancement",
+     "hint": "Устрой взрыв",
+     "requires": [
+      "g_arsenal"
+     ],
+     "unlock": {
+      "type": "item",
+      "value": "minecraft:tnt"
+     }
+    }
+   ]
+  },
+  {
+   "id": "g_mystery",
+   "name": "Тайна",
+   "color": "#C36BE0",
+   "x": -220,
+   "y": 190,
+   "requires": [
+    "home"
+   ],
+   "desc": "Магия, эфир и старые карты.",
+   "radius": 60,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_atlas",
+     "name": "Antique Atlas",
+     "mod": "antiqueatlas",
+     "hint": "Заведи атлас",
+     "requires": [
+      "g_mystery"
+     ]
+    },
+    {
+     "id": "p_elixir",
+     "name": "Elixir Cauldron",
+     "mod": "elixircauldron",
+     "hint": "Свари эликсир в котле",
+     "requires": [
+      "g_mystery"
+     ]
+    },
+    {
+     "id": "p_etherology",
+     "name": "Etherology",
+     "mod": "etherology",
+     "hint": "Коснись эфира",
+     "requires": [
+      "p_elixir"
+     ]
+    },
+    {
+     "id": "p_gateways",
+     "name": "Immersive Gateways",
+     "mod": "immersive_gateways",
+     "hint": "Открой проход",
+     "requires": [
+      "p_etherology"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g_threat",
+   "name": "Угроза",
+   "color": "#8A9A5B",
+   "x": -400,
+   "y": -210,
+   "requires": [
+    "home"
+   ],
+   "desc": "Мир стал злее.",
+   "radius": 64,
+   "unlock": {
+    "type": "auto"
+   },
+   "planets": [
+    {
+     "id": "p_creepers",
+     "name": "Creeper Overhaul",
+     "mod": "creeperoverhaul",
+     "hint": "Победи нового крипера",
+     "requires": [
+      "g_threat"
+     ]
+    },
+    {
+     "id": "p_spiders",
+     "name": "Spider Overhaul",
+     "mod": "spider_overhaul",
+     "hint": "Победи нового паука",
+     "requires": [
+      "g_threat"
+     ]
+    },
+    {
+     "id": "p_endermen",
+     "name": "Enderman Overhaul",
+     "mod": "endermanoverhaul",
+     "hint": "Победи нового эндермена",
+     "requires": [
+      "g_threat"
+     ]
+    },
+    {
+     "id": "p_raiders",
+     "name": "Raider Colonies",
+     "mod": "raidercolonies",
+     "hint": "Отбей налёт разбойников",
+     "requires": [
+      "g_threat"
+     ]
+    },
+    {
+     "id": "p_kataklizm",
+     "name": "Катаклизм",
+     "mod": "kataklizm",
+     "hint": "Переживи стихийное бедствие",
+     "requires": [
+      "g_threat"
+     ]
+    }
+   ]
+  }
+ ],
+ "meteors": [
+  {
+   "id": "m_wroughtnaut",
+   "name": "Ferrous Wroughtnaut",
+   "x": -120,
+   "y": -120,
+   "color": "#FF6A3D",
+   "hint": "Подземные залы. Даёт Ржавое ядро — ключ в Ад и Глаз Ржавчины",
+   "unlock": {
+    "type": "kill",
+    "value": "mowziesmobs:ferrous_wroughtnaut"
+   },
+   "requires": [
+    "home"
+   ]
+  },
+  {
+   "id": "m_rise",
+   "name": "Bosses' Rise",
+   "x": -110,
+   "y": -60,
+   "color": "#FF6A3D",
+   "hint": "Любой босс Block Factory's Bosses. Трофей тоже открывает Ад",
+   "unlock": {
+    "type": "kill",
+    "value": "block_factorys_bosses:*"
+   },
+   "requires": [
+    "home"
+   ]
+  },
+  {
+   "id": "m_frostmaw",
+   "name": "Frostmaw",
+   "x": -330,
+   "y": 40,
+   "color": "#FF6A3D",
+   "hint": "Заснеженные земли. Глаз Стужи",
+   "unlock": {
+    "type": "kill",
+    "value": "mowziesmobs:frostmaw"
+   },
+   "requires": [
+    "m_wroughtnaut"
+   ]
+  },
+  {
+   "id": "m_umvuthi",
+   "name": "Umvuthi",
+   "x": -90,
+   "y": 110,
+   "color": "#FF6A3D",
+   "hint": "Саванна. Глаз Солнца",
+   "unlock": {
+    "type": "kill",
+    "value": "mowziesmobs:umvuthi"
+   },
+   "requires": [
+    "m_wroughtnaut"
+   ]
+  },
+  {
+   "id": "m_sculptor",
+   "name": "Tongbi, the Sculptor",
+   "x": 120,
+   "y": -310,
+   "color": "#FF6A3D",
+   "hint": "Горные вершины. Глаз Ваятеля",
+   "unlock": {
+    "type": "kill",
+    "value": "mowziesmobs:sculptor"
+   },
+   "requires": [
+    "m_umvuthi"
+   ]
+  },
+  {
+   "id": "m_cornelia",
+   "name": "Captain Cornelia",
+   "x": -470,
+   "y": 60,
+   "color": "#FF6A3D",
+   "hint": "Ледяной лабиринт, рог-ракушка. Часть Глаза Бездны",
+   "unlock": {
+    "type": "kill",
+    "value": "aquamirae:captain_cornelia"
+   },
+   "requires": [
+    "m_frostmaw"
+   ]
+  },
+  {
+   "id": "m_maze_mother",
+   "name": "Maze Mother",
+   "x": -500,
+   "y": 150,
+   "color": "#FF6A3D",
+   "hint": "Глубины Ледяного лабиринта. Часть Глаза Бездны",
+   "unlock": {
+    "type": "kill",
+    "value": "aquamirae:maze_mother"
+   },
+   "requires": [
+    "m_frostmaw"
+   ]
+  },
+  {
+   "id": "m_qliphoth",
+   "name": "Qliphoth",
+   "x": 170,
+   "y": -40,
+   "color": "#FF6A3D",
+   "hint": "Арены Qliphoth Awakening. Фрагменты для Ключа Рая",
+   "unlock": {
+    "type": "kill",
+    "value": "fdbosses:*"
+   },
+   "requires": [
+    "m_wroughtnaut"
+   ]
+  },
+  {
+   "id": "m_ignis",
+   "name": "Ignis",
+   "x": 140,
+   "y": 330,
+   "color": "#FF6A3D",
+   "hint": "Ад, Горящая арена. Часть Глаза Пламени",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:ignis"
+   },
+   "requires": [
+    "gate_nether"
+   ]
+  },
+  {
+   "id": "m_revenant",
+   "name": "Ignited Revenant",
+   "x": 250,
+   "y": 300,
+   "color": "#FF6A3D",
+   "hint": "Ад. Часть Глаза Пламени",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:ignited_revenant"
+   },
+   "requires": [
+    "gate_nether"
+   ]
+  },
+  {
+   "id": "m_monstrosity",
+   "name": "Netherite Monstrosity",
+   "x": 330,
+   "y": 220,
+   "color": "#FF6A3D",
+   "hint": "Ад. Глаз Кузни",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:netherite_monstrosity"
+   },
+   "requires": [
+    "gate_nether"
+   ]
+  },
+  {
+   "id": "m_azazel",
+   "name": "Cult of Azazel",
+   "x": 420,
+   "y": 330,
+   "color": "#FF6A3D",
+   "hint": "Особняк культа в Аду. Печать для Ключа Рая",
+   "unlock": {
+    "type": "kill",
+    "value": "cult*:*"
+   },
+   "requires": [
+    "gate_nether"
+   ]
+  },
+  {
+   "id": "m_leviathan",
+   "name": "The Leviathan",
+   "x": -470,
+   "y": 280,
+   "color": "#FF6A3D",
+   "hint": "Затонувший город. Глаз Пучины",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:the_leviathan"
+   },
+   "requires": [
+    "gate_paradise"
+   ]
+  },
+  {
+   "id": "m_remnant",
+   "name": "Ancient Remnant",
+   "x": -350,
+   "y": 360,
+   "color": "#FF6A3D",
+   "hint": "Пустынные гробницы. Глаз Песков",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:ancient_remnant"
+   },
+   "requires": [
+    "gate_paradise"
+   ]
+  },
+  {
+   "id": "m_harbinger",
+   "name": "The Harbinger",
+   "x": 420,
+   "y": -40,
+   "color": "#FF6A3D",
+   "hint": "Пещерная лаборатория. Глаз Механизма",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:the_harbinger"
+   },
+   "requires": [
+    "gate_paradise",
+    "p_create"
+   ]
+  },
+  {
+   "id": "m_maledictus",
+   "name": "Maledictus",
+   "x": -560,
+   "y": -60,
+   "color": "#FF6A3D",
+   "hint": "Необязательный метеор",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:maledictus"
+   },
+   "requires": [
+    "gate_paradise"
+   ]
+  },
+  {
+   "id": "m_scylla",
+   "name": "Scylla",
+   "x": -560,
+   "y": -160,
+   "color": "#FF6A3D",
+   "hint": "Необязательный метеор",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:scylla"
+   },
+   "requires": [
+    "gate_paradise"
+   ]
+  },
+  {
+   "id": "m_wither",
+   "name": "Иссушитель",
+   "x": 520,
+   "y": 200,
+   "color": "#FF6A3D",
+   "hint": "Звезда Незера для Глаза Звёзд",
+   "unlock": {
+    "type": "kill",
+    "value": "minecraft:wither"
+   },
+   "requires": [
+    "gate_nether"
+   ]
+  },
+  {
+   "id": "m_ender_guardian",
+   "name": "Ender Guardian",
+   "x": 0,
+   "y": -470,
+   "color": "#FF6A3D",
+   "hint": "Цитадель Энда",
+   "unlock": {
+    "type": "kill",
+    "value": "cataclysm:ender_guardian"
+   },
+   "requires": [
+    "gate_end"
+   ]
+  },
+  {
+   "id": "m_dragon",
+   "name": "Эндер-дракон",
+   "x": 0,
+   "y": -560,
+   "color": "#FF2E9A",
+   "hint": "Финал",
+   "unlock": {
+    "type": "kill",
+    "value": "minecraft:ender_dragon"
+   },
+   "requires": [
+    "gate_end"
+   ]
+  }
+ ],
+ "gates": [
+  {
+   "id": "gate_nether",
+   "name": "Преисподняя",
+   "x": 230,
+   "y": 420,
+   "color": "#FF5A1F",
+   "requiresAny": [
+    "m_wroughtnaut",
+    "m_rise"
+   ],
+   "unlock": {
+    "type": "dimension",
+    "value": "minecraft:the_nether"
+   },
+   "hint": "Скрафти Ключ Преисподней и используй его (ПКМ)"
+  },
+  {
+   "id": "gate_paradise",
+   "name": "Рай",
+   "x": -470,
+   "y": -320,
+   "color": "#FFF2A8",
+   "requires": [
+    "gate_nether"
+   ],
+   "unlock": {
+    "type": "dimension",
+    "value": "paradise_lost:paradise_lost"
+   },
+   "hint": "Ключ Рая: два трофея из Ада или Qliphoth"
+  },
+  {
+   "id": "gate_end",
+   "name": "Энд",
+   "x": 0,
+   "y": -400,
+   "color": "#D7B6FF",
+   "requires": [
+    "m_frostmaw",
+    "m_umvuthi",
+    "m_sculptor",
+    "m_cornelia",
+    "m_maze_mother",
+    "m_ignis",
+    "m_revenant",
+    "m_monstrosity",
+    "m_leviathan",
+    "m_remnant",
+    "m_harbinger"
+   ],
+   "unlock": {
+    "type": "dimension",
+    "value": "minecraft:the_end"
+   },
+   "hint": "12 глаз в рамке портала — каждый свой"
+  }
+ ]
+}

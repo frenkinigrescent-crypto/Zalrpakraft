@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "zalrpakraft:sculptor_chisel"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "minecraft:chiseled_stone_bricks"
+    }
+  ],
+  "result": {
+    "id": "zalrpakraft:eye_sculptor",
+    "count": 1
+  }
+}

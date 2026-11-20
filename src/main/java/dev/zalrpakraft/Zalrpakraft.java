@@ -1,0 +1,44 @@
+package dev.zalrpakraft;
+
+import com.mojang.logging.LogUtils;
+import dev.zalrpakraft.data.BossTable;
+import dev.zalrpakraft.data.ProgressionMap;
+import dev.zalrpakraft.event.CommonEvents;
+import dev.zalrpakraft.net.ZNetwork;
+import dev.zalrpakraft.registry.ZAttachments;
+import dev.zalrpakraft.registry.ZBlocks;
+import dev.zalrpakraft.registry.ZCreativeTab;
+import dev.zalrpakraft.registry.ZItems;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
+import org.slf4j.Logger;
+
+@Mod(Zalrpakraft.MODID)
+public class Zalrpakraft {
+    public static final String MODID = "zalrpakraft";
+    public static final Logger LOG = LogUtils.getLogger();
+
+    public Zalrpakraft(IEventBus modBus, ModContainer container) {
+        ZBlocks.BLOCKS.register(modBus);
+        ZItems.ITEMS.register(modBus);
+        ZCreativeTab.TABS.register(modBus);
+        ZAttachments.ATTACHMENTS.register(modBus);
+        modBus.addListener(ZNetwork::register);
+
+        container.registerConfig(ModConfig.Type.COMMON, ZConfig.SPEC);
+
+        BossTable.load();
+        ProgressionMap.load();
+
+        NeoForge.EVENT_BUS.register(CommonEvents.class);
+        LOG.info("Zalrpakraft: загружен");
+    }
+
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
+}

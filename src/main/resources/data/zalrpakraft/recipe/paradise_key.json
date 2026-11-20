@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "zalrpakraft:paradise_key_relics"
+    },
+    {
+      "tag": "zalrpakraft:paradise_key_relics"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:glowstone_dust"
+    },
+    {
+      "item": "minecraft:calcite"
+    }
+  ],
+  "result": {
+    "id": "zalrpakraft:paradise_key",
+    "count": 1
+  }
+}

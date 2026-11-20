@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "zalrpakraft:ignis_ember"
+    },
+    {
+      "item": "zalrpakraft:revenant_ash"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "minecraft:blaze_rod"
+    }
+  ],
+  "result": {
+    "id": "zalrpakraft:eye_flame",
+    "count": 1
+  }
+}

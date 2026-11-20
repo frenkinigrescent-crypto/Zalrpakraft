@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/frenkinigrescent-crypto/Zalrpakraft/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="frenkinigrescent-crypto"
+displayURL="https://github.com/frenkinigrescent-crypto/Zalrpakraft"
+logoFile="zalrpakraft_logo.png"
+description='''
+Связующий мод сборки: пробуждение и лор, звёздный стол с картой прогрессии,
+ключи в Ад и Рай, 12 глаз для портала в Энд, усиление боссов под группу.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

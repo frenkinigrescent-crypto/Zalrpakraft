@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build
+        run: ./gradlew build --stacktrace 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
+      - name: "Server self-test (world loads, house is built, configs written)"
+        timeout-minutes: 25
+        run: |
+          mkdir -p run
+          echo "eula=true" > run/eula.txt
+          printf "level-seed=4242\nonline-mode=false\nspawn-protection=0\nmax-tick-time=-1\n" > run/server.properties
+          ZK_SELFTEST=$PWD/selftest.txt timeout 1200 ./gradlew runServer 2>&1 | tee server.log | grep -E "Zalrpakraft|ERROR|Exception" || true
+          cat selftest.txt
+          grep -q "RESULT OK" selftest.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zalrpakraft
+          path: |
+            build/libs/*.jar
+            build.log
+            server.log
+            selftest.txt
