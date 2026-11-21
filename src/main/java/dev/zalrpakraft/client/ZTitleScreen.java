@@ -60,7 +60,7 @@ public class ZTitleScreen extends Screen {
                 () -> minecraft.setScreen(new OptionsScreen(this, minecraft.options))));
         addRenderableWidget(new StarButton(x + third + gap, y, third, bh, Component.translatable("options.language"),
                 () -> minecraft.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager()))));
-        addRenderableWidget(new StarButton(x + 2 * (third + gap), y, bw - 2 * (third + gap), bh, Component.translatable("menu.quit"),
+        addRenderableWidget(new StarButton(x + 2 * (third + gap), y, bw - 2 * (third + gap), bh, Component.translatable("zalrpakraft.menu.quit"),
                 () -> minecraft.stop()));
 
         String neo = ModList.get().getModContainerById("neoforge").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
@@ -162,8 +162,8 @@ public class ZTitleScreen extends Screen {
 
         // фраза дня
         g.pose().pushPose();
-        g.pose().translate(width / 2f + lw * scale / 2f - 6, ly + 9 * scale, 0);
-        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-14f));
+        g.pose().translate(width / 2f + lw * scale / 2f - 10, ly + 2, 0);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-16f));
         float s = 1.0f + Math.abs(Mth.sin(t * 3.4f)) * 0.08f;
         g.pose().scale(s, s, 1);
         Component sp = Component.translatable("zalrpakraft.menu.splash" + splash);
