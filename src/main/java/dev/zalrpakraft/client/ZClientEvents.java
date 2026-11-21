@@ -15,14 +15,28 @@ public final class ZClientEvents {
     @EventBusSubscriber(modid = Zalrpakraft.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class ModBus {
         @SubscribeEvent
+        public static void setup(net.neoforged.fml.event.lifecycle.FMLClientSetupEvent e) {
+            e.enqueueWork(() -> {
+                if (ZClientConfig.WINDOW_ICON.get()) WindowIcon.apply();
+            });
+        }
+
+        @SubscribeEvent
         public static void layers(RegisterGuiLayersEvent e) {
             e.registerAboveAll(Zalrpakraft.id("quest_hud"), QuestHud::render);
+            e.registerAboveAll(Zalrpakraft.id("plaque"), PlaqueOverlay::render);
             e.registerAboveAll(Zalrpakraft.id("intro"), IntroOverlay::render);
         }
     }
 
     @EventBusSubscriber(modid = Zalrpakraft.MODID, value = Dist.CLIENT)
     public static final class GameBus {
+        @SubscribeEvent
+        public static void screen(net.neoforged.neoforge.client.event.ScreenEvent.Opening e) {
+            if (e.getNewScreen() instanceof net.minecraft.client.gui.screens.TitleScreen && ZClientConfig.CUSTOM_MENU.get())
+                e.setNewScreen(new ZTitleScreen());
+        }
+
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
             IntroController.clientTick();

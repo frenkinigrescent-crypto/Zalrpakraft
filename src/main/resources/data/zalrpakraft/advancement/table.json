@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:star_table"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.table.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.table.desc"
+  },
+  "frame": "goal",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:house"
+}

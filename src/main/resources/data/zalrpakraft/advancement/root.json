@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:stranger_journal"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.root.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.root.desc"
+  },
+  "frame": "task",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false,
+  "background": "zalrpakraft:textures/gui/adv_bg.png"
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ }
+}

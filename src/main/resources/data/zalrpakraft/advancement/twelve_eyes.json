@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:eye_stars"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.twelve_eyes.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.twelve_eyes.desc"
+  },
+  "frame": "challenge",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:first_eye"
+}

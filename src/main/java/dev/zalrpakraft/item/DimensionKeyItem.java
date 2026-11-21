@@ -51,6 +51,7 @@ public class DimensionKeyItem extends Item {
         level.playSound(null, sp.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.8F, 1.2F);
         sp.displayClientMessage(Component.translatable("zalrpakraft.key.unlocked." + getDescriptionId().substring(getDescriptionId().lastIndexOf('.') + 1))
                 .withStyle(ChatFormatting.GOLD), false);
+        dev.zalrpakraft.player.Achievements.award(sp, dimension.startsWith("minecraft:") ? "nether_key" : "paradise_key");
         ProgressService.sync(sp);
         return InteractionResultHolder.consume(stack);
     }

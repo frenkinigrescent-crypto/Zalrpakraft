@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "minecraft:elytra"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.galaxy_sky.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.galaxy_sky.desc"
+  },
+  "frame": "goal",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:first_planet"
+}

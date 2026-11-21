@@ -79,6 +79,10 @@ public final class CommonEvents {
         }
         sb.append("recipes=").append(server.getRecipeManager().getRecipes().stream()
                 .filter(h -> h.id().getNamespace().equals(Zalrpakraft.MODID)).count()).append('\n');
+        long adv = server.getAdvancements().getAllAdvancements().stream()
+                .filter(h -> h.id().getNamespace().equals(Zalrpakraft.MODID)).count();
+        sb.append("advancements=").append(adv).append('\n');
+        ok &= adv >= 23;
         sb.append(ok ? "RESULT OK\n" : "RESULT FAIL\n");
         try {
             Files.writeString(out, sb.toString(), StandardCharsets.UTF_8);
@@ -102,6 +106,7 @@ public final class CommonEvents {
             else if (!sp.getInventory().add(book)) sp.drop(book, false);
             if (ZConfig.INTRO_ENABLED.get()) PacketDistributor.sendToPlayer(sp, new SimplePayload("intro"));
         }
+
         pr.visitedDims.add(sp.level().dimension().location().toString());
         ProgressService.update(sp);
         ProgressService.sync(sp);
@@ -126,16 +131,28 @@ public final class CommonEvents {
         if (!(e.getEntity() instanceof ServerPlayer sp) || sp.tickCount % 40 != 0) return;
         PlayerProgress pr = ProgressService.of(sp);
         boolean dirty = false;
+        // «Пробуждение» — после анимации, чтобы плашка не легла поверх неё
+        if (sp.tickCount > 240) dev.zalrpakraft.player.Achievements.award(sp, "root");
         if (pr.journalRead && !pr.houseFound) {
             WorldState ws = WorldState.get(sp.server);
             if (ws.housePos != null && sp.level().dimension() == Level.OVERWORLD
                     && sp.blockPosition().distSqr(ws.housePos) < 12 * 12) {
                 pr.houseFound = true;
+                dev.zalrpakraft.player.Achievements.award(sp, "house");
                 sp.displayClientMessage(Component.translatable("zalrpakraft.house.found").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC), false);
                 dirty = true;
             }
         }
         if (pr.tableOpened && ProgressService.update(sp)) dirty = true;
+        // глаза в инвентаре
+        for (ItemStack s : sp.getInventory().items) {
+            if (s.getItem() instanceof dev.zalrpakraft.item.EndEyeItem eye) {
+                if (pr.eyesSeen.add(String.valueOf(eye.index()))) {
+                    dev.zalrpakraft.player.Achievements.award(sp, "first_eye");
+                    if (pr.eyesSeen.size() >= 12) dev.zalrpakraft.player.Achievements.award(sp, "twelve_eyes");
+                }
+            }
+        }
         if (dirty) ProgressService.sync(sp);
     }
 
@@ -225,7 +242,9 @@ public final class CommonEvents {
                 e.getDrops().add(ie);
             }
         }
+        int fighters = sl.getPlayers(p -> !p.isSpectator() && p.distanceToSqr(le) < 64 * 64).size();
         for (ServerPlayer p : near) {
+            if (fighters >= 4) dev.zalrpakraft.player.Achievements.award(p, "fellowship");
             PlayerProgress pr = ProgressService.of(p);
             pr.kills.add(id.toString());
             ProgressService.update(p);

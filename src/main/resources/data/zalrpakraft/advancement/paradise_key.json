@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:paradise_key"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.paradise_key.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.paradise_key.desc"
+  },
+  "frame": "goal",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:nether_key"
+}

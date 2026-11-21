@@ -74,6 +74,8 @@ public class EndEyeItem extends Item {
                 for (int j = 0; j < 3; j++)
                     level.setBlock(corner.offset(i, 0, j), Blocks.END_PORTAL.defaultBlockState(), 2);
             level.globalLevelEvent(1038, corner.offset(1, 0, 1), 0);
+            for (net.minecraft.server.level.ServerPlayer sp : ((ServerLevel) level).getPlayers(pl -> pl.distanceToSqr(corner.getX(), corner.getY(), corner.getZ()) < 48 * 48))
+                dev.zalrpakraft.player.Achievements.award(sp, "portal");
         }
         return InteractionResult.CONSUME;
     }

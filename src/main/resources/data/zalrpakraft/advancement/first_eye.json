@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:eye_rust"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.first_eye.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.first_eye.desc"
+  },
+  "frame": "task",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:first_meteor"
+}

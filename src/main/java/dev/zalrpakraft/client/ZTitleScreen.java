@@ -1,0 +1,177 @@
+package dev.zalrpakraft.client;
+
+import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.options.LanguageSelectScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.client.gui.ModListScreen;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Главное меню сборки: живое звёздное небо, кольцо из 12 глаз, логотип и стилизованные кнопки. */
+public class ZTitleScreen extends Screen {
+    private static final int[] EYE_COLORS = {0xE3A15F, 0xD8F4FF, 0xFFF2A0, 0xE6E0FF, 0x5FE0D0, 0xFFD24A,
+            0xFF7A2E, 0x4FB8C9, 0xFFE9B0, 0xF2C55C, 0xF7E26B, 0xC9B7FF};
+    private static final int SPLASHES = 8;
+
+    private final List<float[]> stars = new ArrayList<>();
+    private final long openedAt = Util.getMillis();
+    private float[] meteor; // x, y, vx, vy, life
+    private final RandomSource rnd = RandomSource.create();
+    private final int splash = RandomSource.create().nextInt(SPLASHES);
+    private String versionLine = "";
+
+    public ZTitleScreen() {
+        super(Component.translatable("zalrpakraft.menu.title"));
+        RandomSource r = RandomSource.create(1337);
+        for (int i = 0; i < 700; i++)
+            stars.add(new float[]{r.nextFloat(), r.nextFloat(), 0.2f + r.nextFloat() * 0.8f, r.nextFloat() * 6.28f, 0.2f + r.nextFloat()});
+    }
+
+    @Override
+    protected void init() {
+        int bw = 204, bh = 22, gap = 5;
+        int x = width / 2 - bw / 2;
+        int y = Math.max(height / 2 - 4, (int) (height * 0.43f));
+        addRenderableWidget(new StarButton(x, y, bw, bh, Component.translatable("menu.singleplayer"),
+                () -> minecraft.setScreen(new SelectWorldScreen(this))));
+        y += bh + gap;
+        addRenderableWidget(new StarButton(x, y, bw, bh, Component.translatable("menu.multiplayer"),
+                () -> minecraft.setScreen(new JoinMultiplayerScreen(this))));
+        y += bh + gap;
+        addRenderableWidget(new StarButton(x, y, bw, bh, Component.translatable("fml.menu.mods"),
+                () -> minecraft.setScreen(new ModListScreen(this))));
+        y += bh + gap;
+        int half = (bw - gap) / 2;
+        addRenderableWidget(new StarButton(x, y, half, bh, Component.translatable("menu.options"),
+                () -> minecraft.setScreen(new OptionsScreen(this, minecraft.options))));
+        addRenderableWidget(new StarButton(x + half + gap, y, bw - half - gap, bh, Component.translatable("options.language"),
+                () -> minecraft.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager()))));
+        y += bh + gap + 6;
+        addRenderableWidget(new StarButton(x + bw / 4, y, bw / 2, bh, Component.translatable("menu.quit"),
+                () -> minecraft.stop()));
+
+        String neo = ModList.get().getModContainerById("neoforge").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
+        String own = ModList.get().getModContainerById("zalrpakraft").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
+        versionLine = "Minecraft 1.21.1 · NeoForge " + neo + " · Zalrpakraft " + own + " · " + ModList.get().size() + " mods";
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics g, int mx, int my, float pt) {
+        float t = (Util.getMillis() - openedAt) / 50f;
+        g.fillGradient(0, 0, width, height, 0xFF05081A, 0xFF170A28);
+        // туманности медленно дрейфуют
+        nebula(g, width * 0.25f + Mth.sin(t * 0.004f) * 30, height * 0.3f, width * 0.35f, 0x3A6BD1);
+        nebula(g, width * 0.78f, height * 0.62f + Mth.cos(t * 0.003f) * 25, width * 0.4f, 0x9B4DCB);
+        nebula(g, width * 0.55f, height * 0.12f, width * 0.22f, 0xD15FA0);
+        // звёзды с параллаксом за мышью
+        float px = (mx - width / 2f) / width, py = (my - height / 2f) / height;
+        for (float[] s : stars) {
+            float x = ((s[0] * width + t * 0.05f * s[4] - px * 14 * s[4]) % width + width) % width;
+            float y = s[1] * height - py * 10 * s[4];
+            float tw = 0.55f + 0.45f * Mth.sin(t * 0.07f + s[3]);
+            int a = Mth.clamp((int) (255 * s[2] * tw), 0, 255);
+            int size = s[4] > 1.05f ? 2 : 1;
+            g.fill((int) x, (int) y, (int) x + size, (int) y + size, (a << 24) | 0xFFFFFF);
+        }
+        // метеор
+        if (meteor == null && rnd.nextInt(240) == 0)
+            meteor = new float[]{rnd.nextFloat() * width * 0.8f + width * 0.2f, -10, -3.2f - rnd.nextFloat() * 2, 1.6f + rnd.nextFloat(), 0};
+        if (meteor != null) {
+            meteor[0] += meteor[2]; meteor[1] += meteor[3]; meteor[4] += 1;
+            for (int i = 0; i < 26; i++) {
+                int a = (int) (220 * (1f - i / 26f));
+                int x = (int) (meteor[0] - meteor[2] * i * 0.9f), y = (int) (meteor[1] - meteor[3] * i * 0.9f);
+                g.fill(x, y, x + 2, y + 1, (a << 24) | (i < 3 ? 0xFFFFFF : 0xFFB070));
+            }
+            if (meteor[1] > height + 20 || meteor[0] < -40) meteor = null;
+        }
+        // кольцо из 12 глаз вокруг логотипа
+        float cx = width / 2f, cy = logoY() + 12;
+        float rx = Math.min(width * 0.36f, 210), ry = rx * 0.32f;
+        for (int i = 0; i < 12; i++) {
+            double a = t * 0.004 + i * Math.PI / 6;
+            float ex = cx + (float) Math.cos(a) * rx, ey = cy + (float) Math.sin(a) * ry;
+            float depth = 0.5f + 0.5f * (float) Math.sin(a);
+            int al = (int) (60 + 150 * depth);
+            disc(g, ex, ey, 2.5f + depth * 2f, (al << 24) | EYE_COLORS[i]);
+            disc(g, ex, ey, 6f + depth * 3f, ((int) (18 * depth) << 24) | EYE_COLORS[i]);
+        }
+        // затемнение под кнопками
+        g.fillGradient(0, height / 2, width, height, 0x00000000, 0x70000000);
+    }
+
+    private float logoY() {
+        return Math.max(24, height * 0.2f);
+    }
+
+    @Override
+    public void render(GuiGraphics g, int mx, int my, float pt) {
+        super.render(g, mx, my, pt);
+        float t = (Util.getMillis() - openedAt) / 1000f;
+        float fade = Mth.clamp(t / 1.2f, 0f, 1f);
+
+        // логотип
+        Component logo = Component.literal("ZALRPAKRAFT");
+        int lw = font.width(logo);
+        float scale = Math.min(4.2f, width * 0.78f / lw);
+        float ly = logoY();
+        g.pose().pushPose();
+        g.pose().translate(width / 2f, ly, 0);
+        g.pose().scale(scale, scale, 1);
+        int x = -lw / 2;
+        int alpha = Mth.clamp((int) (fade * 255), 8, 255);
+        for (int i = 3; i >= 1; i--) // свечение
+            g.drawString(font, logo, x, i, ((int) (alpha * 0.22f) << 24) | 0x6A3FD0, false);
+        g.drawString(font, logo, x + 1, 1, (alpha << 24) | 0x1A0E30, false);
+        g.drawString(font, logo, x, 0, (alpha << 24) | 0xF1E6FF, false);
+        // блик бежит по буквам
+        float sweep = (t * 0.35f) % 1.6f;
+        if (sweep < 1f) {
+            int sx = (int) (x + sweep * lw);
+            g.fill(sx, -1, sx + 2, 9, ((int) (alpha * 0.5f) << 24) | 0xFFFFFF);
+        }
+        g.pose().popPose();
+        Component sub = Component.translatable("zalrpakraft.menu.subtitle");
+        g.drawCenteredString(font, sub, width / 2, (int) (ly + 9 * scale + 6), (alpha << 24) | 0xB79CFF);
+
+        // фраза дня
+        g.pose().pushPose();
+        g.pose().translate(width / 2f + lw * scale / 2f - 6, ly + 9 * scale, 0);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-14f));
+        float s = 1.0f + Math.abs(Mth.sin(t * 3.4f)) * 0.08f;
+        g.pose().scale(s, s, 1);
+        Component sp = Component.translatable("zalrpakraft.menu.splash" + splash);
+        g.drawCenteredString(font, sp, 0, 0, (alpha << 24) | 0xFFE08A);
+        g.pose().popPose();
+
+        g.drawString(font, versionLine, 4, height - 10, 0x907A70A0, false);
+        String copy = "Copyright Mojang AB. Do not distribute!";
+        g.drawString(font, copy, width - font.width(copy) - 4, height - 10, 0x907A70A0, false);
+    }
+
+    private static void disc(GuiGraphics g, float cx, float cy, float r, int col) {
+        int ri = Math.max(1, (int) r);
+        for (int dy = -ri; dy <= ri; dy++) {
+            int w = (int) Math.sqrt(Math.max(0, r * r - dy * dy));
+            g.fill((int) cx - w, (int) cy + dy, (int) cx + w + 1, (int) cy + dy + 1, col);
+        }
+    }
+
+    private static void nebula(GuiGraphics g, float cx, float cy, float r, int rgb) {
+        for (int i = 7; i >= 1; i--) disc(g, cx, cy, r * i / 7f, (5 << 24) | rgb);
+    }
+}

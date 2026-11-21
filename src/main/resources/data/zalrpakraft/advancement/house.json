@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "minecraft:spruce_door"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.house.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.house.desc"
+  },
+  "frame": "task",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:journal"
+}

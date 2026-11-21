@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "zalrpakraft:meteor_shard"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.first_meteor.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.first_meteor.desc"
+  },
+  "frame": "task",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:table"
+}

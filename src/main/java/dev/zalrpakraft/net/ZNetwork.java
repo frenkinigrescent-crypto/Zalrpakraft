@@ -17,6 +17,9 @@ public final class ZNetwork {
         r.playToClient(OpenMapPayload.TYPE, OpenMapPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
             if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientHooks.openMap(p.mapJson(), p.progress());
         }));
+        r.playToClient(PlaquePayload.TYPE, PlaquePayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.PlaqueOverlay.push(p.id(), p.icon(), p.frame());
+        }));
         r.playBidirectional(SimplePayload.TYPE, SimplePayload.CODEC, ZNetwork::handleSimple);
     }
 
@@ -27,6 +30,7 @@ public final class ZNetwork {
                     PlayerProgress pr = ProgressService.of(sp);
                     if (!pr.journalRead) {
                         pr.journalRead = true;
+                        dev.zalrpakraft.player.Achievements.award(sp, "journal");
                         ProgressService.sync(sp);
                     }
                 }

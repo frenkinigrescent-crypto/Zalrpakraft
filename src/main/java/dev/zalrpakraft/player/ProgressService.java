@@ -51,7 +51,9 @@ public final class ProgressService {
         if (first) {
             p.displayClientMessage(Component.translatable("zalrpakraft.table.first").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC), false);
         }
+        Achievements.award(p, "house");
         update(p);
+        Achievements.checkMap(p, pr);
         sync(p);
         CompoundTag t = pr.write();
         PacketDistributor.sendToPlayer(p, new OpenMapPayload(ProgressionMap.rawJson(), t));
@@ -93,6 +95,7 @@ public final class ProgressService {
                 announce(p, n);
             }
         }
+        if (any) Achievements.checkMap(p, pr);
         return any;
     }
 

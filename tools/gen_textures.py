@@ -219,3 +219,56 @@ for y in range(56,72):
     for x in range(61,67): p[x,y]=(20,10,30,255)
 logo.save(os.path.join(ROOT,"zalrpakraft_logo.png"))
 print("ok")
+
+# ---------- иконка окна: «звёздный глаз» ----------
+ICONS = os.path.join(ROOT, "assets", "zalrpakraft", "icons")
+os.makedirs(ICONS, exist_ok=True)
+def star_eye(size):
+    S = size * 4  # суперсэмплинг
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0)); p = im.load()
+    c = S / 2; R = S * 0.47
+    rr = random.Random(11)
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - c, y - c)
+            if d <= R:
+                t = d / R
+                base = mix(hexc("#2A1659"), hexc("#07050F"), t)
+                if d > R - S * 0.035: base = hexc("#B79CFF")
+                p[x, y] = base
+    for _ in range(int(S * 0.6)):
+        x, y = rr.randint(0, S - 1), rr.randint(0, S - 1)
+        if math.hypot(x - c, y - c) < R * 0.9:
+            b = rr.randint(150, 255)
+            for dx in range(max(1, S // 64)):
+                for dy in range(max(1, S // 64)):
+                    if x+dx < S and y+dy < S: p[x+dx, y+dy] = (b, b, 255, 255)
+    # глаз (миндалина)
+    ew, eh = R * 0.78, R * 0.42
+    for y in range(S):
+        for x in range(S):
+            X, Y = (x - c) / ew, (y - c) / eh
+            if abs(Y) <= (1 - X * X) and abs(X) <= 1:
+                d = math.hypot(x - c, y - c)
+                if d < R * 0.34:
+                    t = d / (R * 0.34)
+                    p[x, y] = shade(mix(hexc("#FFE9A0"), hexc("#B07CFF"), t), 1.15 - 0.3 * t)
+                    if abs(x - c) < R * 0.055 and abs(y - c) < R * 0.27: p[x, y] = (14, 6, 24, 255)
+                else:
+                    p[x, y] = (236, 228, 250, 255)
+                if abs(Y) > (1 - X * X) - 0.09: p[x, y] = (40, 22, 70, 255)
+    # лучи звезды
+    for i in range(-int(R), int(R) + 1):
+        a = int(255 * (1 - abs(i) / R) ** 2)
+        w = max(1, S // 48)
+        for k in range(-w, w + 1):
+            for (x, y) in ((int(c + i), int(c + k)), (int(c + k), int(c + i))):
+                if 0 <= x < S and 0 <= y < S and math.hypot(x - c, y - c) > R * 0.36:
+                    q = p[x, y]
+                    p[x, y] = mix(q if q[3] else (0,0,0,0), (255, 240, 200, 255), a / 255)
+    im = im.resize((size, size), Image.LANCZOS)
+    return im
+for s in (16, 32, 48, 128, 256):
+    star_eye(s).save(os.path.join(ICONS, f"icon_{s}.png"))
+star_eye(128).save(os.path.join(ROOT, "zalrpakraft_logo.png"))
+print("icons ok")

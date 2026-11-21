@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "id": "minecraft:nether_star"
+  },
+  "title": {
+   "translate": "zalrpakraft.adv.stargazer.title"
+  },
+  "description": {
+   "translate": "zalrpakraft.adv.stargazer.desc"
+  },
+  "frame": "challenge",
+  "show_toast": false,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "zalrpakraft:planets_10"
+}

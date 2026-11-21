@@ -20,6 +20,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
     public final Set<String> visitedDims = new LinkedHashSet<>();
     public final Set<String> studied = new LinkedHashSet<>();
     public final Set<String> kills = new LinkedHashSet<>();
+    public final Set<String> eyesSeen = new LinkedHashSet<>();
 
     public CompoundTag write() {
         CompoundTag t = new CompoundTag();
@@ -31,6 +32,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         t.put("visitedDims", list(visitedDims));
         t.put("studied", list(studied));
         t.put("kills", list(kills));
+        t.put("eyesSeen", list(eyesSeen));
         return t;
     }
 
@@ -43,6 +45,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         fill(visitedDims, t, "visitedDims");
         fill(studied, t, "studied");
         fill(kills, t, "kills");
+        fill(eyesSeen, t, "eyesSeen");
     }
 
     private static ListTag list(Set<String> s) {

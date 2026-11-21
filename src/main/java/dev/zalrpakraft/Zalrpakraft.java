@@ -30,6 +30,7 @@ public class Zalrpakraft {
         modBus.addListener(ZNetwork::register);
 
         container.registerConfig(ModConfig.Type.COMMON, ZConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, dev.zalrpakraft.client.ZClientConfig.SPEC);
 
         BossTable.load();
         ProgressionMap.load();
