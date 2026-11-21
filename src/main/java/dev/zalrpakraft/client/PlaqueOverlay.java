@@ -79,7 +79,10 @@ public final class PlaqueOverlay {
         int w = Math.max(190, Math.max(mc.font.width(title), mc.font.width(header)) + 64);
         int h = 36;
         int cx = g.guiWidth() / 2;
-        int top = 34 - (int) (leave * 26);
+        int baseTop = 34;
+        boolean hudShown = System.currentTimeMillis() - QuestHud.lastFrame < 200;
+        if (hudShown && cx + w / 2 + 12 > QuestHud.lastLeft) baseTop = Math.max(baseTop, QuestHud.lastBottom + 10);
+        int top = baseTop - (int) (leave * 26);
 
         g.pose().pushPose();
         g.pose().translate(cx, top + h / 2f, 400);

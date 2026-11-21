@@ -38,9 +38,14 @@ public class ZTitleScreen extends Screen {
 
     @Override
     protected void init() {
-        int bw = 204, bh = 22, gap = 5;
+        int bw = Math.min(204, width - 20);
+        int gap = height < 260 ? 3 : 5;
+        int bh = height < 260 ? 20 : 22;
+        int rows = 4;
+        int block = rows * bh + (rows - 1) * gap;
         int x = width / 2 - bw / 2;
-        int y = Math.max(height / 2 - 4, (int) (height * 0.43f));
+        int y = Math.min(logoBottom() + 12, height - 26 - block);
+        y = Math.max(y, logoBottom() + 4);
         addRenderableWidget(new StarButton(x, y, bw, bh, Component.translatable("menu.singleplayer"),
                 () -> minecraft.setScreen(new SelectWorldScreen(this))));
         y += bh + gap;
@@ -50,13 +55,12 @@ public class ZTitleScreen extends Screen {
         addRenderableWidget(new StarButton(x, y, bw, bh, Component.translatable("fml.menu.mods"),
                 () -> minecraft.setScreen(new ModListScreen(this))));
         y += bh + gap;
-        int half = (bw - gap) / 2;
-        addRenderableWidget(new StarButton(x, y, half, bh, Component.translatable("menu.options"),
+        int third = (bw - 2 * gap) / 3;
+        addRenderableWidget(new StarButton(x, y, third, bh, Component.translatable("menu.options"),
                 () -> minecraft.setScreen(new OptionsScreen(this, minecraft.options))));
-        addRenderableWidget(new StarButton(x + half + gap, y, bw - half - gap, bh, Component.translatable("options.language"),
+        addRenderableWidget(new StarButton(x + third + gap, y, third, bh, Component.translatable("options.language"),
                 () -> minecraft.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager()))));
-        y += bh + gap + 6;
-        addRenderableWidget(new StarButton(x + bw / 4, y, bw / 2, bh, Component.translatable("menu.quit"),
+        addRenderableWidget(new StarButton(x + 2 * (third + gap), y, bw - 2 * (third + gap), bh, Component.translatable("menu.quit"),
                 () -> minecraft.stop()));
 
         String neo = ModList.get().getModContainerById("neoforge").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
@@ -114,8 +118,16 @@ public class ZTitleScreen extends Screen {
         g.fillGradient(0, height / 2, width, height, 0x00000000, 0x70000000);
     }
 
+    private float logoScale() {
+        return Math.min(4.2f, Math.min(width * 0.78f / font.width("ZALRPAKRAFT"), height / 64f));
+    }
+
     private float logoY() {
-        return Math.max(24, height * 0.2f);
+        return Math.max(14, height * 0.16f);
+    }
+
+    private int logoBottom() {
+        return (int) (logoY() + 9 * logoScale() + 18);
     }
 
     @Override
@@ -127,7 +139,7 @@ public class ZTitleScreen extends Screen {
         // логотип
         Component logo = Component.literal("ZALRPAKRAFT");
         int lw = font.width(logo);
-        float scale = Math.min(4.2f, width * 0.78f / lw);
+        float scale = logoScale();
         float ly = logoY();
         g.pose().pushPose();
         g.pose().translate(width / 2f, ly, 0);
@@ -158,9 +170,11 @@ public class ZTitleScreen extends Screen {
         g.drawCenteredString(font, sp, 0, 0, (alpha << 24) | 0xFFE08A);
         g.pose().popPose();
 
-        g.drawString(font, versionLine, 4, height - 10, 0x907A70A0, false);
         String copy = "Copyright Mojang AB. Do not distribute!";
-        g.drawString(font, copy, width - font.width(copy) - 4, height - 10, 0x907A70A0, false);
+        int cw = font.width(copy);
+        g.drawString(font, copy, width - cw - 4, height - 10, 0x907A70A0, false);
+        if (font.width(versionLine) + cw + 16 < width) g.drawString(font, versionLine, 4, height - 10, 0x907A70A0, false);
+        else g.drawString(font, versionLine, width - font.width(versionLine) - 4, height - 20, 0x907A70A0, false);
     }
 
     private static void disc(GuiGraphics g, float cx, float cy, float r, int col) {

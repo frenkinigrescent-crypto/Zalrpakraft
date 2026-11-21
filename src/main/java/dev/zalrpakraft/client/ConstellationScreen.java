@@ -52,6 +52,21 @@ public class ConstellationScreen extends Screen {
     }
 
     @Override
+    protected void init() {
+        float minX = 0, maxX = 0, minY = 0, maxY = 0;
+        for (Node n : nodes.values()) {
+            if (hidden(n)) continue;
+            minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+            minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+        }
+        float fit = Math.min((width - 40) / Math.max(1f, maxX - minX + 80), (height - 70) / Math.max(1f, maxY - minY + 80));
+        targetZoom = Mth.clamp(fit, 0.3f, 1.2f);
+        zoom = targetZoom * 0.8f;
+        panX = -(minX + maxX) / 2f;
+        panY = -(minY + maxY) / 2f + 6 / targetZoom;
+    }
+
+    @Override
     public boolean isPauseScreen() {
         return false;
     }
@@ -114,6 +129,8 @@ public class ConstellationScreen extends Screen {
                 Node r = nodes.get(rid);
                 if (r == null || hidden(r)) continue;
                 if (n.kind == Kind.PLANET && r.kind == Kind.GALAXY) continue; // планеты и так вокруг галактики
+                if (r.kind == Kind.ROOT && n.kind != Kind.GALAXY) continue;      // не тянем лучи от стола ко всему подряд
+                if (!isStudied(n) && !isAvailable(n) && !isStudied(r)) continue;  // показываем только освоенное и фронтир
                 boolean lit = isStudied(n) && isStudied(r);
                 boolean open = isStudied(r);
                 int col = lit ? (0xC0000000 | (n.color & 0xFFFFFF)) : open ? 0x70B8A8E8 : 0x28FFFFFF;

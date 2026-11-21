@@ -12,6 +12,9 @@ import java.util.List;
 /** Текущее задание в правом верхнем углу. */
 public final class QuestHud {
     private static final int WIDTH = 168;
+    /** Где панель была нарисована в последнем кадре (для плашек). */
+    public static int lastLeft = Integer.MAX_VALUE, lastBottom = 0;
+    public static long lastFrame = 0;
 
     public static Component decode(String s) {
         if (s == null || s.isEmpty()) return Component.empty();
@@ -40,6 +43,9 @@ public final class QuestHud {
         int x = (int) (g.guiWidth() - 6 - WIDTH * slide);
         int y = 6;
 
+        lastLeft = x;
+        lastBottom = y + h;
+        lastFrame = System.currentTimeMillis();
         g.fill(x, y, x + WIDTH, y + h, 0xB0100A1C);
         int border = flash > 0 ? lerpColor(0xFF7A5BA8, 0xFFFFE08A, flash) : 0xFF7A5BA8;
         g.fill(x, y, x + WIDTH, y + 1, border);
