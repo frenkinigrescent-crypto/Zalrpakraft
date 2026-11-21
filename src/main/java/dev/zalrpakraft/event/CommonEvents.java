@@ -56,7 +56,7 @@ public final class CommonEvents {
         MinecraftServer server = e.getServer();
         HouseBuilder.ensureBuilt(server.overworld());
         int found = BossTable.validate();
-        Zalrpakraft.LOG.info("Zalrpakraft: найдено боссов из таблицы в сборке: {}", found);
+        Zalrpakraft.LOG.info("Zalepacraft: найдено боссов из таблицы в сборке: {}", found);
 
         String selftest = System.getProperty("zalrpakraft.selftest", "");
         if (!selftest.isEmpty()) runSelfTest(server, Path.of(selftest));
@@ -89,7 +89,7 @@ public final class CommonEvents {
         } catch (Exception ex) {
             Zalrpakraft.LOG.error("selftest write failed", ex);
         }
-        Zalrpakraft.LOG.info("Zalrpakraft selftest:\n{}", sb);
+        Zalrpakraft.LOG.info("Zalepacraft selftest:\n{}", sb);
         server.halt(false);
     }
 

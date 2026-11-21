@@ -36,7 +36,7 @@ public class Zalrpakraft {
         ProgressionMap.load();
 
         NeoForge.EVENT_BUS.register(CommonEvents.class);
-        LOG.info("Zalrpakraft: загружен");
+        LOG.info("Zalepacraft: загружен");
     }
 
     public static ResourceLocation id(String path) {

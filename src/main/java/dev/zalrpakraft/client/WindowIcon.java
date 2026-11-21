@@ -46,7 +46,7 @@ public final class WindowIcon {
             images.position(0);
             GLFW.glfwSetWindowIcon(Minecraft.getInstance().getWindow().getWindow(), images);
         } catch (Exception e) {
-            Zalrpakraft.LOG.warn("Zalrpakraft: не удалось поставить иконку окна", e);
+            Zalrpakraft.LOG.warn("Zalepacraft: не удалось поставить иконку окна", e);
         } finally {
             images.free();
             buffers.forEach(MemoryUtil::memFree);

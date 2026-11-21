@@ -44,9 +44,9 @@ public final class ProgressionMap {
         rawJson = JsonConfigFile.readOrCreate("progression.json");
         try {
             nodes = parse(rawJson);
-            Zalrpakraft.LOG.info("Zalrpakraft: узлов на звёздной карте: {}", nodes.size());
+            Zalrpakraft.LOG.info("Zalepacraft: узлов на звёздной карте: {}", nodes.size());
         } catch (Exception e) {
-            Zalrpakraft.LOG.error("Zalrpakraft: ошибка в progression.json", e);
+            Zalrpakraft.LOG.error("Zalepacraft: ошибка в progression.json", e);
             nodes = Collections.emptyMap();
         }
     }

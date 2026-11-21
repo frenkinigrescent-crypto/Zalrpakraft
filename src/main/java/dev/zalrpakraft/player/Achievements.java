@@ -18,7 +18,7 @@ public final class Achievements {
     public static void award(ServerPlayer p, String id) {
         AdvancementHolder h = p.server.getAdvancements().get(Zalrpakraft.id(id));
         if (h == null) {
-            Zalrpakraft.LOG.warn("Zalrpakraft: нет достижения {}", id);
+            Zalrpakraft.LOG.warn("Zalepacraft: нет достижения {}", id);
             return;
         }
         AdvancementProgress pr = p.getAdvancements().getOrStartProgress(h);

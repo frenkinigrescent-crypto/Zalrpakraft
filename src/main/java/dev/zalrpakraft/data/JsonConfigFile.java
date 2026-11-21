@@ -21,11 +21,11 @@ final class JsonConfigFile {
                     if (in == null) throw new IOException("нет ресурса /defaults/" + name);
                     Files.write(file, in.readAllBytes());
                 }
-                Zalrpakraft.LOG.info("Zalrpakraft: создан {}", file);
+                Zalrpakraft.LOG.info("Zalepacraft: создан {}", file);
             }
             return Files.readString(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Zalrpakraft.LOG.error("Zalrpakraft: не удалось прочитать {}, беру встроенный", file, e);
+            Zalrpakraft.LOG.error("Zalepacraft: не удалось прочитать {}, беру встроенный", file, e);
             try (InputStream in = JsonConfigFile.class.getResourceAsStream("/defaults/" + name)) {
                 return in == null ? "{}" : new String(in.readAllBytes(), StandardCharsets.UTF_8);
             } catch (IOException e2) {

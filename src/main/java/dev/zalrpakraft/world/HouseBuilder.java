@@ -57,7 +57,7 @@ public final class HouseBuilder {
         st.tablePos = chosen.above();
         st.houseBuilt = true;
         st.setDirty();
-        Zalrpakraft.LOG.info("Zalrpakraft: домик незнакомца построен на {}", chosen);
+        Zalrpakraft.LOG.info("Zalepacraft: домик незнакомца построен на {}", chosen);
     }
 
     private static boolean flatEnough(ServerLevel level, int cx, int cz, int y) {

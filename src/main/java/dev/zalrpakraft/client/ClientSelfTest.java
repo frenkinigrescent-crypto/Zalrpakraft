@@ -64,7 +64,7 @@ public final class ClientSelfTest {
             }
             case 305 -> shot(mc, "zk_6_journal.png");
             case 320 -> {
-                Zalrpakraft.LOG.info("Zalrpakraft clienttest: DONE");
+                Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                 mc.stop();
             }
             default -> {}
@@ -72,7 +72,7 @@ public final class ClientSelfTest {
     }
 
     private static void shot(Minecraft mc, String name) {
-        Screenshot.grab(mc.gameDirectory, name, mc.getMainRenderTarget(), c -> Zalrpakraft.LOG.info("Zalrpakraft clienttest: {}", c.getString()));
+        Screenshot.grab(mc.gameDirectory, name, mc.getMainRenderTarget(), c -> Zalrpakraft.LOG.info("Zalepacraft clienttest: {}", c.getString()));
     }
 
     /** Экран-витрина: звёздный фон меню + плашка / задание / кадр пробуждения. */

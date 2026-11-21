@@ -1,4 +1,6 @@
-# Zalrpakraft
+# Zalepacraft
+
+(внутренний ID мода — `zalrpakraft`, папки конфигов называются так же)
 
 Связующий мод сборки (Minecraft 1.21.1, NeoForge).
 
@@ -19,7 +21,7 @@
 
 ## Настройка без пересборки
 - `config/zalrpakraft-common.toml` — множители боссов, замки измерений, интро.
-- `config/zalrpakraft/bosses.json` — ID боссов → трофей → метеор на карте. При запуске мод пишет в лог, каких ID нет в сборке (`Zalrpakraft: босс … не найден`).
+- `config/zalrpakraft/bosses.json` — ID боссов → трофей → метеор на карте. При запуске мод пишет в лог, каких ID нет в сборке (`Zalepacraft: босс … не найден`).
 - `config/zalrpakraft/progression.json` — вся звёздная карта: узлы, координаты, условия, подсказки.
 
 ## Сборка

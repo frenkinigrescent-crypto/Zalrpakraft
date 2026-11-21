@@ -1,5 +1,5 @@
 {
- "itemGroup.zalrpakraft": "Zalrpakraft",
+ "itemGroup.zalrpakraft": "Zalepacraft",
  "block.zalrpakraft.star_table": "Звёздный стол",
  "item.zalrpakraft.star_table": "Звёздный стол",
  "item.zalrpakraft.stranger_journal": "Дневник незнакомца",
@@ -160,7 +160,7 @@
  "zalrpakraft.plaque.task": "Достижение получено",
  "zalrpakraft.plaque.goal": "Цель достигнута",
  "zalrpakraft.plaque.challenge": "Испытание пройдено",
- "zalrpakraft.menu.title": "Zalrpakraft",
+ "zalrpakraft.menu.title": "Zalepacraft",
  "zalrpakraft.menu.subtitle": "— двенадцать глаз смотрят на тебя —",
  "zalrpakraft.menu.splash0": "Не ходи один!",
  "zalrpakraft.menu.splash1": "Дверь не заперта",

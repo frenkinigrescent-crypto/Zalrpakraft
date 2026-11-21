@@ -65,7 +65,7 @@ public class ZTitleScreen extends Screen {
 
         String neo = ModList.get().getModContainerById("neoforge").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
         String own = ModList.get().getModContainerById("zalrpakraft").map(c -> c.getModInfo().getVersion().toString()).orElse("?");
-        versionLine = "Minecraft 1.21.1 · NeoForge " + neo + " · Zalrpakraft " + own + " · " + ModList.get().size() + " mods";
+        versionLine = "Minecraft 1.21.1 · NeoForge " + neo + " · Zalepacraft " + own + " · " + ModList.get().size() + " mods";
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ZTitleScreen extends Screen {
     }
 
     private float logoScale() {
-        return Math.min(4.2f, Math.min(width * 0.78f / font.width("ZALRPAKRAFT"), height / 64f));
+        return Math.min(4.2f, Math.min(width * 0.78f / font.width("ZALEPACRAFT"), height / 64f));
     }
 
     private float logoY() {
@@ -137,7 +137,7 @@ public class ZTitleScreen extends Screen {
         float fade = Mth.clamp(t / 1.2f, 0f, 1f);
 
         // логотип
-        Component logo = Component.literal("ZALRPAKRAFT");
+        Component logo = Component.literal("ZALEPACRAFT");
         int lw = font.width(logo);
         float scale = logoScale();
         float ly = logoY();

@@ -49,9 +49,9 @@ public final class BossTable {
                         o.has("meteor") ? o.get("meteor").getAsString() : "",
                         ent.contains("*")));
             }
-            Zalrpakraft.LOG.info("Zalrpakraft: боссов в таблице: {}", ENTRIES.size());
+            Zalrpakraft.LOG.info("Zalepacraft: боссов в таблице: {}", ENTRIES.size());
         } catch (Exception e) {
-            Zalrpakraft.LOG.error("Zalrpakraft: ошибка в bosses.json", e);
+            Zalrpakraft.LOG.error("Zalepacraft: ошибка в bosses.json", e);
         }
     }
 
@@ -75,18 +75,18 @@ public final class BossTable {
                 if (id != null && BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
                     found++;
                 } else {
-                    Zalrpakraft.LOG.warn("Zalrpakraft: босс {} не найден в сборке (проверьте ID в config/zalrpakraft/bosses.json)", e.entityPattern());
+                    Zalrpakraft.LOG.warn("Zalepacraft: босс {} не найден в сборке (проверьте ID в config/zalrpakraft/bosses.json)", e.entityPattern());
                 }
             } else {
                 String ns = e.entityPattern().split(":", 2)[0];
                 boolean any = BuiltInRegistries.ENTITY_TYPE.keySet().stream()
                         .anyMatch(rl -> Entry.part(ns, rl.getNamespace()));
-                if (!any) Zalrpakraft.LOG.warn("Zalrpakraft: нет ни одного моба под шаблон {}", e.entityPattern());
+                if (!any) Zalrpakraft.LOG.warn("Zalepacraft: нет ни одного моба под шаблон {}", e.entityPattern());
             }
             if (!e.drop().isEmpty()) {
                 ResourceLocation d = ResourceLocation.tryParse(e.drop());
                 if (d == null || !BuiltInRegistries.ITEM.containsKey(d)) {
-                    Zalrpakraft.LOG.warn("Zalrpakraft: предмет {} из bosses.json не найден", e.drop());
+                    Zalrpakraft.LOG.warn("Zalepacraft: предмет {} из bosses.json не найден", e.drop());
                 }
             }
         }
