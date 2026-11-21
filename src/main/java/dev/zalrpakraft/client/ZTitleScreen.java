@@ -160,14 +160,17 @@ public class ZTitleScreen extends Screen {
         Component sub = Component.translatable("zalrpakraft.menu.subtitle");
         g.drawCenteredString(font, sub, width / 2, (int) (ly + 9 * scale + 6), (alpha << 24) | 0xB79CFF);
 
-        // фраза дня
-        g.pose().pushPose();
-        g.pose().translate(width / 2f + lw * scale / 2f - 10, ly + 2, 0);
-        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-16f));
-        float s = 1.0f + Math.abs(Mth.sin(t * 3.4f)) * 0.08f;
-        g.pose().scale(s, s, 1);
+        // фраза дня: начинается у правого края логотипа и уходит вправо-вверх, сжимается, если не влезает
         Component sp = Component.translatable("zalrpakraft.menu.splash" + splash);
-        g.drawCenteredString(font, sp, 0, 0, (alpha << 24) | 0xFFE08A);
+        float ax = width / 2f + lw * scale / 2f - 4;
+        float room = width - ax - 6;
+        float fit = Mth.clamp(room / Math.max(1, font.width(sp)), 0.55f, 1.0f);
+        g.pose().pushPose();
+        g.pose().translate(ax, ly + 4, 0);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-16f));
+        float s = fit * (1.0f + Math.abs(Mth.sin(t * 3.4f)) * 0.06f);
+        g.pose().scale(s, s, 1);
+        g.drawString(font, sp, 0, -4, (alpha << 24) | 0xFFE08A, true);
         g.pose().popPose();
 
         String copy = "Copyright Mojang AB. Do not distribute!";
