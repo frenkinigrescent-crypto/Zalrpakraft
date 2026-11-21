@@ -23,6 +23,7 @@ neoForge {
     runs {
         client {
             client()
+            systemProperty 'zalrpakraft.clienttest', System.getenv('ZK_CLIENTTEST') ?: ''
         }
         server {
             server()

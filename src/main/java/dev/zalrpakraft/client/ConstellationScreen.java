@@ -61,8 +61,11 @@ public class ConstellationScreen extends Screen {
         ticks++;
     }
 
+    /** Самотест: показывать планеты модов, которых нет в сборке. */
+    public static boolean showAll = false;
+
     private boolean hidden(Node n) {
-        return n.kind == Kind.PLANET && !n.mod.isEmpty() && !ModList.get().isLoaded(n.mod);
+        return !showAll && n.kind == Kind.PLANET && !n.mod.isEmpty() && !ModList.get().isLoaded(n.mod);
     }
 
     private boolean isStudied(Node n) {

@@ -14,6 +14,11 @@ public final class IntroController {
     public static final int LENGTH = 220;
     private static int tick = -1;
 
+    /** Только для самотеста: заморозить анимацию на кадре. */
+    public static void freezeAt(int t) {
+        tick = t;
+    }
+
     public static void start() {
         tick = 0;
     }
@@ -27,7 +32,7 @@ public final class IntroController {
     }
 
     public static void clientTick() {
-        if (tick < 0) return;
+        if (tick < 0 || ClientSelfTest.ENABLED) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         if (mc.isPaused()) return;

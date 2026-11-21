@@ -28,11 +28,13 @@ public final class QuestHud {
         if (mc.getDebugOverlay().showDebugScreen()) return;
 
         float since = (mc.level.getGameTime() - ClientState.questChangedAt) + delta.getGameTimeDeltaPartialTick(true);
+        draw(g, decode(ClientState.questTitle), decode(ClientState.questText), since);
+    }
+
+    public static void draw(GuiGraphics g, Component title, Component text, float since) {
+        Minecraft mc = Minecraft.getInstance();
         float slide = IntroController.ease(Mth.clamp(since / 14f, 0f, 1f));
         float flash = Mth.clamp(1f - since / 40f, 0f, 1f);
-
-        Component title = decode(ClientState.questTitle);
-        Component text = decode(ClientState.questText);
         List<FormattedCharSequence> lines = mc.font.split(text, WIDTH - 16);
         int h = 22 + lines.size() * 10 + 4;
         int x = (int) (g.guiWidth() - 6 - WIDTH * slide);

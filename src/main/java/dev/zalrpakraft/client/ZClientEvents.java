@@ -40,6 +40,7 @@ public final class ZClientEvents {
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
             IntroController.clientTick();
+            ClientSelfTest.tick();
         }
 
         @SubscribeEvent

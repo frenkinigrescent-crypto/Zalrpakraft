@@ -27,6 +27,11 @@ public final class PlaqueOverlay {
     private static long startMs;
     private static final long IN = 380, HOLD = 4800, OUT = 520;
 
+    public static void clear() {
+        QUEUE.clear();
+        current = null;
+    }
+
     public static void push(String id, String icon, String frame) {
         ResourceLocation rl = ResourceLocation.tryParse(icon);
         ItemStack stack = rl != null && BuiltInRegistries.ITEM.containsKey(rl)
