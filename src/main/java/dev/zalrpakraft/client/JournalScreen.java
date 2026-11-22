@@ -11,7 +11,7 @@ import java.util.List;
 
 /** Дневник незнакомца. При закрытии сообщает серверу, что дневник прочитан. */
 public class JournalScreen extends BookViewScreen {
-    private static final int PAGES = 11;
+    private static final int PAGES = 9;
 
     private JournalScreen(BookAccess access) {
         super(access);

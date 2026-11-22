@@ -58,13 +58,13 @@ public final class ClientSelfTest {
                 ClientState.housePos = new net.minecraft.core.BlockPos(-42, 78, 83);
                 mc.setScreen(JournalScreen.create());
             }
-            case 288 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(0); }
+            case 288 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(1); }
             case 291 -> shot(mc, "zk_6a_journal.png");
-            case 293 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(3); }
+            case 293 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(2); }
             case 296 -> shot(mc, "zk_6b_journal.png");
-            case 298 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(7); }
+            case 298 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(4); }
             case 301 -> shot(mc, "zk_6c_journal.png");
-            case 303 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(9); }
+            case 303 -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(5); }
             case 306 -> shot(mc, "zk_6d_journal.png");
             case 310 -> {
                 CompoundTag st = new CompoundTag();
