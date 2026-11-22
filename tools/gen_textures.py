@@ -323,3 +323,19 @@ def field(name, border):
 field("text_field.png", (106, 84, 168, 255))
 field("text_field_highlighted.png", (255, 210, 122, 255))
 print("gui ok")
+
+def tab(name, fill, border, top_line):
+    W, H = 130, 24
+    im = Image.new("RGBA", (W, H)); p = im.load()
+    for y in range(H):
+        for x in range(W): p[x, y] = fill
+    for x in range(W): p[x, 0] = top_line; p[x, 1] = border
+    for y in range(H): p[0, y] = border; p[1, y] = border; p[W - 1, y] = border; p[W - 2, y] = border
+    im.save(os.path.join(SPR, name))
+    _json.dump({"gui": {"scaling": {"type": "nine_slice", "width": 130, "height": 24,
+               "border": {"left": 2, "right": 2, "top": 2, "bottom": 0}}}}, open(os.path.join(SPR, name + ".mcmeta"), "w"))
+tab("tab.png", (14, 10, 28, 200), (58, 46, 90, 255), (58, 46, 90, 255))
+tab("tab_highlighted.png", (30, 20, 50, 220), (106, 84, 168, 255), (183, 156, 255, 255))
+tab("tab_selected.png", (34, 22, 58, 235), (106, 84, 168, 255), (183, 156, 255, 255))
+tab("tab_selected_highlighted.png", (44, 30, 70, 240), (255, 210, 122, 255), (255, 240, 176, 255))
+print("tabs ok")
