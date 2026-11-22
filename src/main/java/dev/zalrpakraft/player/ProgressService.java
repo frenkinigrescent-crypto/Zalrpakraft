@@ -68,6 +68,8 @@ public final class ProgressService {
             return new String[]{"zalrpakraft.quest.house.title", "@" + coords};
         }
         if (!pr.tableOpened) return new String[]{"zalrpakraft.quest.table.title", "zalrpakraft.quest.table.text"};
+        String[] tracked = QuestService.hudLine(p, pr);
+        if (tracked != null) return tracked;
         for (Node n : ProgressionMap.nodes().values()) {
             if (n.kind == ProgressionMap.Kind.GALAXY || n.kind == ProgressionMap.Kind.ROOT) continue;
             if (pr.studied.contains(n.id)) continue;

@@ -53,6 +53,8 @@ public class ConstellationScreen extends Screen {
 
     @Override
     protected void init() {
+        addRenderableWidget(new StarButton(width - 128, 6, 120, 18, Component.translatable("zalrpakraft.book.title"),
+                () -> net.neoforged.neoforge.network.PacketDistributor.sendToServer(new dev.zalrpakraft.net.SimplePayload("open_quests"))));
         float minX = 0, maxX = 0, minY = 0, maxY = 0;
         for (Node n : nodes.values()) {
             if (hidden(n)) continue;

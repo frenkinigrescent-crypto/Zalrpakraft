@@ -45,6 +45,7 @@ public final class PlaqueOverlay {
         if (current == null) return;
         switch (current.frame()) {
             case "challenge" -> mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 0.8F));
+            case "quest" -> mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_CHIME.value(), 1.2F, 0.9F));
             case "goal" -> mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.35F, 0.55F));
             default -> mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.AMETHYST_BLOCK_RESONATE, 1.25F, 1.0F));
         }
@@ -72,10 +73,12 @@ public final class PlaqueOverlay {
         int accent = switch (current.frame()) {
             case "challenge" -> 0xFFC94A;
             case "goal" -> 0x5FE0FF;
+            case "quest" -> 0x9CFF7A;
             default -> 0xA98BFF;
         };
         Component header = Component.translatable("zalrpakraft.plaque." + current.frame());
-        Component title = Component.translatable("zalrpakraft.adv." + current.id() + ".title");
+        Component title = current.id().startsWith("#") ? Component.literal(current.id().substring(1))
+                : Component.translatable("zalrpakraft.adv." + current.id() + ".title");
         int w = Math.max(190, Math.max(mc.font.width(title), mc.font.width(header)) + 64);
         int h = 36;
         int cx = g.guiWidth() / 2;

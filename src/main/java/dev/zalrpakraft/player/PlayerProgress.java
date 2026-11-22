@@ -7,7 +7,9 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /** Прогресс игрока: пролог, открытые измерения, изученные узлы карты. */
@@ -21,6 +23,10 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
     public final Set<String> studied = new LinkedHashSet<>();
     public final Set<String> kills = new LinkedHashSet<>();
     public final Set<String> eyesSeen = new LinkedHashSet<>();
+    public final Set<String> questsDone = new LinkedHashSet<>();
+    public final Set<String> questsClaimed = new LinkedHashSet<>();
+    public final Map<String, Integer> killCounts = new LinkedHashMap<>();
+    public String tracked = "";
 
     public CompoundTag write() {
         CompoundTag t = new CompoundTag();
@@ -33,6 +39,12 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         t.put("studied", list(studied));
         t.put("kills", list(kills));
         t.put("eyesSeen", list(eyesSeen));
+        t.put("questsDone", list(questsDone));
+        t.put("questsClaimed", list(questsClaimed));
+        CompoundTag kc = new CompoundTag();
+        killCounts.forEach(kc::putInt);
+        t.put("killCounts", kc);
+        t.putString("tracked", tracked);
         return t;
     }
 
@@ -46,6 +58,12 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         fill(studied, t, "studied");
         fill(kills, t, "kills");
         fill(eyesSeen, t, "eyesSeen");
+        fill(questsDone, t, "questsDone");
+        fill(questsClaimed, t, "questsClaimed");
+        killCounts.clear();
+        CompoundTag kc = t.getCompound("killCounts");
+        for (String k : kc.getAllKeys()) killCounts.put(k, kc.getInt(k));
+        tracked = t.getString("tracked");
     }
 
     private static ListTag list(Set<String> s) {

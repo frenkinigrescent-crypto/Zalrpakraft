@@ -19,6 +19,7 @@ public final class QuestHud {
     public static Component decode(String s) {
         if (s == null || s.isEmpty()) return Component.empty();
         if (s.startsWith("#")) return Component.literal(s.substring(1));
+        if (s.startsWith("$")) return TaskText.fromHud(s);
         if (s.startsWith("@")) return Component.translatable("zalrpakraft.quest.house.text", s.substring(1));
         return Component.translatable(s);
     }

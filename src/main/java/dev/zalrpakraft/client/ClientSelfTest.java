@@ -63,7 +63,29 @@ public final class ClientSelfTest {
                 if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.BookViewScreen b) b.setPage(1);
             }
             case 305 -> shot(mc, "zk_6_journal.png");
-            case 320 -> {
+            case 310 -> {
+                CompoundTag st = new CompoundTag();
+                CompoundTag qs = new CompoundTag();
+                dev.zalrpakraft.data.QuestBook.Book b = dev.zalrpakraft.data.QuestBook.fromJson(dev.zalrpakraft.data.QuestBook.json());
+                int i = 0;
+                for (dev.zalrpakraft.data.QuestBook.Quest q : b.quests) {
+                    CompoundTag t = new CompoundTag();
+                    int s2 = q.chapter.equals("prologue") ? (i < 2 ? 3 : i == 2 ? 2 : 1) : (q.requires.isEmpty() ? 1 : 0);
+                    t.putInt("s", s2);
+                    int[] p = new int[q.tasks.size()];
+                    for (int k = 0; k < p.length; k++) p[k] = s2 >= 2 ? q.tasks.get(k).count : Math.min(q.tasks.get(k).count, 7);
+                    t.putIntArray("p", p);
+                    qs.put(q.id, t);
+                    if (q.chapter.equals("prologue")) i++;
+                }
+                st.put("quests", qs);
+                st.putString("tracked", "pr_iron");
+                QuestBookScreen qb = new QuestBookScreen(dev.zalrpakraft.data.QuestBook.json(), st);
+                mc.setScreen(qb);
+                qb.select("prologue", "pr_iron");
+            }
+            case 330 -> shot(mc, "zk_7_quests.png");
+            case 340 -> {
                 Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                 mc.stop();
             }

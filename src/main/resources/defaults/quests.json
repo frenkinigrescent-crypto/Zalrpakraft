@@ -1,0 +1,2173 @@
+{
+ "_readme": "Книга заданий. Типы задач: item (value — ID, #тег или список ID; count), kill (шаблон моба или список; count), node (узел звёздной карты), dimension, story (journal/house/table). Задания с предметами/мобами, которых нет в сборке, скрываются автоматически (см. лог).",
+ "chapters": [
+  {
+   "id": "prologue",
+   "name": "Пролог",
+   "icon": "zalrpakraft:stranger_journal",
+   "color": "#D8CFE8"
+  },
+  {
+   "id": "cradle",
+   "name": "Колыбель",
+   "icon": "minecraft:wheat",
+   "color": "#7FD36B"
+  },
+  {
+   "id": "gear",
+   "name": "Шестерня",
+   "icon": "create:cogwheel",
+   "color": "#E0A64B"
+  },
+  {
+   "id": "power",
+   "name": "Ток",
+   "icon": "minecraft:redstone",
+   "color": "#5EC8F2"
+  },
+  {
+   "id": "sky",
+   "name": "Небосвод",
+   "icon": "minecraft:elytra",
+   "color": "#B8A2FF"
+  },
+  {
+   "id": "arsenal",
+   "name": "Арсенал",
+   "icon": "minecraft:iron_sword",
+   "color": "#E85D5D"
+  },
+  {
+   "id": "mystery",
+   "name": "Тайна",
+   "icon": "minecraft:amethyst_shard",
+   "color": "#C36BE0"
+  },
+  {
+   "id": "threat",
+   "name": "Угроза",
+   "icon": "minecraft:creeper_head",
+   "color": "#8A9A5B"
+  },
+  {
+   "id": "meteors",
+   "name": "Метеоры",
+   "icon": "zalrpakraft:meteor_shard",
+   "color": "#FF6A3D"
+  },
+  {
+   "id": "eyes",
+   "name": "Двенадцать глаз",
+   "icon": "zalrpakraft:eye_stars",
+   "color": "#C9B7FF"
+  }
+ ],
+ "quests": [
+  {
+   "id": "pr_wake",
+   "chapter": "prologue",
+   "name": "Чужие строки",
+   "icon": "minecraft:writable_book",
+   "desc": "Ты проснулся с чужой книгой в руке. Начни с неё.",
+   "tasks": [
+    {
+     "type": "story",
+     "value": "journal"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:bread",
+      "count": 4
+     }
+    ],
+    "xp": 10
+   }
+  },
+  {
+   "id": "pr_house",
+   "chapter": "prologue",
+   "name": "Дом незнакомца",
+   "icon": "minecraft:spruce_door",
+   "desc": "Н. оставил координаты. Дверь, говорит, не заперта.",
+   "tasks": [
+    {
+     "type": "story",
+     "value": "house"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:torch",
+      "count": 16
+     }
+    ],
+    "xp": 15
+   },
+   "requires": [
+    "pr_wake"
+   ]
+  },
+  {
+   "id": "pr_table",
+   "chapter": "prologue",
+   "name": "Небо под ладонью",
+   "icon": "zalrpakraft:star_table",
+   "desc": "Стол в доме Н. помнит другое небо. Коснись его.",
+   "tasks": [
+    {
+     "type": "story",
+     "value": "table"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:spyglass",
+      "count": 1
+     }
+    ],
+    "xp": 25
+   },
+   "requires": [
+    "pr_house"
+   ]
+  },
+  {
+   "id": "pr_shelter",
+   "chapter": "prologue",
+   "name": "Своя крыша",
+   "icon": "minecraft:red_bed",
+   "desc": "Дом Н. — не твой дом. Поставь кровать и переживи первую ночь.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "#minecraft:beds",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:lantern",
+      "count": 2
+     }
+    ],
+    "xp": 10
+   },
+   "requires": [
+    "pr_wake"
+   ]
+  },
+  {
+   "id": "pr_iron",
+   "chapter": "prologue",
+   "name": "Железный век",
+   "icon": "minecraft:iron_ingot",
+   "desc": "Без железа дальше не пройти: ни Create, ни метеоры.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "minecraft:iron_ingot",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:iron_pickaxe",
+      "count": 1
+     }
+    ],
+    "xp": 30
+   },
+   "requires": [
+    "pr_shelter"
+   ]
+  },
+  {
+   "id": "cr_pot",
+   "chapter": "cradle",
+   "name": "Горячий ужин",
+   "icon": "farmersdelight:cooking_pot",
+   "desc": "Похлёбка греет лучше костра. Собери кастрюлю.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "farmersdelight:cooking_pot",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "farmersdelight:rice",
+      "count": 8
+     },
+     {
+      "id": "farmersdelight:tomato_seeds",
+      "count": 4
+     }
+    ],
+    "xp": 20
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "cr_board",
+   "chapter": "cradle",
+   "name": "Разделочная доска",
+   "icon": "farmersdelight:cutting_board",
+   "desc": "Нож и доска — половина кухни.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "farmersdelight:cutting_board",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "#c:tools/knife",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "farmersdelight:onion",
+      "count": 6
+     }
+    ],
+    "xp": 15
+   },
+   "requires": [
+    "cr_pot"
+   ]
+  },
+  {
+   "id": "cr_harvest",
+   "chapter": "cradle",
+   "name": "Добрый урожай",
+   "icon": "minecraft:wheat",
+   "desc": "Собери урожай правым кликом — семена сами лягут обратно.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "minecraft:wheat",
+     "count": 32
+    },
+    {
+     "type": "item",
+     "value": "minecraft:carrot",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:bone_meal",
+      "count": 32
+     }
+    ],
+    "xp": 15
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "cr_rod",
+   "chapter": "cradle",
+   "name": "Звёздный улов",
+   "icon": "starcatcher:starcatcher_rod",
+   "desc": "Рыба в этих водах странная. Нужна удочка получше.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "starcatcher:starcatcher_rod",
+      "starcatcher:bamboo_rod",
+      "starcatcher:humble_rod"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "starcatcher:worm",
+      "count": 16
+     }
+    ],
+    "xp": 20
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "cr_pearl",
+   "chapter": "cradle",
+   "name": "Жемчужина",
+   "icon": "crittersandcompanions:pearl",
+   "desc": "Моллюски на мелководье прячут жемчуг.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "crittersandcompanions:pearl",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:prismarine_crystals",
+      "count": 4
+     }
+    ],
+    "xp": 25
+   },
+   "requires": [
+    "cr_rod"
+   ]
+  },
+  {
+   "id": "cr_backpack",
+   "chapter": "cradle",
+   "name": "Всё своё ношу с собой",
+   "icon": "backpacked:backpack",
+   "desc": "Карманы кончились. Сшей рюкзак.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "backpacked:backpack",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:leather",
+      "count": 8
+     }
+    ],
+    "xp": 25
+   },
+   "requires": [
+    "cr_harvest"
+   ]
+  },
+  {
+   "id": "cr_storage",
+   "chapter": "cradle",
+   "name": "Порядок в сундуках",
+   "icon": "toms_storage:storage_terminal",
+   "desc": "Сундуков стало слишком много. Свяжи их в одну сеть.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "toms_storage:storage_terminal",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "toms_storage:inventory_connector",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:chest",
+      "count": 8
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "cr_backpack"
+   ]
+  },
+  {
+   "id": "ge_alloy",
+   "chapter": "gear",
+   "name": "Андезитовый сплав",
+   "icon": "create:andesite_alloy",
+   "desc": "Всё в Create начинается с андезита и железа.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create:andesite_alloy",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:shaft",
+      "count": 16
+     },
+     {
+      "id": "create:cogwheel",
+      "count": 8
+     }
+    ],
+    "xp": 30
+   },
+   "requires": [
+    "pr_iron"
+   ]
+  },
+  {
+   "id": "ge_wheel",
+   "chapter": "gear",
+   "name": "Первое вращение",
+   "icon": "create:water_wheel",
+   "desc": "Вода крутит колесо, колесо крутит мир.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "create:water_wheel",
+      "create:windmill_bearing"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:large_cogwheel",
+      "count": 4
+     }
+    ],
+    "xp": 30
+   },
+   "requires": [
+    "ge_alloy"
+   ]
+  },
+  {
+   "id": "ge_press",
+   "chapter": "gear",
+   "name": "Под давлением",
+   "icon": "create:mechanical_press",
+   "desc": "Пресс превращает слитки в листы.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create:mechanical_press",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "create:iron_sheet",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:depot",
+      "count": 2
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "ge_wheel"
+   ]
+  },
+  {
+   "id": "ge_brass",
+   "chapter": "gear",
+   "name": "Латунь",
+   "icon": "create:brass_ingot",
+   "desc": "Медь и цинк в смесителе, под горелкой.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create:brass_ingot",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:electron_tube",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "ge_press"
+   ]
+  },
+  {
+   "id": "ge_mech",
+   "chapter": "gear",
+   "name": "Точный механизм",
+   "icon": "create:precision_mechanism",
+   "desc": "Деталь, которой не стыдно гордиться.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create:precision_mechanism",
+     "count": 2
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:brass_ingot",
+      "count": 8
+     }
+    ],
+    "xp": 70
+   },
+   "requires": [
+    "ge_brass"
+   ]
+  },
+  {
+   "id": "ge_copy",
+   "chapter": "gear",
+   "name": "Всё, что угодно",
+   "icon": "copycats:copycat_block",
+   "desc": "Copycats+ копируют форму любого блока.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "copycats:copycat_block",
+      "copycats:copycat_slab",
+      "copycats:copycat_beam"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:zinc_ingot",
+      "count": 8
+     }
+    ],
+    "xp": 20
+   },
+   "requires": [
+    "ge_alloy"
+   ]
+  },
+  {
+   "id": "ge_connected",
+   "chapter": "gear",
+   "name": "Хитрые соединения",
+   "icon": "create_connected:brass_gearbox",
+   "desc": "Create Connected: больше способов передать вращение.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "create_connected:brass_gearbox",
+      "create_connected:centrifugal_clutch",
+      "create_connected:crank_wheel"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:andesite_alloy",
+      "count": 16
+     }
+    ],
+    "xp": 30
+   },
+   "requires": [
+    "ge_brass"
+   ]
+  },
+  {
+   "id": "ge_wires",
+   "chapter": "gear",
+   "name": "Красный провод",
+   "icon": "create_wires:wire",
+   "desc": "Create: Wires — сигнал без редстоуна по всему полу.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create_wires:wire",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:redstone",
+      "count": 32
+     }
+    ],
+    "xp": 30
+   },
+   "requires": [
+    "ge_press"
+   ]
+  },
+  {
+   "id": "ge_controller",
+   "chapter": "gear",
+   "name": "Пульт",
+   "icon": "create_tweaked_controllers:tweaked_linked_controller",
+   "desc": "Управляй машинами с геймпада или с пульта.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create_tweaked_controllers:tweaked_linked_controller",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:redstone_link",
+      "count": 4
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "ge_mech"
+   ]
+  },
+  {
+   "id": "ge_bee",
+   "chapter": "gear",
+   "name": "Робопчела",
+   "icon": "create_mobile_packages:robo_bee",
+   "desc": "Посылки летают сами.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "create_mobile_packages:robo_bee",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:cardboard",
+      "count": 16
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "ge_mech"
+   ]
+  },
+  {
+   "id": "ge_radio",
+   "chapter": "gear",
+   "name": "На связи",
+   "icon": "radiologistics:radio_transmitter",
+   "desc": "Радиологистика: сигналы и посылки по радио.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "radiologistics:radio_transmitter",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:precision_mechanism",
+      "count": 1
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "ge_bee"
+   ]
+  },
+  {
+   "id": "po_motor",
+   "chapter": "power",
+   "name": "Электромотор",
+   "icon": "powergrid:electric_motor",
+   "desc": "Power Grid: электричество вместо воды и ветра.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "powergrid:electric_motor",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:copper_ingot",
+      "count": 24
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "ge_brass"
+   ]
+  },
+  {
+   "id": "po_battery",
+   "chapter": "power",
+   "name": "Запас энергии",
+   "icon": "powergrid:battery",
+   "desc": "Энергия нужна и ночью.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "powergrid:battery",
+     "count": 2
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:redstone_block",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "po_motor"
+   ]
+  },
+  {
+   "id": "po_vota",
+   "chapter": "power",
+   "name": "Компактный генератор",
+   "icon": "mcvota:compact_generator",
+   "desc": "MC Vota: генератор размером в один блок.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "mcvota:compact_generator",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:brass_ingot",
+      "count": 8
+     }
+    ],
+    "xp": 70
+   },
+   "requires": [
+    "po_motor"
+   ]
+  },
+  {
+   "id": "po_slip",
+   "chapter": "power",
+   "name": "Ток на ходу",
+   "icon": "mcvota:slip_ring",
+   "desc": "Контактные кольца передают ток на вращающиеся конструкции.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "mcvota:slip_ring",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:copper_block",
+      "count": 4
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "po_vota"
+   ]
+  },
+  {
+   "id": "po_diesel",
+   "chapter": "power",
+   "name": "Чёрное золото",
+   "icon": "createdieselgenerators:diesel_engine",
+   "desc": "Нефть, перегонка, дизель. Двигатель, который рычит.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "createdieselgenerators:diesel_engine",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "createdieselgenerators:canister",
+      "count": 1
+     }
+    ],
+    "xp": 80
+   },
+   "requires": [
+    "ge_mech"
+   ]
+  },
+  {
+   "id": "po_distill",
+   "chapter": "power",
+   "name": "Перегонная колонна",
+   "icon": "createdieselgenerators:distillation_tank",
+   "desc": "Разгони нефть на фракции.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "createdieselgenerators:distillation_tank",
+     "count": 4
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:fluid_tank",
+      "count": 4
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "po_diesel"
+   ]
+  },
+  {
+   "id": "sk_biplane",
+   "chapter": "sky",
+   "name": "Крылья",
+   "icon": "immersive_aircraft:biplane",
+   "desc": "Первый полёт. Не бойся.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "immersive_aircraft:biplane",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:firework_rocket",
+      "count": 16
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "ge_press"
+   ]
+  },
+  {
+   "id": "sk_airship",
+   "chapter": "sky",
+   "name": "Дирижабль",
+   "icon": "immersive_aircraft:airship",
+   "desc": "Медленно, зато далеко и со всем добром.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "immersive_aircraft:airship",
+      "immersive_aircraft:cargo_airship"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "immersive_aircraft:propeller",
+      "count": 1
+     }
+    ],
+    "xp": 80
+   },
+   "requires": [
+    "sk_biplane"
+   ]
+  },
+  {
+   "id": "sk_joint",
+   "chapter": "sky",
+   "name": "Шарнир",
+   "icon": "aeronautics_utility_objects:universal_joint",
+   "desc": "Передай вращение туда, куда прямой вал не дотянется.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "aeronautics_utility_objects:universal_joint",
+      "aeronautics_utility_objects:brass_universal_joint"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:shaft",
+      "count": 16
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "ge_mech"
+   ]
+  },
+  {
+   "id": "sk_compressor",
+   "chapter": "sky",
+   "name": "Сжатый воздух",
+   "icon": "beforespace:air_compressor",
+   "desc": "Before Going Into Space: сначала воздух, потом тяга.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "beforespace:air_compressor",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "beforespace:gas_pipe",
+     "count": 16
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "beforespace:pressure_gauge",
+      "count": 1
+     }
+    ],
+    "xp": 80
+   },
+   "requires": [
+    "po_diesel"
+   ]
+  },
+  {
+   "id": "sk_jet",
+   "chapter": "sky",
+   "name": "Реактивная тяга",
+   "icon": "beforespace:jet_nozzle",
+   "desc": "Камера сгорания, турбина, сопло. Держись крепче.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "beforespace:jet_combustion_chamber",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "beforespace:jet_nozzle",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:elytra",
+      "count": 1
+     }
+    ],
+    "xp": 150
+   },
+   "requires": [
+    "sk_compressor"
+   ]
+  },
+  {
+   "id": "sk_oxygen",
+   "chapter": "sky",
+   "name": "Жидкий кислород",
+   "icon": "beforespace:liquid_oxygen_bucket",
+   "desc": "Воздухоразделительная установка. Дальше — только вверх.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "beforespace:liquid_oxygen_bucket",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:nether_star",
+      "count": 1
+     }
+    ],
+    "xp": 200
+   },
+   "requires": [
+    "sk_jet"
+   ]
+  },
+  {
+   "id": "ar_flint",
+   "chapter": "arsenal",
+   "name": "Порох и кремень",
+   "icon": "cgs:flintlock",
+   "desc": "Create Gunsmithing: первое огнестрельное оружие.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "cgs:flintlock",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "cgs:lead_balls",
+      "count": 32
+     },
+     {
+      "id": "cgs:paper_cartridge",
+      "count": 16
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "ge_press"
+   ]
+  },
+  {
+   "id": "ar_revolver",
+   "chapter": "arsenal",
+   "name": "Шесть патронов",
+   "icon": "cgs:revolver",
+   "desc": "На метеоры с кремнём не ходят.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "cgs:revolver",
+     "count": 1
+    },
+    {
+     "type": "item",
+     "value": "cgs:round_revolver",
+     "count": 24
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "cgs:round_revolver",
+      "count": 24
+     }
+    ],
+    "xp": 70
+   },
+   "requires": [
+    "ar_flint"
+   ]
+  },
+  {
+   "id": "ar_gatling",
+   "chapter": "arsenal",
+   "name": "Гатлинг",
+   "icon": "cgs:gatling",
+   "desc": "Когда метеор слишком большой.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "cgs:gatling",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "cgs:round_gatling",
+      "count": 64
+     }
+    ],
+    "xp": 120
+   },
+   "requires": [
+    "ar_revolver"
+   ]
+  },
+  {
+   "id": "ar_trinket",
+   "chapter": "arsenal",
+   "name": "Древняя реликвия",
+   "icon": "ancienttrinkets:golden_scarab",
+   "desc": "Ancient Trinkets: вещи старше этого мира. Найди любую.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": [
+      "ancienttrinkets:drowned_amulet",
+      "ancienttrinkets:echoing_pendant",
+      "ancienttrinkets:cracked_totem",
+      "ancienttrinkets:wolf_fang_necklace",
+      "ancienttrinkets:ember_heart",
+      "ancienttrinkets:golden_scarab",
+      "ancienttrinkets:verdant_idol",
+      "ancienttrinkets:emerald_coin",
+      "ancienttrinkets:owl_talisman",
+      "ancienttrinkets:ender_ring",
+      "ancienttrinkets:piglin_signet",
+      "ancienttrinkets:breeze_band",
+      "ancienttrinkets:prospector_belt",
+      "ancienttrinkets:phantom_cloak"
+     ],
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:emerald",
+      "count": 16
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "pr_iron"
+   ]
+  },
+  {
+   "id": "ar_tnt",
+   "chapter": "arsenal",
+   "name": "Громко",
+   "icon": "minecraft:tnt",
+   "desc": "Explosive Enhancement сделает взрыв красивым.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "minecraft:tnt",
+     "count": 4
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:gunpowder",
+      "count": 16
+     }
+    ],
+    "xp": 15
+   },
+   "requires": [
+    "pr_iron"
+   ]
+  },
+  {
+   "id": "my_atlas",
+   "chapter": "mystery",
+   "name": "Старые карты",
+   "icon": "antiqueatlas:antique_atlas",
+   "desc": "Antique Atlas рисует мир сам.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "antiqueatlas:antique_atlas",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:compass",
+      "count": 1
+     }
+    ],
+    "xp": 20
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "my_cauldron",
+   "chapter": "mystery",
+   "name": "Котёл алхимика",
+   "icon": "elixircauldron:alchemical_cauldron",
+   "desc": "Эликсиры варятся над огнём душ — обычная стойка вдвое медленнее.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "elixircauldron:alchemical_cauldron",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:nether_wart",
+      "count": 8
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "my_atlas"
+   ]
+  },
+  {
+   "id": "my_elixir",
+   "chapter": "mystery",
+   "name": "Первый эликсир",
+   "icon": "elixircauldron:elixir",
+   "desc": "Свари что-нибудь и не отравись.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "elixircauldron:elixir",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:glass_bottle",
+      "count": 16
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "my_cauldron"
+   ]
+  },
+  {
+   "id": "my_ether",
+   "chapter": "mystery",
+   "name": "Эфир",
+   "icon": "etherology:armillary_sphere",
+   "desc": "Etherology: армиллярная сфера показывает невидимое.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "etherology:armillary_sphere",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:amethyst_shard",
+      "count": 16
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "my_elixir"
+   ]
+  },
+  {
+   "id": "my_gate",
+   "chapter": "mystery",
+   "name": "Проход",
+   "icon": "immersive_gateways:gateway",
+   "desc": "Immersive Gateways: дверь туда, где тебя нет.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "immersive_gateways:gateway",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:ender_pearl",
+      "count": 4
+     }
+    ],
+    "xp": 80
+   },
+   "requires": [
+    "my_ether"
+   ]
+  },
+  {
+   "id": "th_creeper",
+   "chapter": "threat",
+   "name": "Новые криперы",
+   "icon": "creeperoverhaul:tiny_cactus",
+   "desc": "Криперы научились жить в каждом биоме.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "creeperoverhaul:*",
+     "count": 10,
+     "label": "Криперы Creeper Overhaul"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:gunpowder",
+      "count": 16
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "pr_shelter"
+   ]
+  },
+  {
+   "id": "th_spider",
+   "chapter": "threat",
+   "name": "Восемь ног",
+   "icon": "spider_overhaul:sculk_string",
+   "desc": "Пауки тоже не стояли на месте.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "spider_overhaul:*",
+     "count": 10,
+     "label": "Пауки Spider Overhaul"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:string",
+      "count": 24
+     }
+    ],
+    "xp": 40
+   },
+   "requires": [
+    "pr_shelter"
+   ]
+  },
+  {
+   "id": "th_ender",
+   "chapter": "threat",
+   "name": "Зуб эндермена",
+   "icon": "endermanoverhaul:enderman_tooth",
+   "desc": "Эндермены бывают разные. Все кусаются.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "endermanoverhaul:*",
+     "count": 5,
+     "label": "Эндермены Enderman Overhaul"
+    },
+    {
+     "type": "item",
+     "value": "endermanoverhaul:enderman_tooth",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:ender_pearl",
+      "count": 4
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "th_creeper"
+   ]
+  },
+  {
+   "id": "th_raid",
+   "chapter": "threat",
+   "name": "Отбить налёт",
+   "icon": "minecraft:crossbow",
+   "desc": "Разбойники строят свои колонии и приходят за тобой.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": [
+      "raidercolonies:*",
+      "minecraft:pillager",
+      "minecraft:vindicator"
+     ],
+     "count": 15,
+     "label": "Разбойники"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:emerald",
+      "count": 12
+     },
+     {
+      "id": "minecraft:totem_of_undying",
+      "count": 1
+     }
+    ],
+    "xp": 100
+   },
+   "requires": [
+    "th_spider"
+   ]
+  },
+  {
+   "id": "me_wrought",
+   "chapter": "meteors",
+   "name": "Ржавый рыцарь",
+   "icon": "zalrpakraft:rust_core",
+   "desc": "В подземных залах ходит доспех без хозяина. Первый метеор.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "mowziesmobs:ferrous_wroughtnaut",
+     "count": 1,
+     "label": "Ferrous Wroughtnaut"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:golden_apple",
+      "count": 2
+     }
+    ],
+    "xp": 100
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "me_nether_key",
+   "chapter": "meteors",
+   "name": "Огонь внутри",
+   "icon": "zalrpakraft:nether_key",
+   "desc": "Ржавое ядро или трофей Восхождения — и путь в Преисподнюю открыт.",
+   "tasks": [
+    {
+     "type": "node",
+     "value": "gate_nether"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:magma_cream",
+      "count": 8
+     }
+    ],
+    "xp": 80
+   },
+   "requires": [
+    "me_wrought"
+   ]
+  },
+  {
+   "id": "me_frost",
+   "chapter": "meteors",
+   "name": "Стужа",
+   "icon": "zalrpakraft:frost_heart",
+   "desc": "Frostmaw спит в снегах. Не буди его в одиночку.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "mowziesmobs:frostmaw",
+     "count": 1,
+     "label": "Frostmaw"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:blue_ice",
+      "count": 16
+     }
+    ],
+    "xp": 150
+   },
+   "requires": [
+    "me_wrought"
+   ]
+  },
+  {
+   "id": "me_umvuthi",
+   "chapter": "meteors",
+   "name": "Солнечный король",
+   "icon": "zalrpakraft:sun_feather",
+   "desc": "Умвути правит саванной.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "mowziesmobs:umvuthi",
+     "count": 1,
+     "label": "Umvuthi"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:gold_block",
+      "count": 2
+     }
+    ],
+    "xp": 150
+   },
+   "requires": [
+    "me_wrought"
+   ]
+  },
+  {
+   "id": "me_sculptor",
+   "chapter": "meteors",
+   "name": "Ваятель",
+   "icon": "zalrpakraft:sculptor_chisel",
+   "desc": "Тонгби ждёт на вершине.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "mowziesmobs:sculptor",
+     "count": 1,
+     "label": "Tongbi, the Sculptor"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:diamond",
+      "count": 4
+     }
+    ],
+    "xp": 200
+   },
+   "requires": [
+    "me_umvuthi"
+   ]
+  },
+  {
+   "id": "me_abyss",
+   "chapter": "meteors",
+   "name": "Ледяной лабиринт",
+   "icon": "zalrpakraft:cornelia_lantern",
+   "desc": "Капитан Корнелия и Мать Лабиринта. Обе нужны для Глаза Бездны.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "aquamirae:captain_cornelia",
+     "count": 1,
+     "label": "Captain Cornelia"
+    },
+    {
+     "type": "kill",
+     "value": "aquamirae:maze_mother",
+     "count": 1,
+     "label": "Maze Mother"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:heart_of_the_sea",
+      "count": 1
+     }
+    ],
+    "xp": 250
+   },
+   "requires": [
+    "me_frost"
+   ]
+  },
+  {
+   "id": "me_flame",
+   "chapter": "meteors",
+   "name": "Пламя Ада",
+   "icon": "zalrpakraft:ignis_ember",
+   "desc": "Игнис и Огненный Ревенант стерегут жар Преисподней.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "cataclysm:ignis",
+     "count": 1,
+     "label": "Ignis"
+    },
+    {
+     "type": "kill",
+     "value": "cataclysm:ignited_revenant",
+     "count": 1,
+     "label": "Ignited Revenant"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:blaze_rod",
+      "count": 16
+     }
+    ],
+    "xp": 300
+   },
+   "requires": [
+    "me_nether_key"
+   ]
+  },
+  {
+   "id": "me_forge",
+   "chapter": "meteors",
+   "name": "Кузня",
+   "icon": "zalrpakraft:forge_heart",
+   "desc": "Незеритовое чудовище — сердце адской кузни.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "cataclysm:netherite_monstrosity",
+     "count": 1,
+     "label": "Netherite Monstrosity"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:netherite_scrap",
+      "count": 4
+     }
+    ],
+    "xp": 300
+   },
+   "requires": [
+    "me_nether_key"
+   ]
+  },
+  {
+   "id": "me_paradise_key",
+   "chapter": "meteors",
+   "name": "Выше облаков",
+   "icon": "zalrpakraft:paradise_key",
+   "desc": "Два трофея из Ада или с арен Клипот — и ключ Рая твой.",
+   "tasks": [
+    {
+     "type": "node",
+     "value": "gate_paradise"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:feather",
+      "count": 16
+     }
+    ],
+    "xp": 150
+   },
+   "requires": [
+    "me_forge"
+   ]
+  },
+  {
+   "id": "me_depths",
+   "chapter": "meteors",
+   "name": "Левиафан",
+   "icon": "zalrpakraft:leviathan_scale",
+   "desc": "Затонувший город и то, что в нём спит.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "cataclysm:the_leviathan",
+     "count": 1,
+     "label": "The Leviathan"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:conduit",
+      "count": 1
+     }
+    ],
+    "xp": 400
+   },
+   "requires": [
+    "me_paradise_key"
+   ]
+  },
+  {
+   "id": "me_sands",
+   "chapter": "meteors",
+   "name": "Древние останки",
+   "icon": "zalrpakraft:remnant_sand",
+   "desc": "Гробницы пустыни не пусты.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "cataclysm:ancient_remnant",
+     "count": 1,
+     "label": "Ancient Remnant"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:sniffer_egg",
+      "count": 1
+     }
+    ],
+    "xp": 400
+   },
+   "requires": [
+    "me_paradise_key"
+   ]
+  },
+  {
+   "id": "me_harbinger",
+   "chapter": "meteors",
+   "name": "Предвестник",
+   "icon": "zalrpakraft:harbinger_gear",
+   "desc": "Механический пророк в пещерной лаборатории.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "cataclysm:the_harbinger",
+     "count": 1,
+     "label": "The Harbinger"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "create:precision_mechanism",
+      "count": 4
+     }
+    ],
+    "xp": 400
+   },
+   "requires": [
+    "me_paradise_key"
+   ]
+  },
+  {
+   "id": "me_wither",
+   "chapter": "meteors",
+   "name": "Иссушитель",
+   "icon": "minecraft:nether_star",
+   "desc": "Звезда Незера нужна для Глаза Звёзд.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "minecraft:wither",
+     "count": 1,
+     "label": "Иссушитель"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:beacon",
+      "count": 1
+     }
+    ],
+    "xp": 300
+   },
+   "requires": [
+    "me_nether_key"
+   ]
+  },
+  {
+   "id": "ey_rust",
+   "chapter": "eyes",
+   "name": "Глаз Ржавчины",
+   "icon": "zalrpakraft:eye_rust",
+   "desc": "Глаз 1 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_rust",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_frost",
+   "chapter": "eyes",
+   "name": "Глаз Стужи",
+   "icon": "zalrpakraft:eye_frost",
+   "desc": "Глаз 2 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_frost",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_sun",
+   "chapter": "eyes",
+   "name": "Глаз Солнца",
+   "icon": "zalrpakraft:eye_sun",
+   "desc": "Глаз 3 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_sun",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_sculptor",
+   "chapter": "eyes",
+   "name": "Глаз Ваятеля",
+   "icon": "zalrpakraft:eye_sculptor",
+   "desc": "Глаз 4 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_sculptor",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_abyss",
+   "chapter": "eyes",
+   "name": "Глаз Бездны",
+   "icon": "zalrpakraft:eye_abyss",
+   "desc": "Глаз 5 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_abyss",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_flame",
+   "chapter": "eyes",
+   "name": "Глаз Пламени",
+   "icon": "zalrpakraft:eye_flame",
+   "desc": "Глаз 6 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_flame",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_forge",
+   "chapter": "eyes",
+   "name": "Глаз Кузни",
+   "icon": "zalrpakraft:eye_forge",
+   "desc": "Глаз 7 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_forge",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_depths",
+   "chapter": "eyes",
+   "name": "Глаз Пучины",
+   "icon": "zalrpakraft:eye_depths",
+   "desc": "Глаз 8 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_depths",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_sands",
+   "chapter": "eyes",
+   "name": "Глаз Песков",
+   "icon": "zalrpakraft:eye_sands",
+   "desc": "Глаз 9 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_sands",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_mechanism",
+   "chapter": "eyes",
+   "name": "Глаз Механизма",
+   "icon": "zalrpakraft:eye_mechanism",
+   "desc": "Глаз 10 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_mechanism",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_undying",
+   "chapter": "eyes",
+   "name": "Глаз Бессмертия",
+   "icon": "zalrpakraft:eye_undying",
+   "desc": "Глаз 11 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_undying",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_stars",
+   "chapter": "eyes",
+   "name": "Глаз Звёзд",
+   "icon": "zalrpakraft:eye_stars",
+   "desc": "Глаз 12 из 12. Скрафти и не потеряй.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "zalrpakraft:eye_stars",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 4
+     }
+    ],
+    "xp": 50
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ey_portal",
+   "chapter": "eyes",
+   "name": "Двенадцать взглядов",
+   "icon": "minecraft:end_portal_frame",
+   "desc": "Вставь все двенадцать глаз в рамку. Каждый — один раз.",
+   "tasks": [
+    {
+     "type": "node",
+     "value": "gate_end"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:enchanted_golden_apple",
+      "count": 1
+     }
+    ],
+    "xp": 500
+   },
+   "requires": [
+    "ey_rust",
+    "ey_frost",
+    "ey_sun",
+    "ey_sculptor",
+    "ey_abyss",
+    "ey_flame",
+    "ey_forge",
+    "ey_depths",
+    "ey_sands",
+    "ey_mechanism",
+    "ey_undying",
+    "ey_stars"
+   ]
+  },
+  {
+   "id": "ey_dragon",
+   "chapter": "eyes",
+   "name": "Конец пути",
+   "icon": "minecraft:dragon_head",
+   "desc": "Н. дошёл почти до конца. Дойди за него.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "minecraft:ender_dragon",
+     "count": 1,
+     "label": "Эндер-дракон"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:elytra",
+      "count": 1
+     },
+     {
+      "id": "minecraft:dragon_egg",
+      "count": 1
+     }
+    ],
+    "xp": 1000
+   },
+   "requires": [
+    "ey_portal"
+   ]
+  }
+ ]
+}

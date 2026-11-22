@@ -55,6 +55,7 @@ public final class CommonEvents {
     public static void onServerStarted(ServerStartedEvent e) {
         MinecraftServer server = e.getServer();
         HouseBuilder.ensureBuilt(server.overworld());
+        dev.zalrpakraft.data.QuestBook.validate();
         int found = BossTable.validate();
         Zalrpakraft.LOG.info("Zalepacraft: найдено боссов из таблицы в сборке: {}", found);
 
@@ -82,6 +83,9 @@ public final class CommonEvents {
         long adv = server.getAdvancements().getAllAdvancements().stream()
                 .filter(h -> h.id().getNamespace().equals(Zalrpakraft.MODID)).count();
         sb.append("advancements=").append(adv).append('\n');
+        int quests = dev.zalrpakraft.data.QuestBook.book().quests.size();
+        sb.append("quests_valid=").append(quests).append(" of ").append(76).append('\n');
+        ok &= quests >= 20;
         ok &= adv >= 23;
         sb.append(ok ? "RESULT OK\n" : "RESULT FAIL\n");
         try {
@@ -144,6 +148,8 @@ public final class CommonEvents {
             }
         }
         if (pr.tableOpened && ProgressService.update(sp)) dirty = true;
+        if (dev.zalrpakraft.player.QuestService.check(sp)) dirty = true;
+        if (!pr.tracked.isEmpty()) dirty = true; // счётчики в HUD
         // глаза в инвентаре
         for (ItemStack s : sp.getInventory().items) {
             if (s.getItem() instanceof dev.zalrpakraft.item.EndEyeItem eye) {
@@ -244,12 +250,26 @@ public final class CommonEvents {
         }
         int fighters = sl.getPlayers(p -> !p.isSpectator() && p.distanceToSqr(le) < 64 * 64).size();
         for (ServerPlayer p : near) {
+            ProgressService.of(p).killCounts.merge(id.toString(), 1, Integer::sum);
+            dev.zalrpakraft.player.QuestService.check(p);
             if (fighters >= 4) dev.zalrpakraft.player.Achievements.award(p, "fellowship");
             PlayerProgress pr = ProgressService.of(p);
             pr.kills.add(id.toString());
             ProgressService.update(p);
             ProgressService.sync(p);
         }
+    }
+
+    // ---------- Счётчик убийств для заданий (боссы считаются в onDrops для всех рядом) ----------
+    @SubscribeEvent
+    public static void onDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent e) {
+        if (!(e.getSource().getEntity() instanceof ServerPlayer killer)) return;
+        LivingEntity le = e.getEntity();
+        if (le instanceof net.minecraft.world.entity.player.Player) return;
+        ResourceLocation id = BossTable.idOf(le.getType());
+        BossTable.Entry boss = BossTable.find(id);
+        if (boss != null && (!boss.wildcard() || le.getType().is(Tags.EntityTypes.BOSSES) || le.getMaxHealth() >= 150)) return;
+        ProgressService.of(killer).killCounts.merge(id.toString(), 1, Integer::sum);
     }
 
     private CommonEvents() {}

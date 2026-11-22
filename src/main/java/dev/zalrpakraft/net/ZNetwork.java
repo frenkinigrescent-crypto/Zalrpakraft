@@ -20,13 +20,24 @@ public final class ZNetwork {
         r.playToClient(PlaquePayload.TYPE, PlaquePayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
             if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.PlaqueOverlay.push(p.id(), p.icon(), p.frame());
         }));
+        r.playToClient(QuestBookPayload.TYPE, QuestBookPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientHooks.openQuests(p.bookJson(), p.state());
+        }));
         r.playBidirectional(SimplePayload.TYPE, SimplePayload.CODEC, ZNetwork::handleSimple);
     }
 
     private static void handleSimple(SimplePayload p, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             if (ctx.player() instanceof ServerPlayer sp) {
-                if ("journal_read".equals(p.action())) {
+                String a = p.action();
+                if (a.equals("open_quests")) {
+                    dev.zalrpakraft.player.QuestService.check(sp);
+                    dev.zalrpakraft.player.QuestService.openBook(sp);
+                } else if (a.startsWith("claim:")) {
+                    dev.zalrpakraft.player.QuestService.claim(sp, a.substring(6));
+                } else if (a.startsWith("track:")) {
+                    dev.zalrpakraft.player.QuestService.track(sp, a.substring(6));
+                } else if ("journal_read".equals(a)) {
                     PlayerProgress pr = ProgressService.of(sp);
                     if (!pr.journalRead) {
                         pr.journalRead = true;

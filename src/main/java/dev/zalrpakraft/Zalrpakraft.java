@@ -34,6 +34,7 @@ public class Zalrpakraft {
 
         BossTable.load();
         ProgressionMap.load();
+        dev.zalrpakraft.data.QuestBook.load();
 
         NeoForge.EVENT_BUS.register(CommonEvents.class);
         LOG.info("Zalepacraft: загружен");

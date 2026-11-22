@@ -29,6 +29,12 @@ public final class ClientHooks {
         Minecraft.getInstance().setScreen(new ConstellationScreen(json, progress));
     }
 
+    public static void openQuests(String json, CompoundTag state) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof QuestBookScreen qb) qb.update(json, state);
+        else mc.setScreen(new QuestBookScreen(json, state));
+    }
+
     public static void openJournal() {
         Minecraft.getInstance().setScreen(JournalScreen.create());
     }
