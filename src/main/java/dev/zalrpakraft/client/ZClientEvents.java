@@ -45,6 +45,15 @@ public final class ZClientEvents {
                 e.setNewScreen(new ZTitleScreen());
         }
 
+        /** Экраны меню (вне мира): звёздное небо поверх стандартной панорамы. */
+        @SubscribeEvent
+        public static void background(net.neoforged.neoforge.client.event.ScreenEvent.BackgroundRendered e) {
+            var mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.level != null || !ZClientConfig.STAR_BACKGROUNDS.get()) return;
+            var sc = e.getScreen();
+            StarSky.render(e.getGuiGraphics(), sc.width, sc.height, -1, -1);
+        }
+
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
             IntroController.clientTick();

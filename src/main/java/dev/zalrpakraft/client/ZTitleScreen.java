@@ -76,33 +76,7 @@ public class ZTitleScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mx, int my, float pt) {
         float t = (Util.getMillis() - openedAt) / 50f;
-        g.fillGradient(0, 0, width, height, 0xFF05081A, 0xFF170A28);
-        // туманности медленно дрейфуют
-        nebula(g, width * 0.25f + Mth.sin(t * 0.004f) * 30, height * 0.3f, width * 0.35f, 0x3A6BD1);
-        nebula(g, width * 0.78f, height * 0.62f + Mth.cos(t * 0.003f) * 25, width * 0.4f, 0x9B4DCB);
-        nebula(g, width * 0.55f, height * 0.12f, width * 0.22f, 0xD15FA0);
-        // звёзды с параллаксом за мышью
-        float px = (mx - width / 2f) / width, py = (my - height / 2f) / height;
-        for (float[] s : stars) {
-            float x = ((s[0] * width + t * 0.05f * s[4] - px * 14 * s[4]) % width + width) % width;
-            float y = s[1] * height - py * 10 * s[4];
-            float tw = 0.55f + 0.45f * Mth.sin(t * 0.07f + s[3]);
-            int a = Mth.clamp((int) (255 * s[2] * tw), 0, 255);
-            int size = s[4] > 1.05f ? 2 : 1;
-            g.fill((int) x, (int) y, (int) x + size, (int) y + size, (a << 24) | 0xFFFFFF);
-        }
-        // метеор
-        if (meteor == null && rnd.nextInt(240) == 0)
-            meteor = new float[]{rnd.nextFloat() * width * 0.8f + width * 0.2f, -10, -3.2f - rnd.nextFloat() * 2, 1.6f + rnd.nextFloat(), 0};
-        if (meteor != null) {
-            meteor[0] += meteor[2]; meteor[1] += meteor[3]; meteor[4] += 1;
-            for (int i = 0; i < 26; i++) {
-                int a = (int) (220 * (1f - i / 26f));
-                int x = (int) (meteor[0] - meteor[2] * i * 0.9f), y = (int) (meteor[1] - meteor[3] * i * 0.9f);
-                g.fill(x, y, x + 2, y + 1, (a << 24) | (i < 3 ? 0xFFFFFF : 0xFFB070));
-            }
-            if (meteor[1] > height + 20 || meteor[0] < -40) meteor = null;
-        }
+        StarSky.render(g, width, height, mx, my);
         // кольцо из 12 глаз вокруг логотипа
         float cx = width / 2f, cy = logoY() + 12;
         float rx = Math.min(width * 0.36f, 210), ry = rx * 0.32f;

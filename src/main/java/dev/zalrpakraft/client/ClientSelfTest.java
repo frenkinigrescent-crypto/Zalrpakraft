@@ -85,7 +85,11 @@ public final class ClientSelfTest {
                 qb.select("prologue", "pr_iron");
             }
             case 330 -> shot(mc, "zk_7_quests.png");
-            case 340 -> {
+            case 340 -> mc.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(new ZTitleScreen()));
+            case 400 -> shot(mc, "zk_8_worlds.png");
+            case 405 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.openFresh(mc, mc.screen);
+            case 450 -> shot(mc, "zk_9_create.png");
+            case 460 -> {
                 Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                 mc.stop();
             }

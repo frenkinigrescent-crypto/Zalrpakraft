@@ -272,3 +272,54 @@ for s in (16, 32, 48, 128, 256):
     star_eye(s).save(os.path.join(ICONS, f"icon_{s}.png"))
 star_eye(128).save(os.path.join(ROOT, "zalrpakraft_logo.png"))
 print("icons ok")
+
+# ---------- стиль интерфейса (перекрывает стандартные текстуры меню) ----------
+GUI = os.path.join(ROOT, "assets", "minecraft", "textures", "gui")
+SPR = os.path.join(GUI, "sprites", "widget")
+os.makedirs(SPR, exist_ok=True)
+import json as _json
+def tile(name, alpha, seed):
+    im = Image.new("RGBA", (32, 32)); p = im.load(); r = random.Random(seed)
+    for y in range(32):
+        for x in range(32):
+            p[x, y] = (14, 9, 30, alpha)
+    for _ in range(10):
+        x, y = r.randint(0, 31), r.randint(0, 31); p[x, y] = (40, 28, 72, alpha)
+    im.save(os.path.join(GUI, name))
+tile("menu_list_background.png", 150, 1)
+tile("menu_background.png", 120, 2)
+for name, rows in (("header_separator.png", [(150, 120, 230, 255), (24, 14, 44, 200)]),
+                   ("footer_separator.png", [(24, 14, 44, 200), (150, 120, 230, 255)])):
+    im = Image.new("RGBA", (32, 2)); p = im.load()
+    for x in range(32):
+        for y in range(2): p[x, y] = rows[y]
+    im.save(os.path.join(GUI, name))
+def button(name, top, bot, border, corner):
+    W, H = 200, 20
+    im = Image.new("RGBA", (W, H)); p = im.load()
+    for y in range(H):
+        c = mix(top, bot, y / (H - 1))
+        for x in range(W): p[x, y] = c
+    for x in range(W): p[x, 0] = border; p[x, H - 1] = border
+    for y in range(H): p[0, y] = border; p[W - 1, y] = border
+    for x in range(1, W - 1): p[x, 1] = shade(top, 1.6)
+    for (x, y) in [(0,0),(1,0),(2,0),(0,1),(0,2),(W-1,H-1),(W-2,H-1),(W-3,H-1),(W-1,H-2),(W-1,H-3)]: p[x, y] = corner
+    im.save(os.path.join(SPR, name))
+    _json.dump({"gui": {"scaling": {"type": "nine_slice", "width": 200, "height": 20, "border": 3}}},
+               open(os.path.join(SPR, name + ".mcmeta"), "w"))
+button("button.png", (34, 22, 58, 215), (14, 10, 28, 215), (106, 84, 168, 255), (183, 156, 255, 255))
+button("button_highlighted.png", (58, 38, 82, 230), (24, 16, 40, 230), (255, 210, 122, 255), (255, 240, 176, 255))
+button("button_disabled.png", (26, 20, 40, 150), (14, 10, 24, 150), (58, 50, 80, 255), (70, 62, 96, 255))
+def field(name, border):
+    W, H = 200, 20
+    im = Image.new("RGBA", (W, H)); p = im.load()
+    for y in range(H):
+        for x in range(W): p[x, y] = (8, 6, 18, 235)
+    for x in range(W): p[x, 0] = border; p[x, H - 1] = border
+    for y in range(H): p[0, y] = border; p[W - 1, y] = border
+    im.save(os.path.join(SPR, name))
+    _json.dump({"gui": {"scaling": {"type": "nine_slice", "width": 200, "height": 20, "border": 1}}},
+               open(os.path.join(SPR, name + ".mcmeta"), "w"))
+field("text_field.png", (106, 84, 168, 255))
+field("text_field_highlighted.png", (255, 210, 122, 255))
+print("gui ok")
