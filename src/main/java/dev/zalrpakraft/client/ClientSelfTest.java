@@ -82,10 +82,10 @@ public final class ClientSelfTest {
                     if (q.chapter.equals("prologue")) i++;
                 }
                 st.put("quests", qs);
-                st.putString("tracked", "pr_iron");
+                st.putString("tracked", "pr_mapkey");
                 QuestBookScreen qb = new QuestBookScreen(dev.zalrpakraft.data.QuestBook.json(), st);
                 mc.setScreen(qb);
-                qb.select("prologue", "pr_iron");
+                qb.select("prologue", "pr_mapkey");
             }
             case 330 -> shot(mc, "zk_7_quests.png");
             case 340 -> mc.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(new ZTitleScreen()));

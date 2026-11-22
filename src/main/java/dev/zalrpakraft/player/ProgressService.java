@@ -50,6 +50,8 @@ public final class ProgressService {
         pr.houseFound = true;
         if (first) {
             p.displayClientMessage(Component.translatable("zalrpakraft.table.first").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC), false);
+            p.displayClientMessage(Component.translatable("zalrpakraft.table.key_hint",
+                    Component.keybind("key.zalrpakraft.map").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY), false);
         }
         Achievements.award(p, "house");
         update(p);

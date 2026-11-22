@@ -16,7 +16,9 @@ public final class TaskText {
             case "kill" -> label.isEmpty() ? entityName(value) : Component.literal(label);
             case "node" -> Component.literal(label.isEmpty() ? nodeName(value) : label);
             case "dimension" -> Component.literal(label.isEmpty() ? value : label);
-            case "story" -> Component.translatable("zalrpakraft.task.story." + value);
+            case "story" -> value.equals("map_key")
+                    ? Component.translatable("zalrpakraft.task.story.map_key", Component.keybind("key.zalrpakraft.map").withStyle(net.minecraft.ChatFormatting.GOLD))
+                    : Component.translatable("zalrpakraft.task.story." + value);
             default -> Component.literal(value);
         };
         String key = switch (type) {

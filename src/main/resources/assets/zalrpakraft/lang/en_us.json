@@ -197,5 +197,9 @@
  "zalrpakraft.journal.p6": "There's something like stars in there. So familiar, damn. Like I've seen them before, I just can't remember where.\n\nI've got almost everything I need. Almost.\n\nYou might never see me again.",
  "zalrpakraft.journal.p7": "Sometimes I think I'm writing to, well, myself. To whoever wakes up on the same grass tomorrow and remembers nothing again.\n\nIf so, hi. You look kinda rough. Eat something.",
  "zalrpakraft.journal.p8": "So, last thing.\n\nDon't go alone, okay? Not because it's dangerous. It's just that afterwards you sit like this writing books for nobody in particular.\n\nN.",
- "zalrpakraft.journal.p9": "(the pages after this are torn out.\n\nI tore them.\n\nit was worse there)"
+ "zalrpakraft.journal.p9": "(the pages after this are torn out.\n\nI tore them.\n\nit was worse there)",
+ "key.zalrpakraft.map": "Star Map",
+ "zalrpakraft.task.story.map_key": "Open the star map with [%s]",
+ "zalrpakraft.map.need_table": "The map opens once you find the Star Table",
+ "zalrpakraft.table.key_hint": "The sky is with you now: press [%s] to open the map anywhere (rebind it in Controls)"
 }

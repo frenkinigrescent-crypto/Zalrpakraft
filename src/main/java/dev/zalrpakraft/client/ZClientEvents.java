@@ -14,6 +14,9 @@ public final class ZClientEvents {
     public static final net.minecraft.client.KeyMapping QUEST_KEY = new net.minecraft.client.KeyMapping(
             "key.zalrpakraft.quests", com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
             org.lwjgl.glfw.GLFW.GLFW_KEY_J, "key.categories.zalrpakraft");
+    public static final net.minecraft.client.KeyMapping MAP_KEY = new net.minecraft.client.KeyMapping(
+            "key.zalrpakraft.map", com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
+            org.lwjgl.glfw.GLFW.GLFW_KEY_K, "key.categories.zalrpakraft");
 
     @EventBusSubscriber(modid = Zalrpakraft.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class ModBus {
@@ -27,6 +30,7 @@ public final class ZClientEvents {
         @SubscribeEvent
         public static void keys(net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent e) {
             e.register(QUEST_KEY);
+            e.register(MAP_KEY);
         }
 
         @SubscribeEvent
@@ -58,6 +62,10 @@ public final class ZClientEvents {
         public static void tick(ClientTickEvent.Post e) {
             IntroController.clientTick();
             ClientSelfTest.tick();
+            while (MAP_KEY.consumeClick()) {
+                if (net.minecraft.client.Minecraft.getInstance().player != null && net.minecraft.client.Minecraft.getInstance().screen == null)
+                    net.neoforged.neoforge.network.PacketDistributor.sendToServer(new dev.zalrpakraft.net.SimplePayload("open_map"));
+            }
             while (QUEST_KEY.consumeClick()) {
                 if (net.minecraft.client.Minecraft.getInstance().player != null && net.minecraft.client.Minecraft.getInstance().screen == null)
                     net.neoforged.neoforge.network.PacketDistributor.sendToServer(new dev.zalrpakraft.net.SimplePayload("open_quests"));

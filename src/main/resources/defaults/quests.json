@@ -1,4 +1,5 @@
 {
+ "_version": 2,
  "_readme": "Книга заданий. Типы задач: item (value — ID, #тег или список ID; count), kill (шаблон моба или список; count), node (узел звёздной карты), dimension, story (journal/house/table). Задания с предметами/мобами, которых нет в сборке, скрываются автоматически (см. лог).",
  "chapters": [
   {
@@ -133,6 +134,32 @@
    },
    "requires": [
     "pr_house"
+   ]
+  },
+  {
+   "id": "pr_mapkey",
+   "chapter": "prologue",
+   "name": "Небо в кармане",
+   "icon": "minecraft:spyglass",
+   "desc": "Стол тебя запомнил. Теперь карту можно открыть где угодно, не возвращаясь в дом. Клавишу можно сменить в Настройки → Управление.",
+   "tasks": [
+    {
+     "type": "story",
+     "value": "map_key",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:compass",
+      "count": 1
+     }
+    ],
+    "xp": 15
+   },
+   "requires": [
+    "pr_table"
    ]
   },
   {

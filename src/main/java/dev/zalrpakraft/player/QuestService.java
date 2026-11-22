@@ -55,6 +55,7 @@ public final class QuestService {
                     case "journal" -> pr.journalRead ? 1 : 0;
                     case "house" -> pr.houseFound ? 1 : 0;
                     case "table" -> pr.tableOpened ? 1 : 0;
+                    case "map_key" -> pr.mapKeyUsed ? 1 : 0;
                     default -> 0;
                 };
             default:

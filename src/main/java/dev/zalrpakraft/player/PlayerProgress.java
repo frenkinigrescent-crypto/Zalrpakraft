@@ -18,6 +18,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
     public boolean journalRead;
     public boolean houseFound;
     public boolean tableOpened;
+    public boolean mapKeyUsed;
     public final Set<String> unlockedDims = new LinkedHashSet<>();
     public final Set<String> visitedDims = new LinkedHashSet<>();
     public final Set<String> studied = new LinkedHashSet<>();
@@ -34,6 +35,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         t.putBoolean("journalRead", journalRead);
         t.putBoolean("houseFound", houseFound);
         t.putBoolean("tableOpened", tableOpened);
+        t.putBoolean("mapKeyUsed", mapKeyUsed);
         t.put("unlockedDims", list(unlockedDims));
         t.put("visitedDims", list(visitedDims));
         t.put("studied", list(studied));
@@ -53,6 +55,7 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         journalRead = t.getBoolean("journalRead");
         houseFound = t.getBoolean("houseFound");
         tableOpened = t.getBoolean("tableOpened");
+        mapKeyUsed = t.getBoolean("mapKeyUsed");
         fill(unlockedDims, t, "unlockedDims");
         fill(visitedDims, t, "visitedDims");
         fill(studied, t, "studied");

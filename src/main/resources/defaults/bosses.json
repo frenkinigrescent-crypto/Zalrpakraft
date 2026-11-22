@@ -1,29 +1,106 @@
 {
-  "_readme": "entity — ID моба (можно шаблон 'мод:*'), drop — что выпадает КАЖДОМУ игроку рядом, meteor — узел звёздной карты, который закрывается убийством. При запуске мод пишет в лог, каких ID нет в сборке.",
-  "bosses": [
-    {"entity": "mowziesmobs:ferrous_wroughtnaut", "drop": "zalrpakraft:rust_core", "meteor": "m_wroughtnaut"},
-    {"entity": "mowziesmobs:frostmaw", "drop": "zalrpakraft:frost_heart", "meteor": "m_frostmaw"},
-    {"entity": "mowziesmobs:umvuthi", "drop": "zalrpakraft:sun_feather", "meteor": "m_umvuthi"},
-    {"entity": "mowziesmobs:sculptor", "drop": "zalrpakraft:sculptor_chisel", "meteor": "m_sculptor"},
-
-    {"entity": "aquamirae:captain_cornelia", "drop": "zalrpakraft:cornelia_lantern", "meteor": "m_cornelia"},
-    {"entity": "aquamirae:maze_mother", "drop": "zalrpakraft:maze_pearl", "meteor": "m_maze_mother"},
-
-    {"entity": "cataclysm:ignis", "drop": "zalrpakraft:ignis_ember", "meteor": "m_ignis"},
-    {"entity": "cataclysm:ignited_revenant", "drop": "zalrpakraft:revenant_ash", "meteor": "m_revenant"},
-    {"entity": "cataclysm:netherite_monstrosity", "drop": "zalrpakraft:forge_heart", "meteor": "m_monstrosity"},
-    {"entity": "cataclysm:the_leviathan", "drop": "zalrpakraft:leviathan_scale", "meteor": "m_leviathan"},
-    {"entity": "cataclysm:ancient_remnant", "drop": "zalrpakraft:remnant_sand", "meteor": "m_remnant"},
-    {"entity": "cataclysm:the_harbinger", "drop": "zalrpakraft:harbinger_gear", "meteor": "m_harbinger"},
-    {"entity": "cataclysm:ender_guardian", "drop": "zalrpakraft:guardian_shard", "meteor": "m_ender_guardian"},
-    {"entity": "cataclysm:maledictus", "drop": "zalrpakraft:meteor_shard", "meteor": "m_maledictus"},
-    {"entity": "cataclysm:scylla", "drop": "zalrpakraft:meteor_shard", "meteor": "m_scylla"},
-
-    {"entity": "fdbosses:*", "drop": "zalrpakraft:qliphoth_fragment", "meteor": "m_qliphoth"},
-    {"entity": "block_factorys_bosses:*", "drop": "zalrpakraft:rise_trophy", "meteor": "m_rise"},
-    {"entity": "cult*:*", "drop": "zalrpakraft:azazel_sigil", "meteor": "m_azazel"},
-
-    {"entity": "minecraft:wither", "drop": "zalrpakraft:meteor_shard", "meteor": "m_wither"},
-    {"entity": "minecraft:ender_dragon", "drop": "", "meteor": "m_dragon"}
-  ]
+ "_version": 1,
+ "_readme": "entity — ID моба (можно шаблон 'мод:*'), drop — что выпадает КАЖДОМУ игроку рядом, meteor — узел звёздной карты, который закрывается убийством. При запуске мод пишет в лог, каких ID нет в сборке.",
+ "bosses": [
+  {
+   "entity": "mowziesmobs:ferrous_wroughtnaut",
+   "drop": "zalrpakraft:rust_core",
+   "meteor": "m_wroughtnaut"
+  },
+  {
+   "entity": "mowziesmobs:frostmaw",
+   "drop": "zalrpakraft:frost_heart",
+   "meteor": "m_frostmaw"
+  },
+  {
+   "entity": "mowziesmobs:umvuthi",
+   "drop": "zalrpakraft:sun_feather",
+   "meteor": "m_umvuthi"
+  },
+  {
+   "entity": "mowziesmobs:sculptor",
+   "drop": "zalrpakraft:sculptor_chisel",
+   "meteor": "m_sculptor"
+  },
+  {
+   "entity": "aquamirae:captain_cornelia",
+   "drop": "zalrpakraft:cornelia_lantern",
+   "meteor": "m_cornelia"
+  },
+  {
+   "entity": "aquamirae:maze_mother",
+   "drop": "zalrpakraft:maze_pearl",
+   "meteor": "m_maze_mother"
+  },
+  {
+   "entity": "cataclysm:ignis",
+   "drop": "zalrpakraft:ignis_ember",
+   "meteor": "m_ignis"
+  },
+  {
+   "entity": "cataclysm:ignited_revenant",
+   "drop": "zalrpakraft:revenant_ash",
+   "meteor": "m_revenant"
+  },
+  {
+   "entity": "cataclysm:netherite_monstrosity",
+   "drop": "zalrpakraft:forge_heart",
+   "meteor": "m_monstrosity"
+  },
+  {
+   "entity": "cataclysm:the_leviathan",
+   "drop": "zalrpakraft:leviathan_scale",
+   "meteor": "m_leviathan"
+  },
+  {
+   "entity": "cataclysm:ancient_remnant",
+   "drop": "zalrpakraft:remnant_sand",
+   "meteor": "m_remnant"
+  },
+  {
+   "entity": "cataclysm:the_harbinger",
+   "drop": "zalrpakraft:harbinger_gear",
+   "meteor": "m_harbinger"
+  },
+  {
+   "entity": "cataclysm:ender_guardian",
+   "drop": "zalrpakraft:guardian_shard",
+   "meteor": "m_ender_guardian"
+  },
+  {
+   "entity": "cataclysm:maledictus",
+   "drop": "zalrpakraft:meteor_shard",
+   "meteor": "m_maledictus"
+  },
+  {
+   "entity": "cataclysm:scylla",
+   "drop": "zalrpakraft:meteor_shard",
+   "meteor": "m_scylla"
+  },
+  {
+   "entity": "fdbosses:*",
+   "drop": "zalrpakraft:qliphoth_fragment",
+   "meteor": "m_qliphoth"
+  },
+  {
+   "entity": "block_factorys_bosses:*",
+   "drop": "zalrpakraft:rise_trophy",
+   "meteor": "m_rise"
+  },
+  {
+   "entity": "cult*:*",
+   "drop": "zalrpakraft:azazel_sigil",
+   "meteor": "m_azazel"
+  },
+  {
+   "entity": "minecraft:wither",
+   "drop": "zalrpakraft:meteor_shard",
+   "meteor": "m_wither"
+  },
+  {
+   "entity": "minecraft:ender_dragon",
+   "drop": "",
+   "meteor": "m_dragon"
+  }
+ ]
 }

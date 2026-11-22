@@ -30,7 +30,17 @@ public final class ZNetwork {
         ctx.enqueueWork(() -> {
             if (ctx.player() instanceof ServerPlayer sp) {
                 String a = p.action();
-                if (a.equals("open_quests")) {
+                if (a.equals("open_map")) {
+                    PlayerProgress pr = ProgressService.of(sp);
+                    if (!pr.tableOpened) {
+                        sp.displayClientMessage(net.minecraft.network.chat.Component.translatable("zalrpakraft.map.need_table")
+                                .withStyle(net.minecraft.ChatFormatting.GRAY), true);
+                    } else {
+                        pr.mapKeyUsed = true;
+                        ProgressService.openMap(sp);
+                        dev.zalrpakraft.player.QuestService.check(sp);
+                    }
+                } else if (a.equals("open_quests")) {
                     dev.zalrpakraft.player.QuestService.check(sp);
                     dev.zalrpakraft.player.QuestService.openBook(sp);
                 } else if (a.startsWith("claim:")) {

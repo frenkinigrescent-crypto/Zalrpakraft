@@ -313,6 +313,15 @@ public class ConstellationScreen extends Screen {
 
     // ---------- управление ----------
     @Override
+    public boolean keyPressed(int key, int scan, int mods) {
+        if (ZClientEvents.MAP_KEY.matches(key, scan)) {
+            onClose();
+            return true;
+        }
+        return super.keyPressed(key, scan, mods);
+    }
+
+    @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
         panX += (float) (dx / zoom);
         panY += (float) (dy / zoom);
