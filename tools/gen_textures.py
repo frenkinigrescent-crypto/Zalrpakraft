@@ -168,15 +168,7 @@ def key(name, metal, gem):
 key("nether_key","#3A2A2A","#FF4A1A")
 key("paradise_key","#E8C24A","#FFFFFF")
 
-# дневник
-im = Image.new("RGBA",(16,16),(0,0,0,0)); px = im.load()
-for y in range(2,15):
-    for x in range(3,13):
-        px[x,y] = (92,58,34,255) if x>3 else (60,36,20,255)
-for y in range(3,14): px[12,y]=(230,220,195,255)
-for (x,y) in [(8,6),(7,7),(8,7),(9,7),(8,8),(6,7),(10,7),(8,5),(8,9)]: px[x,y]=(255,226,140,255)
-for y in range(2,15): px[3,y]=(40,24,14,255)
-im.save(os.path.join(ITEM,"stranger_journal.png"))
+# дневник: рисуется отдельным скриптом по пиксельной карте (tools/journal_texture.py)
 
 # звёздный стол
 rnd = random.Random(7)
