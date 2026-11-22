@@ -76,6 +76,12 @@ public class QuestBookScreen extends Screen {
     private int listW() { return Math.min(150, width / 3); }
     private int top() { return 30; }
     private int bottom() { return height - 12; }
+    private int chapRow() {
+        int n = 0;
+        for (Chapter c : book.chapters) if (!quests(c.id).isEmpty()) n++;
+        return Mth.clamp((bottom() - top()) / Math.max(1, n), 12, 21);
+    }
+
     private int detailX() { return 10 + chapW() + 6 + listW() + 6; }
 
     @Override
@@ -153,14 +159,21 @@ public class QuestBookScreen extends Screen {
             int cd = 0, claimable = 0;
             for (Quest q : qs) { int s = status(q); if (s >= 2) cd++; if (s == 2) claimable++; }
             boolean sel = c.id.equals(chapter);
-            boolean hov = mx >= x - 2 && mx < x + w && my >= y - 1 && my < y + 19;
-            if (sel) g.fill(x - 2, y - 1, x + w, y + 19, 0x60000000 | (c.color & 0xFFFFFF));
-            else if (hov) g.fill(x - 2, y - 1, x + w, y + 19, 0x30FFFFFF);
-            g.renderItem(TaskText.icon(c.icon), x, y);
-            g.drawString(font, font.plainSubstrByWidth(c.name, w - 44), x + 20, y + 1, 0xFF000000 | c.color, false);
-            g.drawString(font, cd + "/" + qs.size(), x + 20, y + 10, 0xFF8C8399, false);
-            if (claimable > 0) g.drawString(font, "★", x + w - 10, y + 5, 0xFFFFD27A, false);
-            y += 21;
+            int rh = chapRow();
+            boolean hov = mx >= x - 2 && mx < x + w && my >= y - 1 && my < y + rh - 2;
+            if (sel) g.fill(x - 2, y - 1, x + w, y + rh - 2, 0x60000000 | (c.color & 0xFFFFFF));
+            else if (hov) g.fill(x - 2, y - 1, x + w, y + rh - 2, 0x30FFFFFF);
+            if (rh >= 19) {
+                g.renderItem(TaskText.icon(c.icon), x, y);
+                g.drawString(font, font.plainSubstrByWidth(c.name, w - 34), x + 20, y + 1, 0xFF000000 | c.color, false);
+                g.drawString(font, cd + "/" + qs.size(), x + 20, y + 10, 0xFF8C8399, false);
+            } else {
+                String cnt = cd + "/" + qs.size();
+                g.drawString(font, font.plainSubstrByWidth(c.name, w - 14 - font.width(cnt)), x + 2, y + 1, 0xFF000000 | c.color, false);
+                g.drawString(font, cnt, x + w - 12 - font.width(cnt), y + 1, 0xFF8C8399, false);
+            }
+            if (claimable > 0) g.drawString(font, "★", x + w - 10, y + (rh >= 19 ? 5 : 1), 0xFFFFD27A, false);
+            y += rh;
         }
 
         // список заданий главы
@@ -289,13 +302,13 @@ public class QuestBookScreen extends Screen {
         int x = 10, y = top(), w = chapW();
         for (Chapter c : book.chapters) {
             if (quests(c.id).isEmpty()) continue;
-            if (mx >= x - 2 && mx < x + w && my >= y - 1 && my < y + 19) {
+            if (mx >= x - 2 && mx < x + w && my >= y - 1 && my < y + chapRow() - 2) {
                 chapter = lastChapter = c.id;
                 listScroll = 0;
                 playClick();
                 return true;
             }
-            y += 21;
+            y += chapRow();
         }
         int lx = x + w + 10, lw = listW();
         List<Quest> list = quests(chapter);
