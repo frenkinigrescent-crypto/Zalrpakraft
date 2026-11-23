@@ -520,7 +520,11 @@ public class StarMapScreen extends Screen {
 
     private List<Component> nodeTip(PNode n, boolean un, boolean av, boolean afford) {
         List<Component> l = new ArrayList<>();
-        l.add(n.stack.isEmpty() ? Component.literal(n.item) : n.stack.getHoverName().copy().withStyle(ChatFormatting.WHITE));
+        if (n.stack.isEmpty()) l.add(Component.literal(n.item));
+        else {
+            // настоящая подсказка предмета: через неё Create (Ponder) видит предмет и даёт «Зажми [W]»
+            l.addAll(Screen.getTooltipFromItem(minecraft, n.stack));
+        }
         String cat = switch (n.cat) { case 'c' -> "complex"; case 'm' -> "medium"; default -> "light"; };
         ChatFormatting cc = switch (n.cat) { case 'c' -> ChatFormatting.RED; case 'm' -> ChatFormatting.YELLOW; default -> ChatFormatting.GREEN; };
         l.add(Component.translatable("zalrpakraft.star.cat." + cat, n.cost).withStyle(cc));
