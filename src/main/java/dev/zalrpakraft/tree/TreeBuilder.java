@@ -212,8 +212,14 @@ public final class TreeBuilder {
                     }
                     tree.nodes.put(nid, n);
                 }
-                Layout.branches(pl, tree.nodes, depth, maxRoots);
-                Layout.planet(pl, tree.nodes);
+                // ветки → раскладка; раскладка рвёт циклы и может дать новые входы — повторяем
+                for (int pass = 0; pass < 3; pass++) {
+                    Layout.branches(pl, tree.nodes, depth, maxRoots);
+                    Layout.planet(pl, tree.nodes);
+                    int roots = 0;
+                    for (String nid : pl.nodes) if (tree.nodes.get(nid).parents.isEmpty()) roots++;
+                    if (roots <= maxRoots) break;
+                }
                 for (String nid : pl.nodes) {
                     Tree.Node n = tree.nodes.get(nid);
                     JsonObject ov = overrides.has(nid) ? overrides.getAsJsonObject(nid) : null;

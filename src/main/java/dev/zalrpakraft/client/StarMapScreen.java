@@ -373,13 +373,29 @@ public class StarMapScreen extends Screen {
         float cx = sx(0), cy = sy(0);
         float nr = 15 * zoom;
         boolean locked = planetLocked(planetIdx);
+        // подсветка пути к звезде под курсором
+        Set<String> path = new HashSet<>();
+        for (PNode n : p.nodes) {
+            if (dist(mx, my, sx(n.x), sy(n.y)) < nr + 2) {
+                Deque<String> q = new ArrayDeque<>(List.of(n.item));
+                while (!q.isEmpty() && path.size() < 200) {
+                    String id = q.poll();
+                    if (!path.add(id)) continue;
+                    PNode pn = byId.get(id);
+                    if (pn != null) q.addAll(pn.parents);
+                }
+                break;
+            }
+        }
         // 1. связи, планета и кружки узлов — одним пакетом
         g.drawManaged(() -> {
             for (PNode n : p.nodes) {
                 boolean un = ClientTree.UNLOCKED.contains(n.item);
+                boolean front = un || (!locked && available(n));
                 float x = sx(n.x), y = sy(n.y);
                 if (n.parents.isEmpty()) {
-                    if (visible(cx, cy, x, y)) quadLine(g, cx, cy, x, y, un ? 2f : 1f, un ? 0xFFE8B84A : 0xFF2A3150);
+                    if (visible(cx, cy, x, y)) quadLine(g, cx, cy, x, y, un ? 2f : 1f,
+                            un ? 0xFFE8B84A : path.contains(n.item) ? 0xFFB79CFF : front ? 0xC0505A80 : 0x502A3150);
                 }
                 for (String par : n.parents) {
                     PNode pn = byId.get(par);
@@ -387,7 +403,9 @@ public class StarMapScreen extends Screen {
                     float px = sx(pn.x), py = sy(pn.y);
                     if (!visible(px, py, x, y)) continue;
                     boolean lit = un && ClientTree.UNLOCKED.contains(par);
-                    quadLine(g, px, py, x, y, lit ? 2f : 1f, lit ? 0xFFE8B84A : 0xFF2A3150);
+                    boolean onPath = path.contains(n.item) && path.contains(par);
+                    int col = lit ? 0xFFE8B84A : onPath ? 0xFFB79CFF : front ? 0xC0505A80 : 0x452A3150;
+                    quadLine(g, px, py, x, y, lit || onPath ? 2f : 1f, col);
                 }
             }
             float pr = 34 * zoom + 2;
