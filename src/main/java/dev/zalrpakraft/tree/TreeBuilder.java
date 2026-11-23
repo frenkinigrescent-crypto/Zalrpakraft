@@ -112,6 +112,11 @@ public final class TreeBuilder {
         tree.expPerPoint = cfg.get("exp_per_point").getAsInt();
         tree.startingPoints = cfg.get("starting_points").getAsInt();
         tree.pointsPerMeteor = cfg.has("points_per_meteor") ? cfg.get("points_per_meteor").getAsInt() : 3;
+        tree.planetCompleteBonus = cfg.has("planet_complete_bonus") ? cfg.get("planet_complete_bonus").getAsInt() : 3;
+        int ringStep = cfg.has("ring_cost_step") ? Math.max(1, cfg.get("ring_cost_step").getAsInt()) : 2;
+        int maxCost = cfg.has("max_cost") ? cfg.get("max_cost").getAsInt() : 12;
+        int maxRoots = cfg.has("max_entry_points") ? Math.max(1, cfg.get("max_entry_points").getAsInt()) : 3;
+        int sunReq = cfg.has("planet_unlock_sun_nodes") ? cfg.get("planet_unlock_sun_nodes").getAsInt() : 5;
         JsonObject names = cfg.has("names") ? cfg.getAsJsonObject("names") : new JsonObject();
         JsonObject planetRules = cfg.has("planets") ? cfg.getAsJsonObject("planets") : new JsonObject();
 
@@ -207,7 +212,14 @@ public final class TreeBuilder {
                     }
                     tree.nodes.put(nid, n);
                 }
+                Layout.branches(pl, tree.nodes, depth, maxRoots);
                 Layout.planet(pl, tree.nodes);
+                for (String nid : pl.nodes) {
+                    Tree.Node n = tree.nodes.get(nid);
+                    JsonObject ov = overrides.has(nid) ? overrides.getAsJsonObject(nid) : null;
+                    if (ov == null || !ov.has("cost")) n.cost = Math.min(maxCost, n.cost + n.depth / ringStep);
+                }
+                if (pi > 0) pl.requiresSun = Math.min(sunReq, sd.planets.get(0).nodes.size());
             }
             tree.systems.put(sys, sd);
         }

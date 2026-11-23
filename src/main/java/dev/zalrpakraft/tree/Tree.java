@@ -11,7 +11,8 @@ public final class Tree {
         public String item;
         public String system;
         public int planet;          // индекс в system.planets
-        public int ring;
+        public int ring;            // кольцо на экране
+        public int depth;           // глубина в ветке (для цены)
         public float x, y;          // координаты на виде планеты
         public String category;     // light / medium / complex
         public int cost, exp;
@@ -22,6 +23,7 @@ public final class Tree {
         public String id, name;
         public int color;
         public List<String> nodes = new ArrayList<>();
+        public int requiresSun;     // сколько звёзд солнца открыть, чтобы планета стала доступна
     }
 
     public static final class SystemDef {
@@ -42,6 +44,7 @@ public final class Tree {
     public int expPerPoint = 100;
     public int startingPoints = 3;
     public int pointsPerMeteor = 3;
+    public int planetCompleteBonus = 3;
 
     public static final Tree EMPTY = new Tree();
 }

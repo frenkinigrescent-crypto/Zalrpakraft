@@ -100,6 +100,16 @@ public final class StarService {
         if (n == null) return;
         PlayerProgress pr = ProgressService.of(p);
         if (pr.unlockedItems.contains(item)) return;
+        Tree.SystemDef sys = TreeBuilder.tree().systems.get(n.system);
+        Tree.Planet planet = sys.planets.get(n.planet);
+        if (planet.requiresSun > 0) {
+            int sun = 0;
+            for (String id : sys.planets.get(0).nodes) if (pr.unlockedItems.contains(id)) sun++;
+            if (sun < planet.requiresSun) {
+                p.displayClientMessage(Component.translatable("zalrpakraft.star.planet_locked", planet.requiresSun).withStyle(ChatFormatting.RED), true);
+                return;
+            }
+        }
         if (!available(n, pr.unlockedItems)) {
             p.displayClientMessage(Component.translatable("zalrpakraft.star.need_parent").withStyle(ChatFormatting.RED), true);
             return;
@@ -114,6 +124,14 @@ public final class StarService {
         if (ws.anyUnlocked.add(item)) ws.setDirty();
         p.level().playSound(null, p.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.0F, 1.3F);
         Achievements.checkStars(p, pr);
+        boolean complete = true;
+        for (String id : planet.nodes) if (!pr.unlockedItems.contains(id)) { complete = false; break; }
+        if (complete && TreeBuilder.tree().planetCompleteBonus > 0) {
+            pr.starPoints += TreeBuilder.tree().planetCompleteBonus;
+            p.displayClientMessage(Component.translatable("zalrpakraft.star.planet_complete", planet.name, TreeBuilder.tree().planetCompleteBonus)
+                    .withStyle(ChatFormatting.GOLD), false);
+            p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.6F, 1.2F);
+        }
         sync(p);
         openSystem(p, n.system);
     }

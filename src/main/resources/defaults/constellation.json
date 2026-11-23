@@ -1,21 +1,21 @@
 {
- "_version": 1,
+ "_version": 2,
  "_readme": "Звёздная карта в стиле Create: Constellation. Системы — моды (аддоны присоединяются к родительскому моду по зависимостям), планеты — направления. Узлы строятся автоматически из рецептов сборки. Здесь — правила и баланс.",
- "exp_per_point": 100,
- "starting_points": 3,
- "points_per_meteor": 3,
+ "exp_per_point": 150,
+ "starting_points": 4,
+ "points_per_meteor": 4,
  "categories": {
   "light": {
-   "cost": 1,
+   "cost": 2,
    "exp": 3
   },
   "medium": {
-   "cost": 2,
-   "exp": 4
+   "cost": 4,
+   "exp": 5
   },
   "complex": {
-   "cost": 3,
-   "exp": 6
+   "cost": 6,
+   "exp": 8
   }
  },
  "complexity": {
@@ -202,5 +202,11 @@
   "create:andesite_alloy": {
    "category": "light"
   }
- }
+ },
+ "ring_cost_step": 2,
+ "max_cost": 12,
+ "max_entry_points": 3,
+ "planet_unlock_sun_nodes": 5,
+ "planet_complete_bonus": 3,
+ "_balance": "Цена узла = цена категории + (глубина ветки / ring_cost_step), не больше max_cost. На каждой планете не больше max_entry_points входов, остальное — ветки по материалам (латунь, медь, андезит…). Планеты вокруг солнца открываются, когда на солнце открыто planet_unlock_sun_nodes звёзд. Полностью изученная планета даёт planet_complete_bonus очков."
 }

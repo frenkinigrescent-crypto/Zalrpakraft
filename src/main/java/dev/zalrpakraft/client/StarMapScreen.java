@@ -33,7 +33,7 @@ public class StarMapScreen extends Screen {
     // ---- данные ----
     private record Sys(String id, String name, int color, float x, float y, int total, int done, int[] planets) {}
     private record PNode(String item, ItemStack stack, float x, float y, int cost, int exp, char cat, List<String> parents) {}
-    private record Pl(String id, String name, int color, List<PNode> nodes) {}
+    private record Pl(String id, String name, int color, List<PNode> nodes, int req) {}
 
     private final List<Sys> systems = new ArrayList<>();
     private final Map<String, ProgressionMap.Node> mapNodes = new LinkedHashMap<>();
@@ -104,7 +104,8 @@ public class StarMapScreen extends Screen {
                 nodes.add(new PNode(item, st, n.get("x").getAsFloat(), n.get("y").getAsFloat(), n.get("c").getAsInt(), n.get("e").getAsInt(),
                         n.get("k").getAsString().charAt(0), par));
             }
-            planets.add(new Pl(p.get("id").getAsString(), p.get("name").getAsString(), p.get("color").getAsInt(), nodes));
+            planets.add(new Pl(p.get("id").getAsString(), p.get("name").getAsString(), p.get("color").getAsInt(), nodes,
+                    p.has("req") ? p.get("req").getAsInt() : 0));
         }
         if (!same || level == Level.GALAXY) {
             level = Level.SYSTEM;
@@ -160,6 +161,10 @@ public class StarMapScreen extends Screen {
     }
 
     private void sky(GuiGraphics g, float pt) {
+        g.drawManaged(() -> skyInner(g, pt));
+    }
+
+    private void skyInner(GuiGraphics g, float pt) {
         float t = ticks + pt;
         g.fillGradient(0, 0, width, height, 0xFF080C1E, 0xFF0B0E22);
         for (float[] s : stars) {
@@ -173,17 +178,36 @@ public class StarMapScreen extends Screen {
     }
 
     // ==================== РИСОВАНИЕ ====================
+    /** Самотест: среднее время отрисовки карты, мс. */
+    public static double avgRenderMs;
+    private static long frames, nanos;
+
+    public static void resetTiming() {
+        frames = 0;
+        nanos = 0;
+    }
+
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
+        long t0 = System.nanoTime();
+        renderMap(g, mx, my, pt);
+        nanos += System.nanoTime() - t0;
+        frames++;
+        avgRenderMs = nanos / 1e6 / frames;
+    }
+
+    private void renderMap(GuiGraphics g, int mx, int my, float pt) {
         zoom = Mth.lerp(0.2f, zoom, tZoom);
         sky(g, pt);
         float t = ticks + pt;
-        List<Component> tip = null;
+        @SuppressWarnings("unchecked")
+        List<Component>[] box = new List[1];
         switch (level) {
-            case GALAXY -> tip = renderGalaxy(g, mx, my, t);
-            case SYSTEM -> tip = renderSystem(g, mx, my, t);
-            case PLANET -> tip = renderPlanet(g, mx, my, t);
+            case GALAXY -> g.drawManaged(() -> box[0] = renderGalaxy(g, mx, my, t));
+            case SYSTEM -> g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
+            case PLANET -> box[0] = renderPlanet(g, mx, my, t);
         }
+        List<Component> tip = box[0];
         renderHud(g);
         g.pose().pushPose();
         g.pose().translate(0, 0, 450);
@@ -195,9 +219,11 @@ public class StarMapScreen extends Screen {
     private void renderHud(GuiGraphics g) {
         g.pose().pushPose();
         g.pose().translate(0, 0, 400);
-        g.fillGradient(0, 0, width, 30, 0xE0080C1E, 0x00080C1E);
-        g.fillGradient(0, height - 30, width, height, 0x00080C1E, 0xE0080C1E);
-        hudContent(g);
+        g.drawManaged(() -> {
+            g.fillGradient(0, 0, width, 30, 0xE0080C1E, 0x00080C1E);
+            g.fillGradient(0, height - 30, width, height, 0x00080C1E, 0xE0080C1E);
+            hudContent(g);
+        });
         g.pose().popPose();
     }
 
@@ -318,8 +344,10 @@ public class StarMapScreen extends Screen {
             float[] pos = planetPos(i, t);
             float x = sx(pos[0]), y = sy(pos[1]);
             float pr = (7 + Math.min(6, p.nodes.size() / 8f)) * zoom + 2;
-            sun(g, x, y, pr, p.color);
-            g.drawCenteredString(font, p.name, (int) x, (int) (y + pr + 4), 0xFFE6DDF8);
+            boolean lockedP = planetLocked(i);
+            sun(g, x, y, pr, lockedP ? 0x3A4260 : p.color);
+            if (lockedP) lock(g, (int) (x - 3), (int) (y - 4));
+            g.drawCenteredString(font, p.name, (int) x, (int) (y + pr + 4), lockedP ? 0xFF6E6680 : 0xFFE6DDF8);
             if (dist(mx, my, x, y) < pr + 4) tip = planetTip(i);
         }
         return tip;
@@ -329,9 +357,12 @@ public class StarMapScreen extends Screen {
         Pl p = planets.get(i);
         int done = 0;
         for (PNode n : p.nodes) if (ClientTree.UNLOCKED.contains(n.item)) done++;
-        return List.of(Component.literal(p.name).withColor(p.color),
-                Component.translatable("zalrpakraft.map.system.progress", done, p.nodes.size()).withStyle(ChatFormatting.GRAY),
-                Component.translatable("zalrpakraft.map.planet.open").withStyle(ChatFormatting.YELLOW));
+        List<Component> l = new ArrayList<>();
+        l.add(Component.literal(p.name).withColor(p.color));
+        l.add(Component.translatable("zalrpakraft.map.system.progress", done, p.nodes.size()).withStyle(ChatFormatting.GRAY));
+        if (planetLocked(i)) l.add(Component.translatable("zalrpakraft.star.planet_locked_tip", sunUnlocked(), p.req).withStyle(ChatFormatting.RED));
+        l.add(Component.translatable("zalrpakraft.map.planet.open").withStyle(ChatFormatting.YELLOW));
+        return l;
     }
 
     private List<Component> renderPlanet(GuiGraphics g, int mx, int my, float t) {
@@ -340,66 +371,127 @@ public class StarMapScreen extends Screen {
         Map<String, PNode> byId = new HashMap<>();
         for (PNode n : p.nodes) byId.put(n.item, n);
         float cx = sx(0), cy = sy(0);
-        // связи
-        for (PNode n : p.nodes) {
-            boolean un = ClientTree.UNLOCKED.contains(n.item);
-            if (n.parents.isEmpty()) {
-                boolean lit = un;
-                line(g, cx, cy, sx(n.x), sy(n.y), lit ? 0xFFE8B84A : 0xFF2A3150, lit ? 2 : 1);
-            }
-            for (String par : n.parents) {
-                PNode pn = byId.get(par);
-                if (pn == null) continue;
-                boolean lit = un && ClientTree.UNLOCKED.contains(par);
-                line(g, sx(pn.x), sy(pn.y), sx(n.x), sy(n.y), lit ? 0xFFE8B84A : 0xFF2A3150, lit ? 2 : 1);
-            }
-        }
-        // планета в центре
-        float pr = 34 * zoom + 2;
-        for (int i = 4; i >= 1; i--) disc(g, cx, cy, pr * (1 + i * 0.22f), ((int) (26 / (float) i) << 24) | (p.color & 0xFFFFFF));
-        sun(g, cx, cy, pr, p.color);
-        dottedCircle(g, cx, cy, pr + 4, 0xA0FFE08A);
-        // узлы
-        List<Component> tip = null;
         float nr = 15 * zoom;
-        // подпись планеты — поверх, на тёмной плашке
-        g.pose().pushPose();
-        g.pose().translate(0, 0, 300);
-        int tw = font.width(p.name);
-        g.fill((int) cx - tw / 2 - 3, (int) cy - 5, (int) cx + tw / 2 + 3, (int) cy + 6, 0xA0000000);
-        g.drawCenteredString(font, p.name, (int) cx, (int) cy - 4, 0xFFFFE6A6);
-        g.pose().popPose();
+        boolean locked = planetLocked(planetIdx);
+        // 1. связи, планета и кружки узлов — одним пакетом
+        g.drawManaged(() -> {
+            for (PNode n : p.nodes) {
+                boolean un = ClientTree.UNLOCKED.contains(n.item);
+                float x = sx(n.x), y = sy(n.y);
+                if (n.parents.isEmpty()) {
+                    if (visible(cx, cy, x, y)) quadLine(g, cx, cy, x, y, un ? 2f : 1f, un ? 0xFFE8B84A : 0xFF2A3150);
+                }
+                for (String par : n.parents) {
+                    PNode pn = byId.get(par);
+                    if (pn == null) continue;
+                    float px = sx(pn.x), py = sy(pn.y);
+                    if (!visible(px, py, x, y)) continue;
+                    boolean lit = un && ClientTree.UNLOCKED.contains(par);
+                    quadLine(g, px, py, x, y, lit ? 2f : 1f, lit ? 0xFFE8B84A : 0xFF2A3150);
+                }
+            }
+            float pr = 34 * zoom + 2;
+            for (int i = 4; i >= 1; i--) disc(g, cx, cy, pr * (1 + i * 0.22f), ((int) (26 / (float) i) << 24) | (p.color & 0xFFFFFF));
+            sun(g, cx, cy, pr, p.color);
+            dottedCircle(g, cx, cy, pr + 4, 0xA0FFE08A);
+            for (PNode n : p.nodes) {
+                float x = sx(n.x), y = sy(n.y);
+                if (offscreen(x, y, nr)) continue;
+                boolean un = ClientTree.UNLOCKED.contains(n.item);
+                boolean av = !un && !locked && available(n);
+                boolean afford = ClientTree.points >= n.cost;
+                int ringCol = un ? 0xFFE8B84A : av ? (afford ? 0xFFD98A5A : 0xFFB0545E) : 0xFF3A4260;
+                disc(g, x, y, nr + 2, ringCol);
+                disc(g, x, y, nr, 0xFF141B2E);
+                if (av && afford) ring(g, x, y, nr + 3 + Mth.sin(t * 0.2f), 0x80FFD27A);
+            }
+        });
+        // 2. иконки предметов
+        float s = Math.max(0.5f, zoom);
         for (PNode n : p.nodes) {
             float x = sx(n.x), y = sy(n.y);
-            if (x < -30 || y < -30 || x > width + 30 || y > height + 30) continue;
-            boolean un = ClientTree.UNLOCKED.contains(n.item);
-            boolean av = !un && available(n);
-            boolean afford = ClientTree.points >= n.cost;
-            int ringCol = un ? 0xFFE8B84A : av ? (afford ? 0xFFD98A5A : 0xFFB0545E) : 0xFF3A4260;
-            disc(g, x, y, nr + 2, ringCol);
-            disc(g, x, y, nr, 0xFF141B2E);
-            if (av && afford) ring(g, x, y, nr + 3 + Mth.sin(t * 0.2f), 0x80FFD27A);
-            if (!n.stack.isEmpty()) {
-                float s = Math.max(0.5f, zoom);
-                g.pose().pushPose();
-                g.pose().translate(x - 8 * s, y - 8 * s, 0);
-                g.pose().scale(s, s, 1);
-                g.renderItem(n.stack, 0, 0);
-                g.pose().popPose();
-                if (!un && !av) g.fill((int) (x - nr), (int) (y - nr), (int) (x + nr), (int) (y + nr), 0x00000000);
+            if (n.stack.isEmpty() || offscreen(x, y, nr)) continue;
+            g.pose().pushPose();
+            g.pose().translate(x - 8 * s, y - 8 * s, 0);
+            g.pose().scale(s, s, 1);
+            g.renderItem(n.stack, 0, 0);
+            g.pose().popPose();
+        }
+        // 3. цены, замки, подпись планеты, подсказка
+        List<Component> tip = null;
+        for (PNode n : p.nodes) {
+            float x = sx(n.x), y = sy(n.y);
+            if (offscreen(x, y, nr)) continue;
+            if (dist(mx, my, x, y) < nr + 2) {
+                boolean un = ClientTree.UNLOCKED.contains(n.item);
+                boolean av = !un && !locked && available(n);
+                tip = nodeTip(n, un, av, ClientTree.points >= n.cost);
             }
+        }
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 200);
+        g.drawManaged(() -> {
             if (zoom >= 0.55f) {
                 float ls = Math.min(1f, zoom);
-                g.pose().pushPose();
-                g.pose().translate(x + nr * 0.5f, y + nr * 0.3f, 200);
-                g.pose().scale(ls, ls, 1);
-                if (un || av) g.drawString(font, String.valueOf(n.cost), 0, 0, un ? 0xFFFFD27A : 0xFFE88A8A, true);
-                else lock(g, 0, 0);
-                g.pose().popPose();
+                for (PNode n : p.nodes) {
+                    float x = sx(n.x), y = sy(n.y);
+                    if (offscreen(x, y, nr)) continue;
+                    boolean un = ClientTree.UNLOCKED.contains(n.item);
+                    boolean av = !un && !locked && available(n);
+                    g.pose().pushPose();
+                    g.pose().translate(x + nr * 0.5f, y + nr * 0.3f, 0);
+                    g.pose().scale(ls, ls, 1);
+                    if (un || av) g.drawString(font, String.valueOf(n.cost), 0, 0, un ? 0xFFFFD27A : 0xFFE88A8A, true);
+                    else lock(g, 0, 0);
+                    g.pose().popPose();
+                }
             }
-            if (dist(mx, my, x, y) < nr + 2) tip = nodeTip(n, un, av, afford);
-        }
+            int tw = font.width(p.name);
+            g.fill((int) cx - tw / 2 - 3, (int) cy - 5, (int) cx + tw / 2 + 3, (int) cy + 6, 0xA0000000);
+            g.drawCenteredString(font, p.name, (int) cx, (int) cy - 4, 0xFFFFE6A6);
+            if (locked) {
+                Component lc = Component.translatable("zalrpakraft.star.planet_locked", p.req);
+                g.drawCenteredString(font, lc, (int) cx, (int) (cy + 34 * zoom + 12), 0xFFE88A8A);
+            }
+        });
+        g.pose().popPose();
         return tip;
+    }
+
+    private boolean offscreen(float x, float y, float r) {
+        return x < -r - 20 || y < -r - 20 || x > width + r + 20 || y > height + r + 20;
+    }
+
+    private boolean visible(float x1, float y1, float x2, float y2) {
+        return !((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > width && x2 > width) || (y1 > height && y2 > height));
+    }
+
+    /** Линия одним четырёхугольником (раньше — по пикселю на каждую точку). */
+    static void quadLine(GuiGraphics g, float x1, float y1, float x2, float y2, float w, int col) {
+        float dx = x2 - x1, dy = y2 - y1;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len < 0.5f) return;
+        float nx = -dy / len * w / 2f, ny = dx / len * w / 2f;
+        org.joml.Matrix4f m = g.pose().last().pose();
+        com.mojang.blaze3d.vertex.VertexConsumer vc = g.bufferSource().getBuffer(net.minecraft.client.renderer.RenderType.gui());
+        vc.addVertex(m, x1 + nx, y1 + ny, 0).setColor(col);
+        vc.addVertex(m, x1 - nx, y1 - ny, 0).setColor(col);
+        vc.addVertex(m, x2 - nx, y2 - ny, 0).setColor(col);
+        vc.addVertex(m, x2 + nx, y2 + ny, 0).setColor(col);
+        vc.addVertex(m, x2 + nx, y2 + ny, 0).setColor(col);
+        vc.addVertex(m, x2 - nx, y2 - ny, 0).setColor(col);
+        vc.addVertex(m, x1 - nx, y1 - ny, 0).setColor(col);
+        vc.addVertex(m, x1 + nx, y1 + ny, 0).setColor(col);
+    }
+
+    private int sunUnlocked() {
+        int k = 0;
+        if (!planets.isEmpty()) for (PNode n : planets.get(0).nodes) if (ClientTree.UNLOCKED.contains(n.item)) k++;
+        return k;
+    }
+
+    private boolean planetLocked(int i) {
+        return i > 0 && i < planets.size() && sunUnlocked() < planets.get(i).req;
     }
 
     private boolean available(PNode n) {
@@ -453,7 +545,7 @@ public class StarMapScreen extends Screen {
                 float nr = 15 * zoom;
                 for (PNode n : planets.get(planetIdx).nodes) {
                     if (dist(mx, my, sx(n.x), sy(n.y)) < nr + 2) {
-                        if (!ClientTree.UNLOCKED.contains(n.item) && available(n) && ClientTree.points >= n.cost) {
+                        if (!ClientTree.UNLOCKED.contains(n.item) && !planetLocked(planetIdx) && available(n) && ClientTree.points >= n.cost) {
                             PacketDistributor.sendToServer(new SimplePayload("unlock:" + n.item));
                         } else click();
                         return true;
@@ -472,6 +564,12 @@ public class StarMapScreen extends Screen {
         tZoom = planetFit();
         zoom = tZoom * 0.7f;
         click();
+    }
+
+    public void enterBiggestPlanet() {
+        int best = 0;
+        for (int i = 1; i < planets.size(); i++) if (planets.get(i).nodes.size() > planets.get(best).nodes.size()) best = i;
+        enterPlanet(best);
     }
 
     /** Самотест: открыть систему по id (данные придут с сервера). */
@@ -570,16 +668,6 @@ public class StarMapScreen extends Screen {
         for (int dy = -ri; dy <= ri; dy++) {
             int w = ri - Math.abs(dy);
             g.fill((int) cx - w, (int) cy + dy, (int) cx + w + 1, (int) cy + dy + 1, col);
-        }
-    }
-
-    static void line(GuiGraphics g, float x1, float y1, float x2, float y2, int col, int w) {
-        float dx = x2 - x1, dy = y2 - y1;
-        float len = (float) Math.sqrt(dx * dx + dy * dy);
-        if (len < 1) return;
-        for (float d = 0; d <= len; d += 1f) {
-            int x = (int) (x1 + dx * d / len), y = (int) (y1 + dy * d / len);
-            g.fill(x, y, x + w, y + w, col);
         }
     }
 

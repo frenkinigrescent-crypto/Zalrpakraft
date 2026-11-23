@@ -98,12 +98,20 @@ public final class ClientSelfTest {
                 case 200 -> shot(mc, "zk_11_system.png");
                 case 205 -> {
                     if (mc.screen instanceof StarMapScreen sm) sm.enterPlanet(0);
+                    StarMapScreen.resetTiming();
                 }
-                case 245 -> shot(mc, "zk_12_planet.png");
+                case 245 -> {
+                    shot(mc, "zk_12_planet.png");
+                    Zalrpakraft.LOG.info("Zalepacraft clienttest: planet render avg {} ms/frame", String.format("%.2f", StarMapScreen.avgRenderMs));
+                }
                 case 250 -> {
-                    if (mc.screen instanceof StarMapScreen sm) sm.enterPlanet(1);
+                    if (mc.screen instanceof StarMapScreen sm) sm.enterBiggestPlanet();
+                    StarMapScreen.resetTiming();
                 }
-                case 290 -> shot(mc, "zk_13_planet2.png");
+                case 290 -> {
+                    shot(mc, "zk_13_planet2.png");
+                    Zalrpakraft.LOG.info("Zalepacraft clienttest: big planet render avg {} ms/frame", String.format("%.2f", StarMapScreen.avgRenderMs));
+                }
                 case 300 -> {
                     Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                     mc.stop();

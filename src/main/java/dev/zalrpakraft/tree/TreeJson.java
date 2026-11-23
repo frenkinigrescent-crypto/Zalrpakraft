@@ -40,6 +40,7 @@ public final class TreeJson {
             po.addProperty("id", pl.id);
             po.addProperty("name", pl.name);
             po.addProperty("color", pl.color);
+            po.addProperty("req", pl.requiresSun);
             JsonArray ns = new JsonArray();
             for (String id : pl.nodes) {
                 Tree.Node n = t.nodes.get(id);

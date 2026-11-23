@@ -92,7 +92,18 @@ public final class CommonEvents {
         sb.append("tree_systems=").append(tree.systems.size()).append(" nodes=").append(tree.nodes.size()).append('\n');
         for (var s : tree.systems.values()) {
             sb.append("  system ").append(s.id).append(" (").append(s.name).append("):");
-            for (var pl : s.planets) sb.append(' ').append(pl.name).append('=').append(pl.nodes.size());
+            for (var pl : s.planets) {
+                int roots = 0;
+                int[] costs = new int[16];
+                for (String id : pl.nodes) {
+                    var n = tree.nodes.get(id);
+                    if (n.parents.isEmpty()) roots++;
+                    costs[Math.min(15, n.cost)]++;
+                }
+                sb.append("\n    ").append(pl.name).append(": nodes=").append(pl.nodes.size()).append(" entries=").append(roots)
+                        .append(" needsSun=").append(pl.requiresSun).append(" costs=");
+                for (int c = 0; c < 16; c++) if (costs[c] > 0) sb.append(c).append('x').append(costs[c]).append(' ');
+            }
             sb.append('\n');
         }
         ok &= tree.nodes.size() > 50;

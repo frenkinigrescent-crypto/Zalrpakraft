@@ -205,5 +205,8 @@
  "zalrpakraft.star.need_parent": "Unlock a neighbouring star first",
  "zalrpakraft.star.no_points": "Not enough points",
  "zalrpakraft.star.click": "Click to unlock",
- "zalrpakraft.star.locked_tip": "🔒 Not studied on the star map (K)"
+ "zalrpakraft.star.locked_tip": "🔒 Not studied on the star map (K)",
+ "zalrpakraft.star.planet_locked": "Unlock %s stars on the system's sun first",
+ "zalrpakraft.star.planet_locked_tip": "Locked: %s of %s required sun stars unlocked",
+ "zalrpakraft.star.planet_complete": "✦ Planet \"%s\" fully studied: +%s star points"
 }
