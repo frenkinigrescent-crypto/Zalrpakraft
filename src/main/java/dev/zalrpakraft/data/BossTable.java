@@ -19,7 +19,8 @@ import java.util.List;
  * Поддерживаются шаблоны "мод:*" и "мод*:*" (тогда босс должен иметь тег #c:bosses или много здоровья).
  */
 public final class BossTable {
-    public record Entry(String entityPattern, String drop, int count, String meteor, boolean wildcard) {
+    /** health / perPlayer: NaN — брать из общего конфига. */
+    public record Entry(String entityPattern, String drop, int count, String meteor, boolean wildcard, double health, double perPlayer) {
         public boolean matches(ResourceLocation id) {
             String[] p = entityPattern.split(":", 2);
             if (p.length != 2) return false;
@@ -34,11 +35,19 @@ public final class BossTable {
     }
 
     private static final List<Entry> ENTRIES = new ArrayList<>();
+    private static final java.util.Set<String> EXCLUDED = new java.util.HashSet<>();
+
+    /** Боссы этих модов не усиливаются и ничего не дают (например, Unbound — у него свой баланс). */
+    public static boolean excluded(ResourceLocation id) {
+        return id != null && EXCLUDED.contains(id.getNamespace());
+    }
 
     public static void load() {
         ENTRIES.clear();
+        EXCLUDED.clear();
         try {
             JsonObject root = JsonParser.parseString(JsonConfigFile.readOrCreate("bosses.json")).getAsJsonObject();
+            if (root.has("exclude_namespaces")) for (JsonElement e : root.getAsJsonArray("exclude_namespaces")) EXCLUDED.add(e.getAsString());
             JsonArray arr = root.getAsJsonArray("bosses");
             for (JsonElement el : arr) {
                 JsonObject o = el.getAsJsonObject();
@@ -47,7 +56,9 @@ public final class BossTable {
                         o.has("drop") ? o.get("drop").getAsString() : "",
                         o.has("count") ? o.get("count").getAsInt() : 1,
                         o.has("meteor") ? o.get("meteor").getAsString() : "",
-                        ent.contains("*")));
+                        ent.contains("*"),
+                        o.has("health") ? o.get("health").getAsDouble() : Double.NaN,
+                        o.has("per_player") ? o.get("per_player").getAsDouble() : Double.NaN));
             }
             Zalrpakraft.LOG.info("Zalepacraft: боссов в таблице: {}", ENTRIES.size());
         } catch (Exception e) {
@@ -57,6 +68,7 @@ public final class BossTable {
 
     /** Точное совпадение важнее шаблона. */
     public static Entry find(ResourceLocation id) {
+        if (excluded(id)) return null;
         Entry wild = null;
         for (Entry e : ENTRIES) {
             if (!e.matches(id)) continue;

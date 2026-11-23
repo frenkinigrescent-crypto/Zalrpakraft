@@ -31,12 +31,14 @@ public class Zalrpakraft {
 
         container.registerConfig(ModConfig.Type.COMMON, ZConfig.SPEC);
         container.registerConfig(ModConfig.Type.CLIENT, dev.zalrpakraft.client.ZClientConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, ZServerConfig.SPEC);
 
         BossTable.load();
         ProgressionMap.load();
         dev.zalrpakraft.data.QuestBook.load();
 
         NeoForge.EVENT_BUS.register(CommonEvents.class);
+        NeoForge.EVENT_BUS.register(dev.zalrpakraft.world.DepthDifficulty.class);
         LOG.info("Zalepacraft: загружен");
     }
 

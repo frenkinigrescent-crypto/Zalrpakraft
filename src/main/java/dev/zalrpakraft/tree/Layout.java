@@ -12,7 +12,7 @@ final class Layout {
      */
     static void branches(Tree.Planet pl, Map<String, Tree.Node> all, Map<net.minecraft.world.item.Item, Integer> globalDepth, int maxRoots) {
         List<String> roots = new ArrayList<>();
-        for (String id : pl.nodes) if (all.get(id).parents.isEmpty()) roots.add(id);
+        for (String id : pl.nodes) if (isRoot(all.get(id))) roots.add(id);
         if (roots.size() <= 1) return;
         java.util.function.ToIntFunction<String> gd = id -> globalDepth.getOrDefault(
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(id)), 0);
@@ -22,15 +22,15 @@ final class Layout {
         for (List<String> g : byStem.values()) {
             if (g.size() < 2) continue;
             g.sort(Comparator.<String>comparingInt(gd).thenComparing(Comparator.naturalOrder()));
-            for (int i = 1; i < g.size(); i++) all.get(g.get(i)).parents.add(g.get(i - 1));
+            for (int i = 1; i < g.size(); i++) addSoft(all.get(g.get(i)), g.get(i - 1));
         }
         // 2. не больше maxRoots входов: самые «ветвистые» становятся входами
         List<String> left = new ArrayList<>();
-        for (String id : pl.nodes) if (all.get(id).parents.isEmpty()) left.add(id);
+        for (String id : pl.nodes) if (isRoot(all.get(id))) left.add(id);
         if (left.size() <= maxRoots) return;
         Map<String, Integer> desc = new HashMap<>();
         Map<String, List<String>> children = new HashMap<>();
-        for (String id : pl.nodes) for (String p : all.get(id).parents) children.computeIfAbsent(p, k -> new ArrayList<>()).add(id);
+        for (String id : pl.nodes) for (String p : links(all.get(id))) children.computeIfAbsent(p, k -> new ArrayList<>()).add(id);
         for (String r : left) desc.put(r, countDesc(r, children, new HashSet<>()));
         left.sort(Comparator.<String>comparingInt(r -> -desc.get(r)).thenComparingInt(gd).thenComparing(Comparator.naturalOrder()));
         List<String> hubs = new ArrayList<>(left.subList(0, maxRoots));
@@ -39,8 +39,23 @@ final class Layout {
             int best = 0;
             for (int i = 1; i < hubs.size(); i++) if (load[i] < load[best]) best = i;
             load[best] += 1 + desc.get(r);
-            all.get(r).parents.add(hubs.get(best));
+            addSoft(all.get(r), hubs.get(best));
         }
+    }
+
+    static boolean isRoot(Tree.Node n) {
+        return n.parents.isEmpty() && n.soft.isEmpty();
+    }
+
+    private static void addSoft(Tree.Node n, String p) {
+        if (!n.parents.contains(p) && !n.soft.contains(p) && !p.equals(n.item)) n.soft.add(p);
+    }
+
+    static List<String> links(Tree.Node n) {
+        if (n.soft.isEmpty()) return n.parents;
+        List<String> l = new ArrayList<>(n.parents);
+        l.addAll(n.soft);
+        return l;
     }
 
     private static int countDesc(String id, Map<String, List<String>> children, Set<String> seen) {
@@ -60,29 +75,22 @@ final class Layout {
     }
 
     static void planet(Tree.Planet pl, Map<String, Tree.Node> all) {
-        // глубина внутри планеты: BFS от узлов без родителей
-        Map<String, Integer> ring = new HashMap<>();
-        Deque<String> q = new ArrayDeque<>();
-        Map<String, List<String>> children = new HashMap<>();
+        // кольцо = самая длинная цепочка от входа: все связи идут только внутрь, к меньшему кольцу
+        Set<String> inPl = new HashSet<>(pl.nodes);
         for (String id : pl.nodes) {
             Tree.Node n = all.get(id);
-            if (n.parents.isEmpty()) { ring.put(id, 0); q.add(id); }
-            for (String p : n.parents) children.computeIfAbsent(p, k -> new ArrayList<>()).add(id);
+            n.parents.removeIf(p -> !inPl.contains(p));
+            n.soft.removeIf(p -> !inPl.contains(p));
         }
-        if (q.isEmpty() && !pl.nodes.isEmpty()) { ring.put(pl.nodes.get(0), 0); q.add(pl.nodes.get(0)); }
-        while (!q.isEmpty()) {
-            String id = q.poll();
-            int r = ring.get(id);
-            for (String c : children.getOrDefault(id, List.of())) if (!ring.containsKey(c)) { ring.put(c, r + 1); q.add(c); }
-        }
-        for (String id : pl.nodes) ring.putIfAbsent(id, 0); // циклы — на первое кольцо
-        // родители — только с более внутреннего кольца (иначе блок↔слиток заперли бы друг друга)
+        Map<String, Integer> ring = new HashMap<>();
+        for (String id : pl.nodes) layer(id, all, ring, new HashSet<>());
         for (String id : pl.nodes) {
             int r = ring.get(id);
-            all.get(id).parents.removeIf(p -> ring.getOrDefault(p, 0) >= r);
-            all.get(id).depth = r;
+            Tree.Node n = all.get(id);
+            n.parents.removeIf(p -> ring.getOrDefault(p, 0) >= r);
+            n.soft.removeIf(p -> ring.getOrDefault(p, 0) >= r);
+            n.depth = r;
         }
-        // узлы без родителей, но попавшие во внутренние циклы — родители только с меньшего кольца
         int maxRing = 0;
         for (int r : ring.values()) maxRing = Math.max(maxRing, r);
         List<List<String>> rings = new ArrayList<>();
@@ -99,7 +107,7 @@ final class Layout {
             r.sort(Comparator.comparingDouble(id -> {
                 Tree.Node n = all.get(id);
                 double sx = 0, sy = 0; int k = 0;
-                for (String p : n.parents) { Float a = angle.get(p); if (a != null) { sx += Math.cos(a); sy += Math.sin(a); k++; } }
+                for (String p : links(n)) { Float a = angle.get(p); if (a != null) { sx += Math.cos(a); sy += Math.sin(a); k++; } }
                 return k == 0 ? (id.hashCode() & 0xFFFF) / 65535.0 * Math.PI * 2 : Math.atan2(sy, sx);
             }));
             int idx = 0;
@@ -121,6 +129,21 @@ final class Layout {
                 visualRing++;
             }
         }
+    }
+
+    /** Длина самой длинной цепочки до узла; ребро, замыкающее цикл, просто не учитывается (и потом удаляется). */
+    private static int layer(String id, Map<String, Tree.Node> all, Map<String, Integer> memo, Set<String> stack) {
+        Integer m = memo.get(id);
+        if (m != null) return m;
+        if (!stack.add(id)) return -1;
+        int r = 0;
+        for (String p : links(all.get(id))) {
+            int pr = layer(p, all, memo, stack);
+            if (pr >= 0) r = Math.max(r, pr + 1);
+        }
+        stack.remove(id);
+        memo.put(id, r);
+        return r;
     }
 
     static void galaxy(Tree tree) {

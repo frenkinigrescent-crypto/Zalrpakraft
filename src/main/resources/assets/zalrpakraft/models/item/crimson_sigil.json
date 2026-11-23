@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "zalrpakraft:item/azazel_sigil"
+    "layer0": "zalrpakraft:item/crimson_sigil"
   }
 }

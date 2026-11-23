@@ -31,8 +31,10 @@ public class StarMapScreen extends Screen {
     enum Level { GALAXY, SYSTEM, PLANET }
 
     // ---- данные ----
-    private record Sys(String id, String name, int color, float x, float y, int total, int done, int[] planets) {}
-    private record PNode(String item, ItemStack stack, float x, float y, int cost, int exp, char cat, List<String> parents) {}
+    private record Sys(String id, String name, int color, float x, float y, int total, int done, int[] planets, boolean own, ItemStack book) {}
+    private record PNode(String item, ItemStack stack, float x, float y, int cost, int exp, char cat, List<String> parents,
+                         List<String> soft, List<String> external) {}
+    private record Step(ItemStack stack, String text) {}
     private record Pl(String id, String name, int color, List<PNode> nodes, int req) {}
 
     private final List<Sys> systems = new ArrayList<>();
@@ -41,6 +43,16 @@ public class StarMapScreen extends Screen {
     private String sysId, sysName;
     private int sysColor;
     private final List<Pl> planets = new ArrayList<>();
+    // система со своей прогрессией (Thaumaturge, Unbound…)
+    private boolean own;
+    private ItemStack ownBook = ItemStack.EMPTY;
+    private String ownNote = "";
+    private final List<Step> ownSteps = new ArrayList<>();
+    private final List<String> ownMods = new ArrayList<>();
+    // что нарисовать поверх всего
+    private final List<float[]> galaxyIcons = new ArrayList<>();
+    private final List<ItemStack> galaxyIconStacks = new ArrayList<>();
+    private ItemStack recipeFor = ItemStack.EMPTY;
 
     // ---- вид ----
     private Level level = Level.GALAXY;
@@ -68,8 +80,10 @@ public class StarMapScreen extends Screen {
             JsonArray pa = s.getAsJsonArray("planets");
             int[] pc = new int[pa.size()];
             for (int i = 0; i < pc.length; i++) pc[i] = pa.get(i).getAsInt();
+            boolean ow = s.has("own") && s.get("own").getAsBoolean();
             Sys sys = new Sys(s.get("id").getAsString(), s.get("name").getAsString(), s.get("color").getAsInt(),
-                    s.get("x").getAsFloat(), s.get("y").getAsFloat(), s.get("total").getAsInt(), s.get("done").getAsInt(), pc);
+                    s.get("x").getAsFloat(), s.get("y").getAsFloat(), s.get("total").getAsInt(), s.get("done").getAsInt(), pc,
+                    ow, ow && s.has("book") ? stackOf(s.get("book").getAsString()) : ItemStack.EMPTY);
             systems.add(sys);
             galaxyR = Math.max(galaxyR, (float) Math.hypot(sys.x, sys.y) + 60);
         }
@@ -78,6 +92,7 @@ public class StarMapScreen extends Screen {
             mapNodes.putAll(ProgressionMap.parse(mapJson));
         } catch (Exception ignored) {
         }
+        RecipeView.clearCache();
         studied.clear();
         ListTag l = progress.getList("studied", Tag.TAG_STRING);
         for (int i = 0; i < l.size(); i++) studied.add(l.getString(i));
@@ -96,16 +111,27 @@ public class StarMapScreen extends Screen {
             List<PNode> nodes = new ArrayList<>();
             for (JsonElement ne : p.getAsJsonArray("nodes")) {
                 JsonObject n = ne.getAsJsonObject();
-                List<String> par = new ArrayList<>();
-                if (n.has("p")) for (JsonElement x : n.getAsJsonArray("p")) par.add(x.getAsString());
                 String item = n.get("i").getAsString();
-                ResourceLocation rl = ResourceLocation.tryParse(item);
-                ItemStack st = rl != null && BuiltInRegistries.ITEM.containsKey(rl) ? new ItemStack(BuiltInRegistries.ITEM.get(rl)) : ItemStack.EMPTY;
-                nodes.add(new PNode(item, st, n.get("x").getAsFloat(), n.get("y").getAsFloat(), n.get("c").getAsInt(), n.get("e").getAsInt(),
-                        n.get("k").getAsString().charAt(0), par));
+                nodes.add(new PNode(item, stackOf(item), n.get("x").getAsFloat(), n.get("y").getAsFloat(), n.get("c").getAsInt(), n.get("e").getAsInt(),
+                        n.get("k").getAsString().charAt(0), strings(n, "p"), strings(n, "s"), strings(n, "x")));
             }
             planets.add(new Pl(p.get("id").getAsString(), p.get("name").getAsString(), p.get("color").getAsInt(), nodes,
                     p.has("req") ? p.get("req").getAsInt() : 0));
+        }
+        own = o.has("own");
+        ownSteps.clear();
+        ownMods.clear();
+        ownBook = ItemStack.EMPTY;
+        ownNote = "";
+        if (own) {
+            JsonObject ow = o.getAsJsonObject("own");
+            ownBook = stackOf(ow.get("book").getAsString());
+            ownNote = ow.has("note") ? ow.get("note").getAsString() : "";
+            if (ow.has("steps")) for (JsonElement e : ow.getAsJsonArray("steps")) {
+                JsonObject st = e.getAsJsonObject();
+                ownSteps.add(new Step(stackOf(st.get("item").getAsString()), st.get("text").getAsString()));
+            }
+            if (ow.has("mods")) for (JsonElement e : ow.getAsJsonArray("mods")) ownMods.add(modName(e.getAsString()));
         }
         if (!same || level == Level.GALAXY) {
             level = Level.SYSTEM;
@@ -114,6 +140,22 @@ public class StarMapScreen extends Screen {
             tZoom = systemFit();
         }
         pendingSystem = null;
+    }
+
+    private static ItemStack stackOf(String id) {
+        ResourceLocation rl = ResourceLocation.tryParse(id);
+        return rl != null && BuiltInRegistries.ITEM.containsKey(rl) ? new ItemStack(BuiltInRegistries.ITEM.get(rl)) : ItemStack.EMPTY;
+    }
+
+    private static String modName(String ns) {
+        return net.neoforged.fml.ModList.get().getModContainerById(ns).map(c -> c.getModInfo().getDisplayName()).orElse(ns);
+    }
+
+    private static List<String> strings(JsonObject o, String key) {
+        if (!o.has(key)) return List.of();
+        List<String> l = new ArrayList<>();
+        for (JsonElement x : o.getAsJsonArray(key)) l.add(x.getAsString());
+        return l;
     }
 
     private void fitGalaxy() {
@@ -196,15 +238,55 @@ public class StarMapScreen extends Screen {
         avgRenderMs = nanos / 1e6 / frames;
     }
 
-    private void renderMap(GuiGraphics g, int mx, int my, float pt) {
+    /** Самотест: «навести мышь» на узел и «зажать Shift» без настоящего ввода. */
+    public static String testHover;
+    public static boolean testShift;
+
+    public String pickTestNode() {
+        if (level != Level.PLANET || planetIdx >= planets.size()) return null;
+        PNode best = null;
+        for (PNode n : planets.get(planetIdx).nodes) {
+            int score = n.parents.size() * 10 + n.external.size() * 5 + n.soft.size();
+            int bs = best == null ? -1 : best.parents.size() * 10 + best.external.size() * 5 + best.soft.size();
+            if (score > bs && Math.abs(n.x) < 300 && Math.abs(n.y) < 200) best = n;
+        }
+        return best == null ? null : best.item;
+    }
+
+    private static boolean shift() {
+        return testShift || Screen.hasShiftDown();
+    }
+
+    private void renderMap(GuiGraphics g, int rawMx, int rawMy, float pt) {
         zoom = Mth.lerp(0.2f, zoom, tZoom);
+        int hx = rawMx, hy = rawMy;
+        if (testHover != null && level == Level.PLANET && planetIdx < planets.size()) {
+            for (PNode n : planets.get(planetIdx).nodes) if (n.item.equals(testHover)) { hx = (int) sx(n.x); hy = (int) sy(n.y); }
+        }
+        final int mx = hx, my = hy;
         sky(g, pt);
         float t = ticks + pt;
         @SuppressWarnings("unchecked")
         List<Component>[] box = new List[1];
+        recipeFor = ItemStack.EMPTY;
         switch (level) {
-            case GALAXY -> g.drawManaged(() -> box[0] = renderGalaxy(g, mx, my, t));
-            case SYSTEM -> g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
+            case GALAXY -> {
+                galaxyIcons.clear();
+                galaxyIconStacks.clear();
+                g.drawManaged(() -> box[0] = renderGalaxy(g, mx, my, t));
+                for (int i = 0; i < galaxyIcons.size(); i++) {
+                    float[] ic = galaxyIcons.get(i);
+                    g.pose().pushPose();
+                    g.pose().translate(ic[0] - 8 * ic[2], ic[1] - 8 * ic[2], 0);
+                    g.pose().scale(ic[2], ic[2], 1);
+                    g.renderItem(galaxyIconStacks.get(i), 0, 0);
+                    g.pose().popPose();
+                }
+            }
+            case SYSTEM -> {
+                if (own) box[0] = renderOwn(g, mx, my, t);
+                else g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
+            }
             case PLANET -> box[0] = renderPlanet(g, mx, my, t);
         }
         List<Component> tip = box[0];
@@ -213,7 +295,20 @@ public class StarMapScreen extends Screen {
         g.pose().translate(0, 0, 450);
         super.render(g, mx, my, pt);
         g.pose().popPose();
-        if (tip != null) g.renderComponentTooltip(font, tip, mx, my);
+        if (!recipeFor.isEmpty()) {
+            RecipeView.Shown rv = RecipeView.find(recipeFor);
+            g.pose().pushPose();
+            g.pose().translate(0, 0, 500);
+            if (rv == null) {
+                g.renderComponentTooltip(font, List.of(recipeFor.getHoverName(),
+                        Component.translatable("zalrpakraft.recipe.none").withStyle(ChatFormatting.GRAY)), mx, my);
+            } else {
+                int[] sz = RecipeView.size(font, rv);
+                int x = Math.min(mx + 12, width - sz[0] - 4), y = Math.min(my + 8, height - sz[1] - 4);
+                RecipeView.draw(g, font, rv, x, y, -1, -1, ticks, 0xB79CFF);
+            }
+            g.pose().popPose();
+        } else if (tip != null) g.renderComponentTooltip(font, tip, mx, my);
     }
 
     private void renderHud(GuiGraphics g) {
@@ -286,10 +381,18 @@ public class StarMapScreen extends Screen {
         for (Sys s : systems) {
             float x = sx(s.x), y = sy(s.y);
             if (x < -80 || y < -80 || x > width + 80 || y > height + 80) continue;
-            float r = (8 + (float) Math.sqrt(s.total) * 1.3f) * zoom;
-            r = Math.max(3, Math.min(r, 40 * zoom + 4));
+            float r = sysRadius(s);
             for (int i = 4; i >= 1; i--) disc(g, x, y, r * (1 + i * 0.35f), ((int) (14 / (float) i * 1.4f) << 24) | s.color);
             sun(g, x, y, r, s.color);
+            if (s.own) {
+                // своё солнце: двойной венец и книга мода внутри
+                ring(g, x, y, r + 3 + Mth.sin(t * 0.08f), 0xC0000000 | s.color);
+                dottedCircle(g, x, y, r + 8, 0x90000000 | s.color);
+                if (!s.book.isEmpty() && r > 6) {
+                    galaxyIcons.add(new float[]{x, y, Math.min(1.4f, r / 10f)});
+                    galaxyIconStacks.add(s.book);
+                }
+            }
             // крошечные планеты
             for (int i = 0; i < s.planets.length - 1; i++) {
                 double a = t * 0.01 * (1 + i * 0.3) + i * 2.1;
@@ -297,16 +400,28 @@ public class StarMapScreen extends Screen {
                 disc(g, x + (float) Math.cos(a) * pr, y + (float) Math.sin(a) * pr, Math.max(1, 1.6f * zoom + 0.6f), 0xFF000000 | s.planets[i + 1]);
             }
             if (zoom > 0.2f) {
-                g.drawCenteredString(font, s.name, (int) x, (int) (y + r + 4), 0xFFE6DDF8);
-                if (zoom > 0.35f) g.drawCenteredString(font, s.done + "/" + s.total, (int) x, (int) (y + r + 14), 0xFF8C8399);
+                g.drawCenteredString(font, s.name, (int) x, (int) (y + r + (s.own ? 10 : 4)), 0xFFE6DDF8);
+                if (zoom > 0.35f) {
+                    if (s.own) g.drawCenteredString(font, Component.translatable("zalrpakraft.map.own.tag"), (int) x, (int) (y + r + 20), 0xFF9A8CC0);
+                    else g.drawCenteredString(font, s.done + "/" + s.total, (int) x, (int) (y + r + 14), 0xFF8C8399);
+                }
             }
             if (dist(mx, my, x, y) < r + 4) {
-                tip = List.of(Component.literal(s.name).withColor(s.color),
+                tip = s.own ? List.of(Component.literal(s.name).withColor(s.color),
+                        Component.translatable("zalrpakraft.map.own.tip").withStyle(ChatFormatting.GRAY),
+                        Component.translatable("zalrpakraft.map.own.free").withStyle(ChatFormatting.GREEN),
+                        Component.translatable("zalrpakraft.map.own.open").withStyle(ChatFormatting.YELLOW))
+                        : List.of(Component.literal(s.name).withColor(s.color),
                         Component.translatable("zalrpakraft.map.system.progress", s.done, s.total).withStyle(ChatFormatting.GRAY),
                         Component.translatable("zalrpakraft.map.system.open").withStyle(ChatFormatting.YELLOW));
             }
         }
         return tip;
+    }
+
+    private float sysRadius(Sys s) {
+        float r = (s.own ? 16 : 8 + (float) Math.sqrt(s.total) * 1.3f) * zoom;
+        return Math.max(3, Math.min(r, 40 * zoom + 4));
     }
 
     private float[] outer(ProgressionMap.Node n) {
@@ -353,6 +468,109 @@ public class StarMapScreen extends Screen {
         return tip;
     }
 
+    // ==================== СВОЙ ПУТЬ ====================
+    /** Система мода со своей книгой: солнце с книгой и карточка «как начать» с рецептом. */
+    private List<Component> renderOwn(GuiGraphics g, int mx, int my, float t) {
+        List<Component> tip = null;
+        int cardW = Mth.clamp(width / 2 - 24, 180, 300);
+        float cx = Math.max(70, (width - cardW - 24) / 2f), cy = height / 2f + 4;
+        float sr = 36;
+        int col = sysColor & 0xFFFFFF;
+        g.drawManaged(() -> {
+            for (int i = 5; i >= 1; i--) disc(g, cx, cy, sr * (1 + i * 0.28f), ((int) (26 / (float) i) << 24) | col);
+            sun(g, cx, cy, sr, col);
+            ring(g, cx, cy, sr + 6 + Mth.sin(t * 0.08f) * 1.5f, 0xC0000000 | col);
+            dottedCircle(g, cx, cy, sr + 16, 0x80000000 | col);
+            dottedCircle(g, cx, cy, sr + 30, 0x50000000 | col);
+            disc(g, cx, cy, 15, 0xC0101428);
+        });
+        if (!ownBook.isEmpty()) {
+            g.pose().pushPose();
+            g.pose().translate(cx - 16, cy - 16, 0);
+            g.pose().scale(2, 2, 1);
+            g.renderItem(ownBook, 0, 0);
+            g.pose().popPose();
+        }
+        g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 22), 0xFFFFE6A6);
+        g.drawCenteredString(font, Component.translatable("zalrpakraft.map.own.tag"), (int) cx, (int) (cy + sr + 36), 0xFF9A8CC0);
+        g.drawCenteredString(font, Component.translatable("zalrpakraft.map.own.free"), (int) cx, (int) (cy + sr + 48), 0xFF7FD36B);
+        if (dist(mx, my, cx, cy) < sr && !ownBook.isEmpty()) {
+            tip = new ArrayList<>(Screen.getTooltipFromItem(minecraft, ownBook));
+            tip.add(Component.translatable("zalrpakraft.map.own.tip").withStyle(ChatFormatting.GRAY));
+        }
+        // карточка
+        int x0 = width - cardW - 16, y0 = 34;
+        int h = ownCard(g, x0, y0, cardW, mx, my, false, null);
+        g.fill(x0 - 7, y0 - 7, x0 + cardW + 7, y0 + h + 5, 0xFF000000 | col);
+        g.fill(x0 - 6, y0 - 6, x0 + cardW + 6, y0 + h + 4, 0xF00C1022);
+        List<List<Component>> hov = new ArrayList<>();
+        ownCard(g, x0, y0, cardW, mx, my, true, hov);
+        if (!hov.isEmpty()) tip = hov.get(0);
+        return tip;
+    }
+
+    /** Раскладка карточки; draw=false — только измерить высоту. */
+    private int ownCard(GuiGraphics g, int x0, int y0, int w, int mx, int my, boolean draw, List<List<Component>> hov) {
+        int y = y0;
+        if (draw) g.drawString(font, Component.translatable("zalrpakraft.map.own.book",
+                ownBook.isEmpty() ? Component.literal("?") : ownBook.getHoverName()), x0, y, 0xFFFFD27A, false);
+        y += 13;
+        if (!ownNote.isEmpty()) {
+            for (var line : font.split(Component.literal(ownNote), w)) {
+                if (draw) g.drawString(font, line, x0, y, 0xFFCFC6E6, false);
+                y += 10;
+            }
+            y += 4;
+        }
+        if (draw) g.drawString(font, Component.translatable("zalrpakraft.map.own.how"), x0, y, 0xFFB79CFF, false);
+        y += 12;
+        int num = 1;
+        for (Step st : ownSteps) {
+            int top = y;
+            var lines = font.split(Component.literal(st.text()), w - 34);
+            if (draw) {
+                g.drawString(font, num + ".", x0, y + 4, 0xFF8C8399, false);
+                if (!st.stack().isEmpty()) {
+                    g.fill(x0 + 10, y, x0 + 28, y + 18, 0xFF262B45);
+                    g.renderItem(st.stack(), x0 + 11, y + 1);
+                    if (mx >= x0 + 10 && my >= y && mx < x0 + 28 && my < y + 18) hov.add(Screen.getTooltipFromItem(minecraft, st.stack()));
+                }
+                int ty = y + (lines.size() == 1 ? 5 : 0);
+                for (var line : lines) {
+                    g.drawString(font, line, x0 + 32, ty, 0xFFE6DDF8, false);
+                    ty += 10;
+                }
+            }
+            y = Math.max(top + 20, top + lines.size() * 10) + 4;
+            num++;
+        }
+        y += 2;
+        if (draw) g.drawString(font, Component.translatable("zalrpakraft.map.own.recipe"), x0, y, 0xFFB79CFF, false);
+        y += 12;
+        RecipeView.Shown rv = RecipeView.find(ownBook);
+        if (rv != null) {
+            int[] sz = RecipeView.size(font, rv);
+            if (draw) {
+                ItemStack hs = RecipeView.draw(g, font, rv, x0, y, mx, my, ticks, sysColor);
+                if (!hs.isEmpty()) hov.add(Screen.getTooltipFromItem(minecraft, hs));
+            }
+            y += sz[1] + 6;
+        } else {
+            for (var line : font.split(Component.translatable("zalrpakraft.map.own.no_recipe"), w)) {
+                if (draw) g.drawString(font, line, x0, y, 0xFF8C8399, false);
+                y += 10;
+            }
+            y += 4;
+        }
+        if (!ownMods.isEmpty()) {
+            for (var line : font.split(Component.translatable("zalrpakraft.map.own.mods", String.join(", ", ownMods)), w)) {
+                if (draw) g.drawString(font, line, x0, y, 0xFF6E6680, false);
+                y += 10;
+            }
+        }
+        return y - y0;
+    }
+
     private List<Component> planetTip(int i) {
         Pl p = planets.get(i);
         int done = 0;
@@ -382,7 +600,7 @@ public class StarMapScreen extends Screen {
                     String id = q.poll();
                     if (!path.add(id)) continue;
                     PNode pn = byId.get(id);
-                    if (pn != null) q.addAll(pn.parents);
+                    if (pn != null) { q.addAll(pn.parents); q.addAll(pn.soft); }
                 }
                 break;
             }
@@ -393,9 +611,20 @@ public class StarMapScreen extends Screen {
                 boolean un = ClientTree.UNLOCKED.contains(n.item);
                 boolean front = un || (!locked && available(n));
                 float x = sx(n.x), y = sy(n.y);
-                if (n.parents.isEmpty()) {
+                if (n.parents.isEmpty() && n.soft.isEmpty()) {
                     if (visible(cx, cy, x, y)) quadLine(g, cx, cy, x, y, un ? 2f : 1f,
                             un ? 0xFFE8B84A : path.contains(n.item) ? 0xFFB79CFF : front ? 0xC0505A80 : 0x502A3150);
+                }
+                // пунктир — путь по карте (не часть рецепта)
+                for (String par : n.soft) {
+                    PNode pn = byId.get(par);
+                    if (pn == null) continue;
+                    float px = sx(pn.x), py = sy(pn.y);
+                    if (!visible(px, py, x, y)) continue;
+                    boolean lit = un && ClientTree.UNLOCKED.contains(par);
+                    boolean onPath = path.contains(n.item) && path.contains(par);
+                    int col = lit ? 0xC0E8B84A : onPath ? 0xE0B79CFF : front ? 0x90505A80 : 0x352A3150;
+                    dashLine(g, px, py, x, y, lit || onPath ? 1.5f : 1f, col);
                 }
                 for (String par : n.parents) {
                     PNode pn = byId.get(par);
@@ -443,7 +672,8 @@ public class StarMapScreen extends Screen {
             if (dist(mx, my, x, y) < nr + 2) {
                 boolean un = ClientTree.UNLOCKED.contains(n.item);
                 boolean av = !un && !locked && available(n);
-                tip = nodeTip(n, un, av, ClientTree.points >= n.cost);
+                if (shift() && !n.stack.isEmpty()) recipeFor = n.stack;
+                else tip = nodeTip(n, un, av, ClientTree.points >= n.cost);
             }
         }
         g.pose().pushPose();
@@ -484,6 +714,20 @@ public class StarMapScreen extends Screen {
         return !((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > width && x2 > width) || (y1 > height && y2 > height));
     }
 
+    /** Пунктир из коротких четырёхугольников. */
+    static void dashLine(GuiGraphics g, float x1, float y1, float x2, float y2, float w, int col) {
+        float dx = x2 - x1, dy = y2 - y1;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len < 0.5f) return;
+        float dash = 5f, gap = 4f;
+        int n = Math.min(80, (int) (len / (dash + gap)) + 1);
+        for (int i = 0; i < n; i++) {
+            float a = i * (dash + gap) / len, b = Math.min(1f, (i * (dash + gap) + dash) / len);
+            if (a >= 1f) break;
+            quadLine(g, x1 + dx * a, y1 + dy * a, x1 + dx * b, y1 + dy * b, w, col);
+        }
+    }
+
     /** Линия одним четырёхугольником (раньше — по пикселю на каждую точку). */
     static void quadLine(GuiGraphics g, float x1, float y1, float x2, float y2, float w, int col) {
         float dx = x2 - x1, dy = y2 - y1;
@@ -512,9 +756,11 @@ public class StarMapScreen extends Screen {
         return i > 0 && i < planets.size() && sunUnlocked() < planets.get(i).req;
     }
 
+    /** Как на сервере: все части крафта открыты и хоть одна звезда по пунктиру, если он есть. */
     private boolean available(PNode n) {
-        if (n.parents.isEmpty()) return true;
-        for (String p : n.parents) if (ClientTree.UNLOCKED.contains(p)) return true;
+        for (String p : n.parents) if (!ClientTree.UNLOCKED.contains(p)) return false;
+        if (n.soft.isEmpty()) return true;
+        for (String p : n.soft) if (ClientTree.UNLOCKED.contains(p)) return true;
         return false;
     }
 
@@ -529,10 +775,26 @@ public class StarMapScreen extends Screen {
         ChatFormatting cc = switch (n.cat) { case 'c' -> ChatFormatting.RED; case 'm' -> ChatFormatting.YELLOW; default -> ChatFormatting.GREEN; };
         l.add(Component.translatable("zalrpakraft.star.cat." + cat, n.cost).withStyle(cc));
         l.add(Component.translatable("zalrpakraft.star.cost", n.cost, n.exp).withStyle(ChatFormatting.WHITE));
+        if (!n.external.isEmpty()) {
+            l.add(Component.translatable("zalrpakraft.star.needs").withStyle(ChatFormatting.DARK_AQUA));
+            for (String ex : n.external) {
+                ItemStack es = stackOf(ex);
+                boolean open = ClientTree.UNLOCKED.contains(ex) || !ClientTree.GATED.containsKey(ex);
+                String where = ClientTree.GATED.get(ex);
+                Component name = es.isEmpty() ? Component.literal(ex) : es.getHoverName();
+                l.add(Component.literal(open ? " ✔ " : " ✖ ").append(name)
+                        .append(where == null || open ? Component.empty() : Component.literal("  — " + where).withStyle(ChatFormatting.DARK_GRAY))
+                        .withStyle(open ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+            }
+        }
+        boolean hardOk = true;
+        for (String p : n.parents) if (!ClientTree.UNLOCKED.contains(p)) hardOk = false;
         if (un) l.add(Component.translatable("zalrpakraft.star.unlocked").withStyle(ChatFormatting.GREEN));
-        else if (!av) l.add(Component.translatable("zalrpakraft.star.need_parent").withStyle(ChatFormatting.GRAY));
+        else if (!av && !hardOk) l.add(Component.translatable("zalrpakraft.star.need_parent").withStyle(ChatFormatting.GRAY));
+        else if (!av) l.add(Component.translatable("zalrpakraft.star.need_soft").withStyle(ChatFormatting.GRAY));
         else if (!afford) l.add(Component.translatable("zalrpakraft.star.no_points").withStyle(ChatFormatting.RED));
         else l.add(Component.translatable("zalrpakraft.star.click").withStyle(ChatFormatting.GOLD));
+        l.add(Component.translatable("zalrpakraft.star.shift_recipe").withStyle(ChatFormatting.DARK_GRAY));
         return l;
     }
 
@@ -546,7 +808,7 @@ public class StarMapScreen extends Screen {
         switch (level) {
             case GALAXY -> {
                 for (Sys s : systems) {
-                    float r = Math.max(3, Math.min((8 + (float) Math.sqrt(s.total) * 1.3f) * zoom, 40 * zoom + 4));
+                    float r = sysRadius(s);
                     if (dist(mx, my, sx(s.x), sy(s.y)) < r + 4) {
                         pendingSystem = s.id;
                         PacketDistributor.sendToServer(new SimplePayload("tree_system:" + s.id));

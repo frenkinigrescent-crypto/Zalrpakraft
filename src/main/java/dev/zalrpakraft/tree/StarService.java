@@ -88,10 +88,11 @@ public final class StarService {
         sync(p);
     }
 
-    /** Доступен ли узел: корневой или открыт хоть один родитель. */
+    /** Доступен ли узел: открыты все части крафта (настоящие связи) и хоть одна связь пути, если они есть. */
     public static boolean available(Tree.Node n, java.util.Set<String> unlocked) {
-        if (n.parents.isEmpty()) return true;
-        for (String par : n.parents) if (unlocked.contains(par)) return true;
+        for (String par : n.parents) if (!unlocked.contains(par)) return false;
+        if (n.soft.isEmpty()) return true;
+        for (String par : n.soft) if (unlocked.contains(par)) return true;
         return false;
     }
 

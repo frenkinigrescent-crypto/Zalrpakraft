@@ -85,7 +85,7 @@ public final class CommonEvents {
                 .filter(h -> h.id().getNamespace().equals(Zalrpakraft.MODID)).count();
         sb.append("advancements=").append(adv).append('\n');
         int quests = dev.zalrpakraft.data.QuestBook.book().quests.size();
-        sb.append("quests_valid=").append(quests).append(" of ").append(76).append('\n');
+        sb.append("quests_valid=").append(quests).append(" of ").append(dev.zalrpakraft.data.QuestBook.totalDefined()).append('\n');
         ok &= quests >= 20;
         ok &= adv >= 16;
         dev.zalrpakraft.tree.Tree tree = dev.zalrpakraft.tree.TreeBuilder.tree();
@@ -97,7 +97,7 @@ public final class CommonEvents {
                 int[] costs = new int[16];
                 for (String id : pl.nodes) {
                     var n = tree.nodes.get(id);
-                    if (n.parents.isEmpty()) roots++;
+                    if (n.parents.isEmpty() && n.soft.isEmpty()) roots++;
                     costs[Math.min(15, n.cost)]++;
                 }
                 sb.append("\n    ").append(pl.name).append(": nodes=").append(pl.nodes.size()).append(" entries=").append(roots)
@@ -116,6 +116,52 @@ public final class CommonEvents {
         ws.anyUnlocked.remove("minecraft:iron_ingot");
         sb.append("gate_test iron_gated=").append(gatedIron).append(" smelt_before=").append(before).append(" smelt_after_unlock=").append(after).append('\n');
         ok &= gatedIron && !before && after;
+        // глубина: на дне копать вдвое дольше, монстры крепче; на поверхности — как обычно
+        var ow = server.overworld();
+        float surf = dev.zalrpakraft.world.DepthDifficulty.miningFactor(ow, 100);
+        float deep = dev.zalrpakraft.world.DepthDifficulty.miningFactor(ow, ow.getMinBuildHeight());
+        float mid = dev.zalrpakraft.world.DepthDifficulty.miningFactor(ow, 0);
+        sb.append("depth_mining surface=").append(surf).append(" y0=").append(mid).append(" bottom=").append(deep).append('\n');
+        ok &= surf == 1f && deep < 0.6f && mid < 1f && mid > deep;
+        var spawn = ow.getSharedSpawnPos();
+        var zDeep = net.minecraft.world.entity.EntityType.ZOMBIE.create(ow);
+        var zTop = net.minecraft.world.entity.EntityType.ZOMBIE.create(ow);
+        if (zDeep != null && zTop != null) {
+            zDeep.moveTo(spawn.getX() + 0.5, ow.getMinBuildHeight() + 6, spawn.getZ() + 0.5, 0, 0);
+            zTop.moveTo(spawn.getX() + 0.5, 120, spawn.getZ() + 0.5, 0, 0);
+            ow.addFreshEntity(zDeep);
+            ow.addFreshEntity(zTop);
+            double hd = zDeep.getMaxHealth(), ht = zTop.getMaxHealth();
+            double ad = zDeep.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+            double at = zTop.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+            sb.append("depth_mobs zombie_hp deep=").append(hd).append(" top=").append(ht).append(" dmg deep=").append(ad).append(" top=").append(at).append('\n');
+            ok &= hd > ht * 1.5 && ad > at && ht == 20.0;
+            zDeep.discard();
+            zTop.discard();
+        }
+        // свои пути: тестовая система есть, у неё нет закрытых узлов
+        var ownSys = tree.systems.get("_test");
+        sb.append("own_system=").append(ownSys != null && ownSys.own).append(" planets=").append(ownSys == null ? -1 : ownSys.planets.size()).append('\n');
+        ok &= ownSys != null && ownSys.own && ownSys.planets.isEmpty();
+        // связи: у узлов есть настоящие родители; все родители — на более внутреннем кольце; категории
+        int withParents = 0, softOnly = 0, ext = 0, bad = 0;
+        int[] cat = new int[3];
+        for (var n : tree.nodes.values()) {
+            if (!n.parents.isEmpty()) withParents++;
+            else if (!n.soft.isEmpty()) softOnly++;
+            if (!n.external.isEmpty()) ext++;
+            for (String p : n.parents) { var pn = tree.nodes.get(p); if (pn == null || pn.depth >= n.depth) bad++; }
+            cat[n.category.equals("complex") ? 2 : n.category.equals("medium") ? 1 : 0]++;
+        }
+        sb.append("links real=").append(withParents).append(" path_only=").append(softOnly).append(" external=").append(ext)
+                .append(" bad=").append(bad).append(" light/medium/complex=").append(cat[0]).append('/').append(cat[1]).append('/').append(cat[2]).append('\n');
+        ok &= bad == 0 && withParents > 20;
+        // примеры: что нужно для пары известных предметов
+        for (String probe : new String[]{"minecraft:piston", "minecraft:iron_pickaxe", "minecraft:iron_block", "minecraft:iron_nugget", "minecraft:comparator"}) {
+            var n = tree.nodes.get(probe);
+            if (n != null) sb.append("probe ").append(probe).append(" cat=").append(n.category).append(" cost=").append(n.cost)
+                    .append(" parents=").append(n.parents).append(" soft=").append(n.soft).append(" ext=").append(n.external).append('\n');
+        }
         sb.append(ok ? "RESULT OK\n" : "RESULT FAIL\n");
         try {
             Files.writeString(out, sb.toString(), StandardCharsets.UTF_8);
@@ -238,7 +284,10 @@ public final class CommonEvents {
             double r = ZConfig.BOSS_PLAYER_RADIUS.get();
             players = sl.getPlayers(p -> !p.isSpectator() && p.distanceToSqr(le) < r * r).size();
         }
-        double mult = ZConfig.BOSS_HEALTH_MULT.get() * (1.0 + ZConfig.BOSS_HEALTH_PER_PLAYER.get() * Math.max(0, players - 1));
+        BossTable.Entry be = BossTable.find(BossTable.idOf(le.getType()));
+        double base = be != null && !Double.isNaN(be.health()) ? be.health() : ZConfig.BOSS_HEALTH_MULT.get();
+        double per = be != null && !Double.isNaN(be.perPlayer()) ? be.perPlayer() : ZConfig.BOSS_HEALTH_PER_PLAYER.get();
+        double mult = base * (1.0 + per * Math.max(0, players - 1));
         hp.addPermanentModifier(new AttributeModifier(HEALTH_MOD, mult - 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         le.setHealth(le.getMaxHealth());
         AttributeInstance dmg = le.getAttribute(Attributes.ATTACK_DAMAGE);
@@ -249,6 +298,7 @@ public final class CommonEvents {
 
     private static boolean isBoss(LivingEntity le) {
         ResourceLocation id = BossTable.idOf(le.getType());
+        if (BossTable.excluded(id)) return false;
         BossTable.Entry entry = BossTable.find(id);
         boolean tagged = le.getType().is(Tags.EntityTypes.BOSSES);
         if (entry != null && !entry.wildcard()) return true;

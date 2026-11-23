@@ -1,6 +1,9 @@
 {
- "_version": 1,
- "_readme": "entity — ID моба (можно шаблон 'мод:*'), drop — что выпадает КАЖДОМУ игроку рядом, meteor — узел звёздной карты, который закрывается убийством. При запуске мод пишет в лог, каких ID нет в сборке.",
+ "_version": 2,
+ "_readme": "entity — ID моба (можно шаблон 'мод:*'), drop — что выпадает КАЖДОМУ игроку рядом, meteor — узел звёздной карты, который закрывается убийством. Необязательно: health — свой множитель здоровья (вместо общего из конфига), per_player — своя прибавка за игрока (0 — если мод сам усиливает босса под группу). exclude_namespaces — моды, чьих боссов не трогаем вовсе (даже с тегом #c:bosses). При запуске мод пишет в лог, каких ID нет в сборке.",
+ "exclude_namespaces": [
+  "unbound"
+ ],
  "bosses": [
   {
    "entity": "mowziesmobs:ferrous_wroughtnaut",
@@ -88,9 +91,53 @@
    "meteor": "m_rise"
   },
   {
-   "entity": "cult*:*",
-   "drop": "zalrpakraft:azazel_sigil",
-   "meteor": "m_azazel"
+   "entity": "thaumaturge:cultist_leader",
+   "drop": "zalrpakraft:crimson_sigil",
+   "meteor": "m_praetor",
+   "health": 2.0,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:cultist_portal_greater",
+   "drop": "zalrpakraft:crimson_sigil",
+   "meteor": "",
+   "health": 1.5,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:eldritch_golem",
+   "drop": "zalrpakraft:eldritch_core",
+   "meteor": "m_eldritch_golem",
+   "health": 2.0,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:eldritch_warden",
+   "drop": "zalrpakraft:warden_ward",
+   "meteor": "m_eldritch_warden",
+   "health": 2.0,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:taintacle_giant",
+   "drop": "zalrpakraft:taint_heart",
+   "meteor": "m_taint",
+   "health": 2.0,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:taint_seed_prime",
+   "drop": "zalrpakraft:taint_heart",
+   "meteor": "",
+   "health": 2.0,
+   "per_player": 0.0
+  },
+  {
+   "entity": "thaumaturge:eldritch_hierophant",
+   "drop": "zalrpakraft:hierophant_eye",
+   "meteor": "m_hierophant",
+   "health": 2.0,
+   "per_player": 0.0
   },
   {
    "entity": "minecraft:wither",

@@ -1,5 +1,5 @@
 {
- "_version": 2,
+ "_version": 3,
  "_readme": "Книга заданий. Типы задач: item (value — ID, #тег или список ID; count), kill (шаблон моба или список; count), node (узел звёздной карты), dimension, story (journal/house/table). Задания с предметами/мобами, которых нет в сборке, скрываются автоматически (см. лог).",
  "chapters": [
   {
@@ -61,6 +61,18 @@
    "name": "Глаза",
    "icon": "zalrpakraft:eye_stars",
    "color": "#C9B7FF"
+  },
+  {
+   "id": "thaum",
+   "name": "Таумтургия",
+   "icon": "thaumaturge:thaumonomicon",
+   "color": "#B36BFF"
+  },
+  {
+   "id": "stars",
+   "name": "Звёзды",
+   "icon": "unbound:star_journal",
+   "color": "#6FB7FF"
   }
  ],
  "quests": [
@@ -2194,6 +2206,248 @@
    },
    "requires": [
     "ey_portal"
+   ]
+  },
+  {
+   "id": "ta_book",
+   "chapter": "thaum",
+   "name": "Таумономикон",
+   "icon": "thaumaturge:thaumonomicon",
+   "desc": "Кристалл виса, странный сон, щепоть Salis Mundus на книжную полку. На звёздной карте у Таумтургии своё солнце — там всё по шагам.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "thaumaturge:thaumonomicon",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:bookshelf",
+      "count": 2
+     },
+     {
+      "id": "minecraft:amethyst_shard",
+      "count": 8
+     }
+    ],
+    "xp": 60
+   },
+   "requires": [
+    "pr_table"
+   ]
+  },
+  {
+   "id": "ta_praetor",
+   "chapter": "thaum",
+   "name": "Багровый культ",
+   "icon": "zalrpakraft:crimson_sigil",
+   "desc": "Претор культа ходит со свитой. Его печать годится для Ключа Рая.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "thaumaturge:cultist_leader",
+     "count": 1,
+     "label": "Претор культа"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:golden_apple",
+      "count": 2
+     }
+    ],
+    "xp": 150
+   },
+   "requires": [
+    "ta_book"
+   ]
+  },
+  {
+   "id": "ta_taint",
+   "chapter": "thaum",
+   "name": "Порча",
+   "icon": "zalrpakraft:taint_heart",
+   "desc": "Гигантский щупалец растёт там, где флюкс пропитал землю. Сердце порчи заменит Жемчуг Лабиринта в Глазе Бездны.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "thaumaturge:taintacle_giant",
+     "count": 1,
+     "label": "Гигантский щупалец"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 8
+     }
+    ],
+    "xp": 200
+   },
+   "requires": [
+    "ta_book"
+   ]
+  },
+  {
+   "id": "ta_golem",
+   "chapter": "thaum",
+   "name": "Древний конструкт",
+   "icon": "zalrpakraft:eldritch_core",
+   "desc": "Внешние земли охраняет каменный голем. Его ядро заменит шестерню Предвестника в Глазе Механизма.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "thaumaturge:eldritch_golem",
+     "count": 1,
+     "label": "Древний конструкт"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:diamond",
+      "count": 4
+     }
+    ],
+    "xp": 300
+   },
+   "requires": [
+    "ta_praetor"
+   ]
+  },
+  {
+   "id": "ta_warden",
+   "chapter": "thaum",
+   "name": "Древний страж",
+   "icon": "zalrpakraft:warden_ward",
+   "desc": "Страж Внешних земель. Его оберег заменит чешую Левиафана в Глазе Пучины.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "thaumaturge:eldritch_warden",
+     "count": 1,
+     "label": "Древний страж"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:diamond",
+      "count": 4
+     }
+    ],
+    "xp": 300
+   },
+   "requires": [
+    "ta_praetor"
+   ]
+  },
+  {
+   "id": "ta_hierophant",
+   "chapter": "thaum",
+   "name": "Иерофант",
+   "icon": "zalrpakraft:hierophant_eye",
+   "desc": "Последний зал Внешних земель. Его око заменит звезду Незера в Глазе Звёзд.",
+   "tasks": [
+    {
+     "type": "kill",
+     "value": "thaumaturge:eldritch_hierophant",
+     "count": 1,
+     "label": "Иерофант Бездны"
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:experience_bottle",
+      "count": 32
+     }
+    ],
+    "xp": 500
+   },
+   "requires": [
+    "ta_golem",
+    "ta_warden"
+   ]
+  },
+  {
+   "id": "un_journal",
+   "chapter": "stars",
+   "name": "Звёздный журнал",
+   "icon": "unbound:star_journal",
+   "desc": "Книга и лазурит. Unbound открыт сразу — дальше журнал поведёт сам.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "unbound:star_journal",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:lapis_lazuli",
+      "count": 8
+     }
+    ],
+    "xp": 30
+   },
+   "requires": []
+  },
+  {
+   "id": "un_telescope",
+   "chapter": "stars",
+   "name": "Первый свет",
+   "icon": "unbound:refractor_telescope",
+   "desc": "Линзы, труба, тренога. Посмотри наверх.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "unbound:refractor_telescope",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:amethyst_shard",
+      "count": 8
+     }
+    ],
+    "xp": 100
+   },
+   "requires": [
+    "un_journal"
+   ]
+  },
+  {
+   "id": "un_rocket",
+   "chapter": "stars",
+   "name": "Вверх",
+   "icon": "unbound:lunar_rocket",
+   "desc": "Кабина лунной ракеты. Луна ближе, чем кажется.",
+   "tasks": [
+    {
+     "type": "item",
+     "value": "unbound:lunar_rocket",
+     "count": 1
+    }
+   ],
+   "rewards": {
+    "items": [
+     {
+      "id": "minecraft:golden_carrot",
+      "count": 16
+     }
+    ],
+    "xp": 250
+   },
+   "requires": [
+    "un_telescope"
    ]
   }
  ]

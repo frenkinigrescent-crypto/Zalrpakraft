@@ -59,6 +59,8 @@ jobs:
           gh release delete latest -y --cleanup-tag || true
           gh release create latest "$JAR" -t "Zalepacraft (последняя сборка)" -n "Автосборка из ${GITHUB_SHA::7}"
           mkdir -p /tmp/b/screenshots && cp "$JAR" /tmp/b/ && cp run/screenshots/zk_*.png /tmp/b/screenshots/ 2>/dev/null || true
+          cp selftest.txt /tmp/b/ 2>/dev/null || true
+          grep -E "clienttest|Exception|Caused" client.log | head -80 > /tmp/b/clienttest.txt 2>/dev/null || true
           cd /tmp/b
           git init -q -b builds && git add . 
           git -c user.name=ci -c user.email=ci@localhost commit -qm "jar ${GITHUB_SHA::7}"

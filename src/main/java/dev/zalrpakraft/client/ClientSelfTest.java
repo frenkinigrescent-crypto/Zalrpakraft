@@ -112,7 +112,26 @@ public final class ClientSelfTest {
                     shot(mc, "zk_13_planet2.png");
                     Zalrpakraft.LOG.info("Zalepacraft clienttest: big planet render avg {} ms/frame", String.format("%.2f", StarMapScreen.avgRenderMs));
                 }
+                case 292 -> {
+                    if (mc.screen instanceof StarMapScreen sm) {
+                        sm.enterPlanet(0);
+                        StarMapScreen.testHover = null;
+                    }
+                }
                 case 300 -> {
+                    if (mc.screen instanceof StarMapScreen sm) StarMapScreen.testHover = sm.pickTestNode();
+                    Zalrpakraft.LOG.info("Zalepacraft clienttest: hover {}", StarMapScreen.testHover);
+                }
+                case 306 -> shot(mc, "zk_14_tooltip.png");
+                case 308 -> StarMapScreen.testShift = true;
+                case 314 -> shot(mc, "zk_15_recipe.png");
+                case 316 -> {
+                    StarMapScreen.testShift = false;
+                    StarMapScreen.testHover = null;
+                    if (mc.screen instanceof StarMapScreen sm) sm.requestSystem("_test");
+                }
+                case 360 -> shot(mc, "zk_16_own.png");
+                case 370 -> {
                     Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                     mc.stop();
                 }

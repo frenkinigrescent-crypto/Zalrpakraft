@@ -147,8 +147,10 @@ RELICS = [
  ("forge_heart","heart","#5A3A3A","#FF8A3A"), ("leviathan_scale","scale","#1D5A66","#7FE7F0"),
  ("remnant_sand","pile","#D9B776","#7A5A2A"), ("harbinger_gear","gear","#9A7B45","#FF3A3A"),
  ("guardian_shard","shard","#5A3A8A","#E0C0FF"), ("qliphoth_fragment","shard","#3A2A5A","#B0FFEA"),
- ("azazel_sigil","sigil","#7A1A1A","#FFCF4A"), ("rise_trophy","orb","#6A6A72","#FF4040"),
+ ("crimson_sigil","sigil","#7A1A1A","#FFCF4A"), ("rise_trophy","orb","#6A6A72","#FF4040"),
  ("meteor_shard","shard","#4A3A33","#FF8A40"),
+ ("eldritch_core","gear","#6A5E90","#E0A8FF"), ("warden_ward","scale","#2E2A44","#E0D0FF"),
+ ("taint_heart","heart","#5A2A6A","#FF7AE0"), ("hierophant_eye","orb","#4A1030","#FF3A5A"),
 ]
 for r in RELICS: relic(*r)
 

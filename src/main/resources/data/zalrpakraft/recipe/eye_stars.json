@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "minecraft:nether_star"
+      "tag": "zalrpakraft:star_relics"
     },
     {
       "item": "minecraft:heavy_core"

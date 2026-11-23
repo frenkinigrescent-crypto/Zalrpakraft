@@ -60,8 +60,8 @@ public final class TreeBuilder {
         HolderLookup.Provider reg = server.registryAccess();
         Collection<RecipeHolder<?>> recipes = server.getRecipeManager().getRecipes();
 
-        // 1. Какие предметы кто производит и из чего
-        Map<Item, Set<Item>> ingredientsOf = new HashMap<>();
+        // 1. Рецепты: что получается и из чего. Каждый слот рецепта — набор вариантов (тег = несколько предметов).
+        Map<Item, List<Rec>> recipesOf = new HashMap<>();
         Set<Item> stonecut = new HashSet<>();
         for (RecipeHolder<?> h : recipes) {
             Recipe<?> r = h.value();
@@ -76,36 +76,60 @@ public final class TreeBuilder {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
             if (excluded.contains(id.getNamespace())) continue;
             if (r.getType() == RecipeType.STONECUTTING) stonecut.add(item);
-            Set<Item> ing = ingredientsOf.computeIfAbsent(item, k -> new LinkedHashSet<>());
+            List<Item[]> slots = new ArrayList<>();
             try {
                 for (Ingredient in : r.getIngredients()) {
                     ItemStack[] opts = in.getItems();
-                    if (opts.length == 0 || opts.length > 6) continue; // слишком общий тег — не связь
-                    for (ItemStack s : opts) if (!s.isEmpty() && s.getItem() != item) ing.add(s.getItem());
+                    if (opts.length == 0) continue;
+                    LinkedHashSet<Item> set = new LinkedHashSet<>();
+                    for (ItemStack st : opts) if (!st.isEmpty()) set.add(st.getItem());
+                    if (set.isEmpty() || set.contains(item)) continue; // перекраска/улучшение «из самого себя» — не связь
+                    slots.add(set.toArray(new Item[0]));
                 }
             } catch (Exception ignored) {
             }
+            ResourceLocation typeId = BuiltInRegistries.RECIPE_TYPE.getKey(r.getType());
+            recipesOf.computeIfAbsent(item, k -> new ArrayList<>())
+                    .add(new Rec(h.id().toString(), typeId == null ? "" : typeId.toString(), out.getCount(), slots));
+        }
+        // переработка (инструмент → самородки) и распаковка (блок → 9 слитков) — не путь крафта
+        for (Map.Entry<Item, List<Rec>> e : recipesOf.entrySet()) {
+            for (Rec rc : e.getValue()) rc.reverse = isReverse(e.getKey(), rc, recipesOf);
         }
 
-        // 2. Отбор узлов
+        // 2. Моды со своей прогрессией (и их аддоны) не закрываются
+        JsonObject own = cfg.has("own_progression") ? cfg.getAsJsonObject("own_progression") : new JsonObject();
+        Map<String, Integer> candCount = new HashMap<>();
+        for (Item it : recipesOf.keySet()) candCount.merge(BuiltInRegistries.ITEM.getKey(it).getNamespace(), 1, Integer::sum);
+        JsonObject merge = cfg.has("merge") ? cfg.getAsJsonObject("merge") : new JsonObject();
+        Map<String, String> rootOf = new HashMap<>();
+        for (String ns : candCount.keySet()) rootOf.put(ns, root(ns, candCount, merge, new HashSet<>()));
+        Set<String> ownNs = new HashSet<>();
+        for (String ns : candCount.keySet()) if (isOwn(ns, own) || isOwn(rootOf.get(ns), own) || dependsOnOwn(ns, own)) ownNs.add(ns);
+
+        // 3. Отбор узлов
         Map<Item, String> gated = new LinkedHashMap<>(); // item -> namespace
-        for (Item item : ingredientsOf.keySet()) {
+        for (Item item : recipesOf.keySet()) {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+            if (ownNs.contains(id.getNamespace())) continue;
             JsonObject ov = overrides.has(id.toString()) ? overrides.getAsJsonObject(id.toString()) : null;
             if (ov != null && ov.has("gated") && !ov.get("gated").getAsBoolean()) continue;
             if (ungateDecor && ov == null && isDecor(item, id, stonecut)) continue;
             gated.put(item, id.getNamespace());
         }
 
-        // 3. Сложность = глубина цепочки крафта по закрытым ингредиентам
+        // 4. Сложность = длина САМОЙ ПРОСТОЙ цепочки крафта (минимум по рецептам, тег — самый доступный вариант)
         Map<Item, Integer> depth = new HashMap<>();
-        for (Item it : gated.keySet()) depth(it, gated, ingredientsOf, depth, new HashSet<>());
+        Map<Item, Rec> primary = new HashMap<>();
+        computeDepth(gated, recipesOf, depth, primary);
+        // родители — выбранные варианты основного рецепта
+        Map<Item, List<Item>> parentsOf = new HashMap<>();
+        for (Item it : gated.keySet()) parentsOf.put(it, chooseParents(it, primary.get(it), gated, depth));
 
-        // 4. Системы: аддон присоединяется к самой крупной обязательной зависимости, у которой есть узлы
+        // 5. Системы: аддон присоединяется к самой крупной обязательной зависимости, у которой есть узлы
         Map<String, Integer> nsCount = new HashMap<>();
         for (String ns : gated.values()) nsCount.merge(ns, 1, Integer::sum);
-        JsonObject merge = cfg.has("merge") ? cfg.getAsJsonObject("merge") : new JsonObject();
-        Map<String, String> rootOf = new HashMap<>();
+        rootOf.clear();
         for (String ns : nsCount.keySet()) rootOf.put(ns, root(ns, nsCount, merge, new HashSet<>()));
 
         Tree tree = new Tree();
@@ -206,9 +230,20 @@ public final class TreeBuilder {
                     JsonObject cat = cats.has(n.category) ? cats.getAsJsonObject(n.category) : cats.getAsJsonObject("light");
                     n.cost = ov != null && ov.has("cost") ? ov.get("cost").getAsInt() : cat.get("cost").getAsInt();
                     n.exp = ov != null && ov.has("exp") ? ov.get("exp").getAsInt() : cat.get("exp").getAsInt();
-                    for (Item ing : ingredientsOf.getOrDefault(item, Set.of())) {
+                    List<Item> pars = parentsOf.getOrDefault(item, List.of());
+                    for (Item ing : pars) {
                         String iid = BuiltInRegistries.ITEM.getKey(ing).toString();
-                        if (inPlanet.contains(iid) && !iid.equals(nid)) n.parents.add(iid);
+                        if (iid.equals(nid)) continue;
+                        if (inPlanet.contains(iid)) n.parents.add(iid);
+                        else if (n.external.size() < 4) n.external.add(iid);
+                    }
+                    // рецепт из многих закрытых частей — на ступень сложнее
+                    if (ov == null || !ov.has("category")) {
+                        if (pars.size() >= 3 && n.category.equals("light")) n.category = "medium";
+                        else if (pars.size() >= 4 && n.category.equals("medium")) n.category = "complex";
+                        JsonObject c2 = cats.has(n.category) ? cats.getAsJsonObject(n.category) : cats.getAsJsonObject("light");
+                        if (ov == null || !ov.has("cost")) n.cost = c2.get("cost").getAsInt();
+                        if (ov == null || !ov.has("exp")) n.exp = c2.get("exp").getAsInt();
                     }
                     tree.nodes.put(nid, n);
                 }
@@ -217,7 +252,7 @@ public final class TreeBuilder {
                     Layout.branches(pl, tree.nodes, depth, maxRoots);
                     Layout.planet(pl, tree.nodes);
                     int roots = 0;
-                    for (String nid : pl.nodes) if (tree.nodes.get(nid).parents.isEmpty()) roots++;
+                    for (String nid : pl.nodes) if (tree.nodes.get(nid).parents.isEmpty() && tree.nodes.get(nid).soft.isEmpty()) roots++;
                     if (roots <= maxRoots) break;
                 }
                 for (String nid : pl.nodes) {
@@ -229,22 +264,182 @@ public final class TreeBuilder {
             }
             tree.systems.put(sys, sd);
         }
+        // 6. Солнца модов со своей прогрессией: книга, как её получить, рецепт
+        for (String key : own.keySet()) {
+            if (key.startsWith("_") || !own.get(key).isJsonObject()) continue;
+            if (!ModList.get().isLoaded(key)) continue;
+            tree.systems.put(key, ownSystem(key, own.getAsJsonObject(key), ownNs));
+        }
+        if (testVanilla) { // самотест: в CI этих модов нет — проверяем вид на ванильной книге
+            JsonObject t = JsonParser.parseString("{\"name\":\"Свой путь (тест)\",\"color\":\"#B36BFF\",\"book\":\"minecraft:writable_book\","
+                    + "\"note\":\"Тестовая система со своей прогрессией.\",\"steps\":[{\"item\":\"minecraft:feather\",\"text\":\"Перо, чернила и книга на верстаке.\"},"
+                    + "{\"item\":\"minecraft:bookshelf\",\"text\":\"Шаг без рецепта: просто текст-подсказка.\"}]}").getAsJsonObject();
+            tree.systems.put("_test", ownSystem("_test", t, ownNs));
+        }
         Layout.galaxy(tree);
         current = tree;
-        Zalrpakraft.LOG.info("Zalepacraft: звёздная карта — систем {}, узлов {} ({} мс)", tree.systems.size(), tree.nodes.size(), System.currentTimeMillis() - t0);
+        Zalrpakraft.LOG.info("Zalepacraft: звёздная карта — систем {}, узлов {} ({} мс); свои пути: {}", tree.systems.size(), tree.nodes.size(),
+                System.currentTimeMillis() - t0, ownNs);
         return tree;
     }
 
-    private static int depth(Item it, Map<Item, String> gated, Map<Item, Set<Item>> ing, Map<Item, Integer> memo, Set<Item> stack) {
-        Integer m = memo.get(it);
-        if (m != null) return m;
-        if (!stack.add(it)) return 0;
-        int best = 0;
-        for (Item p : ing.getOrDefault(it, Set.of())) if (gated.containsKey(p)) best = Math.max(best, depth(p, gated, ing, memo, stack) + 1);
-        stack.remove(it);
-        best = Math.min(best, 12);
-        memo.put(it, best);
-        return best;
+    // ==================== рецепты ====================
+    static final class Rec {
+        final String id, type;
+        final int outCount;
+        final List<Item[]> slots;
+        boolean reverse;
+
+        Rec(String id, String type, int outCount, List<Item[]> slots) {
+            this.id = id;
+            this.type = type;
+            this.outCount = outCount;
+            this.slots = slots;
+        }
+    }
+
+    private static final int INF = 1000;
+    private static final int MAX_DEPTH = 12;
+
+    /** Переработка или распаковка: не показывает, как предмет на самом деле получают. */
+    private static boolean isReverse(Item out, Rec r, Map<Item, List<Rec>> all) {
+        if (r.slots.size() != 1) return false;
+        Item[] only = r.slots.get(0);
+        // переплавка инструментов и брони в самородки
+        if (r.type.endsWith("smelting") || r.type.endsWith("blasting")) {
+            boolean allDamageable = true;
+            for (Item i : only) if (!new ItemStack(i).isDamageableItem()) { allDamageable = false; break; }
+            if (allDamageable) return true;
+        }
+        // 1 блок → 9 слитков, если слитки сами собираются в этот блок
+        if (only.length == 1 && r.outCount >= 4) {
+            for (Rec back : all.getOrDefault(only[0], List.of())) {
+                for (Item[] slot : back.slots) for (Item i : slot) if (i == out) return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<Rec> linkRecipes(Item it, Map<Item, List<Rec>> all) {
+        List<Rec> list = all.getOrDefault(it, List.of());
+        List<Rec> fwd = new ArrayList<>();
+        for (Rec r : list) if (!r.reverse) fwd.add(r);
+        return fwd.isEmpty() ? list : fwd;
+    }
+
+    private static int slotCost(Item[] slot, Map<Item, String> gated, Map<Item, Integer> d) {
+        int m = INF;
+        for (Item o : slot) {
+            int v = !gated.containsKey(o) ? 0 : d.getOrDefault(o, INF) >= INF ? INF : d.get(o) + 1;
+            if (v < m) m = v;
+            if (m == 0) break;
+        }
+        return m;
+    }
+
+    private static int recCost(Rec r, Map<Item, String> gated, Map<Item, Integer> d) {
+        int worst = 0;
+        for (Item[] slot : r.slots) worst = Math.max(worst, slotCost(slot, gated, d));
+        return worst;
+    }
+
+    private static boolean better(Rec a, Rec b) {
+        boolean ac = a.type.equals("minecraft:crafting"), bc = b.type.equals("minecraft:crafting");
+        if (ac != bc) return ac;
+        if (a.slots.size() != b.slots.size()) return a.slots.size() < b.slots.size();
+        return a.id.compareTo(b.id) < 0;
+    }
+
+    /** Глубина = минимум по рецептам (самый простой путь), основной рецепт — тот, что даёт минимум. */
+    static void computeDepth(Map<Item, String> gated, Map<Item, List<Rec>> all, Map<Item, Integer> d, Map<Item, Rec> primary) {
+        for (Item it : gated.keySet()) d.put(it, INF);
+        for (int round = 0; round < 2; round++) {
+            for (int iter = 0; iter < 64; iter++) {
+                boolean changed = false;
+                for (Item it : gated.keySet()) {
+                    List<Rec> recs = linkRecipes(it, all);
+                    int best = recs.isEmpty() ? 0 : INF;
+                    for (Rec r : recs) best = Math.min(best, recCost(r, gated, d));
+                    if (best < INF) best = Math.min(best, MAX_DEPTH);
+                    if (best < d.get(it)) { d.put(it, best); changed = true; }
+                }
+                if (!changed) break;
+            }
+            // остались только замкнутые циклы — считаем их началом цепочки и досчитываем остальное
+            boolean any = false;
+            for (Item it : gated.keySet()) if (d.get(it) >= INF) { d.put(it, 0); any = true; }
+            if (!any) break;
+        }
+        // основной рецепт — самый дешёвый при итоговых глубинах; при равенстве — верстак, меньше слотов, по имени
+        for (Item it : gated.keySet()) {
+            Rec bestR = null;
+            int best = INF + 1;
+            for (Rec r : linkRecipes(it, all)) {
+                int c = recCost(r, gated, d);
+                if (c < best || (c == best && (bestR == null || better(r, bestR)))) { best = c; bestR = r; }
+            }
+            if (bestR != null) primary.put(it, bestR);
+        }
+    }
+
+    /** Из каждого слота основного рецепта — самый доступный вариант; если есть открытый (ванильный/декор) — связи нет. */
+    static List<Item> chooseParents(Item it, Rec r, Map<Item, String> gated, Map<Item, Integer> d) {
+        List<Item> out = new ArrayList<>();
+        if (r == null) return out;
+        String ns = BuiltInRegistries.ITEM.getKey(it).getNamespace();
+        int myDepth = d.getOrDefault(it, 0);
+        for (Item[] slot : r.slots) {
+            Item best = null;
+            boolean free = false;
+            for (Item o : slot) {
+                if (!gated.containsKey(o)) { free = true; break; }
+                if (o == it) continue;
+                if (best == null) { best = o; continue; }
+                int dv = d.getOrDefault(o, 0), db = d.getOrDefault(best, 0);
+                boolean sameO = BuiltInRegistries.ITEM.getKey(o).getNamespace().equals(ns);
+                boolean sameB = BuiltInRegistries.ITEM.getKey(best).getNamespace().equals(ns);
+                if (dv < db || (dv == db && sameO && !sameB)
+                        || (dv == db && sameO == sameB && BuiltInRegistries.ITEM.getKey(o).compareTo(BuiltInRegistries.ITEM.getKey(best)) < 0)) best = o;
+            }
+            if (free || best == null || out.contains(best)) continue;
+            if (d.getOrDefault(best, 0) >= myDepth && myDepth < MAX_DEPTH) continue; // защита от петель
+            out.add(best);
+        }
+        return out;
+    }
+
+    // ==================== моды со своей прогрессией ====================
+    private static boolean isOwn(String ns, JsonObject own) {
+        return ns != null && !ns.startsWith("_") && own.has(ns);
+    }
+
+    /** Аддон, которому обязателен мод со своей прогрессией (Thaumaturge → его аддоны). */
+    private static boolean dependsOnOwn(String ns, JsonObject own) {
+        Optional<IModInfo> info = ModList.get().getModContainerById(ns).map(c -> c.getModInfo());
+        if (info.isEmpty()) return false;
+        for (IModInfo.ModVersion dep : info.get().getDependencies())
+            if (dep.getType() == IModInfo.DependencyType.REQUIRED && isOwn(dep.getModId(), own)) return true;
+        return false;
+    }
+
+    private static Tree.SystemDef ownSystem(String key, JsonObject o, Set<String> ownNs) {
+        Tree.SystemDef sd = new Tree.SystemDef();
+        sd.id = key;
+        sd.own = true;
+        sd.name = o.has("name") ? o.get("name").getAsString() : displayName(key);
+        sd.color = o.has("color") ? parseColor(o.get("color").getAsString()) : hueColor(key);
+        sd.book = o.has("book") ? o.get("book").getAsString() : "";
+        sd.note = o.has("note") ? o.get("note").getAsString() : "";
+        if (o.has("steps")) for (JsonElement e : o.getAsJsonArray("steps")) {
+            JsonObject st = e.getAsJsonObject();
+            sd.steps.add(new String[]{st.has("item") ? st.get("item").getAsString() : "", st.has("text") ? st.get("text").getAsString() : ""});
+        }
+        sd.mods.add(key);
+        for (String ns : ownNs) if (!ns.equals(key) && !sd.mods.contains(ns)) {
+            Optional<IModInfo> info = ModList.get().getModContainerById(ns).map(c -> c.getModInfo());
+            if (info.isPresent() && info.get().getDependencies().stream().anyMatch(dp -> dp.getModId().equals(key))) sd.mods.add(ns);
+        }
+        return sd;
     }
 
     private static String root(String ns, Map<String, Integer> count, JsonObject merge, Set<String> seen) {

@@ -41,13 +41,14 @@ public final class ZNetwork {
                     var big = t.systems.values().stream().max(java.util.Comparator.comparingInt(dev.zalrpakraft.tree.Tree.SystemDef::size)).orElse(null);
                     if (big != null) {
                         int k = 0;
-                        for (String id : big.planets.get(0).nodes) {
-                            var n = t.nodes.get(id);
-                            if (n.parents.isEmpty() && k++ < 4) pr.unlockedItems.add(id);
-                        }
-                        for (String id : big.planets.get(0).nodes) {
-                            var n = t.nodes.get(id);
-                            if (!n.parents.isEmpty() && pr.unlockedItems.contains(n.parents.get(0)) && k++ < 7) pr.unlockedItems.add(id);
+                        for (int pass = 0; pass < 6 && k < 7; pass++) {
+                            for (String id : big.planets.get(0).nodes) {
+                                var n = t.nodes.get(id);
+                                if (k < 7 && !pr.unlockedItems.contains(id) && dev.zalrpakraft.tree.StarService.available(n, pr.unlockedItems)) {
+                                    pr.unlockedItems.add(id);
+                                    k++;
+                                }
+                            }
                         }
                     }
                     pr.starExp = 64;

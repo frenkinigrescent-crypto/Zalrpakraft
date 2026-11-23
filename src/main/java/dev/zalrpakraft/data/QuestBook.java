@@ -73,6 +73,7 @@ public final class QuestBook {
     }
 
     public static Book book() { return valid; }
+    public static int totalDefined() { return raw.quests.size(); }
     public static String json() { return validJson; }
 
     public static Book fromJson(String json) {

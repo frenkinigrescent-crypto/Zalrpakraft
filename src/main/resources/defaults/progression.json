@@ -1,5 +1,5 @@
 {
- "_version": 2,
+ "_version": 3,
  "_readme": "Звёздная карта. Галактики — группы модов, планеты — моды (изучаются, когда в инвентаре появляется предмет мода), метеоры — боссы, врата — измерения. Координаты можно двигать.",
  "root": {
   "id": "home",
@@ -179,18 +179,79 @@
    ]
   },
   {
-   "id": "m_azazel",
-   "name": "Cult of Azazel",
-   "x": 420,
-   "y": 330,
-   "color": "#FF6A3D",
-   "hint": "Особняк культа в Аду. Печать для Ключа Рая",
+   "id": "m_praetor",
+   "name": "Претор Багрового культа",
+   "x": 73,
+   "y": 414,
+   "color": "#C77DFF",
+   "hint": "Культисты Таумтургии. Печать для Ключа Рая",
    "unlock": {
     "type": "kill",
-    "value": "cult*:*"
+    "value": "thaumaturge:cultist_leader"
    },
    "requires": [
-    "gate_nether"
+    "home"
+   ]
+  },
+  {
+   "id": "m_taint",
+   "name": "Гигантский щупалец",
+   "x": -41,
+   "y": 468,
+   "color": "#C77DFF",
+   "hint": "Порченые земли. Сердце порчи — вместо Жемчуга Лабиринта в Глазе Бездны",
+   "unlock": {
+    "type": "kill",
+    "value": "thaumaturge:taintacle_giant"
+   },
+   "requires": [
+    "home"
+   ]
+  },
+  {
+   "id": "m_eldritch_golem",
+   "name": "Древний конструкт",
+   "x": -154,
+   "y": 538,
+   "color": "#C77DFF",
+   "hint": "Внешние земли. Ядро — вместо шестерни Предвестника в Глазе Механизма",
+   "unlock": {
+    "type": "kill",
+    "value": "thaumaturge:eldritch_golem"
+   },
+   "requires": [
+    "m_praetor"
+   ]
+  },
+  {
+   "id": "m_eldritch_warden",
+   "name": "Древний страж",
+   "x": 21,
+   "y": 600,
+   "color": "#C77DFF",
+   "hint": "Внешние земли. Оберег — вместо чешуи Левиафана в Глазе Пучины",
+   "unlock": {
+    "type": "kill",
+    "value": "thaumaturge:eldritch_warden"
+   },
+   "requires": [
+    "m_praetor"
+   ]
+  },
+  {
+   "id": "m_hierophant",
+   "name": "Иерофант Бездны",
+   "x": -298,
+   "y": 611,
+   "color": "#C77DFF",
+   "hint": "Сердце Внешних земель. Око — вместо звезды Незера в Глазе Звёзд",
+   "unlock": {
+    "type": "kill",
+    "value": "thaumaturge:eldritch_hierophant"
+   },
+   "requires": [
+    "m_eldritch_golem",
+    "m_eldritch_warden"
    ]
   },
   {

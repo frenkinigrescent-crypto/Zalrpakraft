@@ -35,7 +35,8 @@ public final class ZItems {
             "rust_core", "frost_heart", "sun_feather", "sculptor_chisel",
             "cornelia_lantern", "maze_pearl", "ignis_ember", "revenant_ash",
             "forge_heart", "leviathan_scale", "remnant_sand", "harbinger_gear",
-            "guardian_shard", "qliphoth_fragment", "azazel_sigil", "rise_trophy", "meteor_shard"
+            "guardian_shard", "qliphoth_fragment", "crimson_sigil", "rise_trophy", "meteor_shard",
+            "eldritch_core", "warden_ward", "taint_heart", "hierophant_eye"
     };
     public static final Map<String, DeferredItem<Item>> RELIC_ITEMS = new LinkedHashMap<>();
 

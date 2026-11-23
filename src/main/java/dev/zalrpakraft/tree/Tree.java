@@ -16,7 +16,12 @@ public final class Tree {
         public float x, y;          // координаты на виде планеты
         public String category;     // light / medium / complex
         public int cost, exp;
+        /** Настоящие связи крафта: все должны быть открыты. */
         public List<String> parents = new ArrayList<>();
+        /** Связи пути (цепочки по материалу, подвес к входам): хватает любой одной. */
+        public List<String> soft = new ArrayList<>();
+        /** Нужное для крафта с других планет и из других систем — только для подсказки. */
+        public List<String> external = new ArrayList<>();
     }
 
     public static final class Planet {
@@ -32,6 +37,10 @@ public final class Tree {
         public float x, y;          // на виде галактики
         public List<String> mods = new ArrayList<>();
         public List<Planet> planets = new ArrayList<>();
+        /** Мод со своей прогрессией: ничего не закрыто, на солнце — книга мода и как её получить. */
+        public boolean own;
+        public String book = "", note = "";
+        public List<String[]> steps = new ArrayList<>(); // {item, text}
         public int size() {
             int n = 0;
             for (Planet p : planets) n += p.nodes.size();
