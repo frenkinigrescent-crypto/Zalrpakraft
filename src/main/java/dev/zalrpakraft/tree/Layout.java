@@ -4,7 +4,7 @@ import java.util.*;
 
 /** Раскладка: узлы планеты — кольцами по глубине; системы галактики — спиралью. */
 final class Layout {
-    static final float RING0 = 78f, RING_STEP = 50f, SPACING = 40f;
+    static final float RING0 = 92f, RING_STEP = 64f, SPACING = 54f;
 
     /**
      * Делает ветку интереснее: узлы без родителей группируются по материалу (brass_*, copper_* …) в цепочки,
