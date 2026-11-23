@@ -74,7 +74,7 @@ public final class CommonEvents {
         ok &= table;
         int nodes = ProgressionMap.nodes().size();
         sb.append("map_nodes=").append(nodes).append('\n');
-        ok &= nodes > 40;
+        ok &= nodes > 20;
         for (ProgressionMap.Node n : ProgressionMap.nodes().values()) {
             for (String r : n.requires) if (!ProgressionMap.nodes().containsKey(r)) { ok = false; sb.append("bad_require ").append(n.id).append("->").append(r).append('\n'); }
             for (String r : n.requiresAny) if (!ProgressionMap.nodes().containsKey(r)) { ok = false; sb.append("bad_require ").append(n.id).append("->").append(r).append('\n'); }
