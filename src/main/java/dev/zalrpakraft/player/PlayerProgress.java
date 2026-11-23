@@ -28,6 +28,10 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
     public final Set<String> questsClaimed = new LinkedHashSet<>();
     public final Map<String, Integer> killCounts = new LinkedHashMap<>();
     public String tracked = "";
+    public final Set<String> unlockedItems = new LinkedHashSet<>();
+    public int starExp;
+    public int starPoints;
+    public boolean starStarted;
 
     public CompoundTag write() {
         CompoundTag t = new CompoundTag();
@@ -47,6 +51,10 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         killCounts.forEach(kc::putInt);
         t.put("killCounts", kc);
         t.putString("tracked", tracked);
+        t.put("unlockedItems", list(unlockedItems));
+        t.putInt("starExp", starExp);
+        t.putInt("starPoints", starPoints);
+        t.putBoolean("starStarted", starStarted);
         return t;
     }
 
@@ -67,6 +75,10 @@ public class PlayerProgress implements INBTSerializable<CompoundTag> {
         CompoundTag kc = t.getCompound("killCounts");
         for (String k : kc.getAllKeys()) killCounts.put(k, kc.getInt(k));
         tracked = t.getString("tracked");
+        fill(unlockedItems, t, "unlockedItems");
+        starExp = t.getInt("starExp");
+        starPoints = t.getInt("starPoints");
+        starStarted = t.getBoolean("starStarted");
     }
 
     private static ListTag list(Set<String> s) {

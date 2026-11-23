@@ -24,9 +24,18 @@ public final class ClientHooks {
         }
     }
 
-    public static void openMap(String json, CompoundTag progress) {
-        ClientState.progress = progress;
-        Minecraft.getInstance().setScreen(new ConstellationScreen(json, progress));
+    public static void onTreeView(String view, String json, String mapJson, CompoundTag progress) {
+        Minecraft mc = Minecraft.getInstance();
+        StarMapScreen s = mc.screen instanceof StarMapScreen sm ? sm : null;
+        if (view.equals("galaxy")) {
+            if (s == null) {
+                s = new StarMapScreen();
+                mc.setScreen(s);
+            }
+            s.setGalaxy(json, mapJson, progress);
+        } else if (s != null) {
+            s.setSystem(json);
+        }
     }
 
     public static void openQuests(String json, CompoundTag state) {

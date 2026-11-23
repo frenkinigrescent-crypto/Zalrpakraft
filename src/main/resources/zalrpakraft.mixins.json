@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.zalrpakraft.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "RecipeManagerMixin",
+    "SlotMixin",
+    "CreateBasinMixin",
+    "CreateSawMixin",
+    "CreateSequencedMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

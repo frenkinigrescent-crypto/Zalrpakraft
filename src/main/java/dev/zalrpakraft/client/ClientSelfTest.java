@@ -1,7 +1,6 @@
 package dev.zalrpakraft.client;
 
 import dev.zalrpakraft.Zalrpakraft;
-import dev.zalrpakraft.data.ProgressionMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,18 +28,6 @@ public final class ClientSelfTest {
         ticks++;
         switch (ticks) {
             case 100 -> shot(mc, "zk_1_menu.png");
-            case 105 -> {
-                ConstellationScreen.showAll = true;
-                CompoundTag t = new CompoundTag();
-                ListTag l = new ListTag();
-                for (String s : new String[]{"home", "g_cradle", "p_farmersdelight", "p_gpr", "p_naturalist", "p_starcatcher",
-                        "g_gear", "p_create", "p_copycats", "g_threat", "p_creepers", "m_wroughtnaut", "m_rise", "gate_nether",
-                        "g_mystery", "g_arsenal", "m_frostmaw"})
-                    l.add(StringTag.valueOf(s));
-                t.put("studied", l);
-                mc.setScreen(new ConstellationScreen(ProgressionMap.rawJson(), t));
-            }
-            case 150 -> shot(mc, "zk_2_map.png");
             case 155 -> {
                 PlaqueOverlay.push("table", "zalrpakraft:star_table", "goal");
                 mc.setScreen(new Showcase(0));
@@ -92,12 +79,60 @@ public final class ClientSelfTest {
             case 400 -> shot(mc, "zk_8_worlds.png");
             case 405 -> net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.openFresh(mc, mc.screen);
             case 450 -> shot(mc, "zk_9_create.png");
-            case 460 -> {
-                Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
-                mc.stop();
+            case 455 -> {
+                mc.setScreen(new ZTitleScreen());
+                loadWorld(mc, "zk_test");
             }
             default -> {}
         }
+        // в мире: ждём игрока, настраиваем прогресс и снимаем все три уровня карты
+        if (ticks > 455 && mc.player != null && mc.screen == null && worldTick < 0) worldTick = 0;
+        if (worldTick >= 0) {
+            worldTick++;
+            switch (worldTick) {
+                case 80 -> net.neoforged.neoforge.network.PacketDistributor.sendToServer(new dev.zalrpakraft.net.SimplePayload("selftest_setup"));
+                case 140 -> shot(mc, "zk_10_galaxy.png");
+                case 145 -> {
+                    if (mc.screen instanceof StarMapScreen sm && sm.biggestSystem() != null) sm.requestSystem(sm.biggestSystem());
+                }
+                case 200 -> shot(mc, "zk_11_system.png");
+                case 205 -> {
+                    if (mc.screen instanceof StarMapScreen sm) sm.enterPlanet(0);
+                }
+                case 245 -> shot(mc, "zk_12_planet.png");
+                case 250 -> {
+                    if (mc.screen instanceof StarMapScreen sm) sm.enterPlanet(1);
+                }
+                case 290 -> shot(mc, "zk_13_planet2.png");
+                case 300 -> {
+                    Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
+                    mc.stop();
+                }
+                default -> {}
+            }
+        }
+    }
+
+    private static int worldTick = -1;
+
+    private static void loadWorld(Minecraft mc, String id) {
+        Object flows = mc.createWorldOpenFlows();
+        Runnable fail = () -> Zalrpakraft.LOG.error("Zalepacraft clienttest: не удалось открыть мир");
+        for (String name : new String[]{"openWorld", "checkForBackupAndLoad", "loadLevel"}) {
+            for (java.lang.reflect.Method m : flows.getClass().getMethods()) {
+                Class<?>[] pt = m.getParameterTypes();
+                if (m.getName().equals(name) && pt.length == 2 && pt[0] == String.class && pt[1] == Runnable.class) {
+                    try {
+                        m.invoke(flows, id, fail);
+                        Zalrpakraft.LOG.info("Zalepacraft clienttest: открываю мир через {}", name);
+                        return;
+                    } catch (Exception e) {
+                        Zalrpakraft.LOG.error("Zalepacraft clienttest: {}", name, e);
+                    }
+                }
+            }
+        }
+        Zalrpakraft.LOG.error("Zalepacraft clienttest: нет подходящего метода WorldOpenFlows");
     }
 
     private static void shot(Minecraft mc, String name) {

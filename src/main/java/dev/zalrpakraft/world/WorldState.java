@@ -18,6 +18,8 @@ public class WorldState extends SavedData {
     public BlockPos tablePos;
     public boolean houseBuilt;
     public final Map<BlockPos, Integer> frameEyes = new HashMap<>();
+    /** Предметы, открытые хотя бы одним игроком (по ним работают машины). */
+    public final java.util.Set<String> anyUnlocked = new java.util.HashSet<>();
 
     public static WorldState get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(
@@ -34,6 +36,8 @@ public class WorldState extends SavedData {
             CompoundTag e = eyes.getCompound(i);
             NbtUtils.readBlockPos(e, "pos").ifPresent(b -> s.frameEyes.put(b, e.getInt("eye")));
         }
+        ListTag au = t.getList("anyUnlocked", Tag.TAG_STRING);
+        for (int i = 0; i < au.size(); i++) s.anyUnlocked.add(au.getString(i));
         return s;
     }
 
@@ -50,6 +54,9 @@ public class WorldState extends SavedData {
             eyes.add(e);
         });
         t.put("eyes", eyes);
+        ListTag au = new ListTag();
+        for (String s : anyUnlocked) au.add(net.minecraft.nbt.StringTag.valueOf(s));
+        t.put("anyUnlocked", au);
         return t;
     }
 }

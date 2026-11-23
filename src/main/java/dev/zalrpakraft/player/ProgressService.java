@@ -2,7 +2,6 @@ package dev.zalrpakraft.player;
 
 import dev.zalrpakraft.data.ProgressionMap;
 import dev.zalrpakraft.data.ProgressionMap.Node;
-import dev.zalrpakraft.net.OpenMapPayload;
 import dev.zalrpakraft.net.SyncProgressPayload;
 import dev.zalrpakraft.registry.ZAttachments;
 import dev.zalrpakraft.world.WorldState;
@@ -57,8 +56,7 @@ public final class ProgressService {
         update(p);
         Achievements.checkMap(p, pr);
         sync(p);
-        CompoundTag t = pr.write();
-        PacketDistributor.sendToPlayer(p, new OpenMapPayload(ProgressionMap.rawJson(), t));
+        dev.zalrpakraft.tree.StarService.openGalaxy(p);
     }
 
     /** {заголовок, текст} — ключи перевода или готовые строки (клиент сам решает). */

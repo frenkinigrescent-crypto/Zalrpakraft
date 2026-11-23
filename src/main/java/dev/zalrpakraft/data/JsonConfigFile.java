@@ -10,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /** Копирует json по умолчанию из ресурсов мода в config/zalrpakraft/ и читает его оттуда. */
-final class JsonConfigFile {
-    static String readOrCreate(String name) {
+public final class JsonConfigFile {
+    public static String readOrCreate(String name) {
         Path dir = FMLPaths.CONFIGDIR.get().resolve(Zalrpakraft.MODID);
         Path file = dir.resolve(name);
         try {

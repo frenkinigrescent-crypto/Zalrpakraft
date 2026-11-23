@@ -1,0 +1,206 @@
+{
+ "_version": 1,
+ "_readme": "Звёздная карта в стиле Create: Constellation. Системы — моды (аддоны присоединяются к родительскому моду по зависимостям), планеты — направления. Узлы строятся автоматически из рецептов сборки. Здесь — правила и баланс.",
+ "exp_per_point": 100,
+ "starting_points": 3,
+ "points_per_meteor": 3,
+ "categories": {
+  "light": {
+   "cost": 1,
+   "exp": 3
+  },
+  "medium": {
+   "cost": 2,
+   "exp": 4
+  },
+  "complex": {
+   "cost": 3,
+   "exp": 6
+  }
+ },
+ "complexity": {
+  "medium_from_depth": 2,
+  "complex_from_depth": 4
+ },
+ "ungate_decor": true,
+ "excluded_namespaces": [
+  "minecraft",
+  "zalrpakraft",
+  "neoforge",
+  "c"
+ ],
+ "merge": {},
+ "names": {
+  "create": "Create"
+ },
+ "planets": {
+  "create": {
+   "sun": {
+    "name": "Кинетика",
+    "color": "#FFB347"
+   },
+   "rules": [
+    {
+     "id": "materials",
+     "name": "Материалы",
+     "color": "#B8B8C8",
+     "keywords": [
+      "ingot",
+      "nugget",
+      "sheet",
+      "alloy",
+      "mechanism",
+      "tube",
+      "rose_quartz",
+      "crushed_",
+      "dough",
+      "powder",
+      "propeller",
+      "whisk",
+      "cardboard",
+      "sand_paper",
+      "super_glue",
+      "experience",
+      "zinc",
+      "brass_hand",
+      "chromatic",
+      "shadow_steel",
+      "refined_radiance",
+      "cinder_flour",
+      "wheat_flour",
+      "bar_of_chocolate",
+      "honeyed_apple",
+      "builders_tea",
+      "sweet_roll",
+      "chocolate_glazed_berries",
+      "honey_glazed_berries"
+     ]
+    },
+    {
+     "id": "fluids",
+     "name": "Жидкости",
+     "color": "#4A90D9",
+     "keywords": [
+      "pipe",
+      "pump",
+      "fluid",
+      "valve",
+      "spout",
+      "item_drain",
+      "hose",
+      "steam",
+      "boiler",
+      "tank"
+     ]
+    },
+    {
+     "id": "logistics",
+     "name": "Логистика",
+     "color": "#E8894A",
+     "keywords": [
+      "funnel",
+      "tunnel",
+      "chute",
+      "depot",
+      "ejector",
+      "mechanical_arm",
+      "observer",
+      "threshold_switch",
+      "display_",
+      "redstone_link",
+      "vault",
+      "packag",
+      "frogport",
+      "postbox",
+      "stock",
+      "factory_gauge",
+      "table_cloth",
+      "item_hatch",
+      "chain_conveyor",
+      "linked_controller",
+      "filter",
+      "schedule",
+      "clipboard",
+      "nixie",
+      "portable_storage",
+      "pulse_",
+      "powered_",
+      "redstone_contact",
+      "smart_chute",
+      "belt_connector",
+      "andesite_tunnel",
+      "brass_tunnel",
+      "desk_bell"
+     ]
+    },
+    {
+     "id": "contraptions",
+     "name": "Конструкции",
+     "color": "#6CC24A",
+     "keywords": [
+      "bearing",
+      "piston",
+      "gantry",
+      "chassis",
+      "glue",
+      "sticker",
+      "cart_assembler",
+      "minecart",
+      "pulley",
+      "contraption",
+      "track",
+      "train",
+      "station",
+      "controls",
+      "bogey",
+      "signal",
+      "drill",
+      "harvester",
+      "plough",
+      "roller",
+      "sail",
+      "extendo",
+      "potato_cannon",
+      "handheld_worldshaper",
+      "toolbox"
+     ]
+    },
+    {
+     "id": "processing",
+     "name": "Обработка",
+     "color": "#E8D44A",
+     "keywords": [
+      "press",
+      "mixer",
+      "basin",
+      "millstone",
+      "crushing_wheel",
+      "encased_fan",
+      "blaze_burner",
+      "mechanical_crafter",
+      "deployer",
+      "mechanical_saw",
+      "peculiar_bell",
+      "haunted_bell",
+      "nozzle"
+     ]
+    }
+   ]
+  }
+ },
+ "overrides": {
+  "create:wrench": {
+   "planet": "sun",
+   "category": "light"
+  },
+  "create:shaft": {
+   "category": "light"
+  },
+  "create:cogwheel": {
+   "category": "light"
+  },
+  "create:andesite_alloy": {
+   "category": "light"
+  }
+ }
+}

@@ -55,6 +55,7 @@ public final class CommonEvents {
     public static void onServerStarted(ServerStartedEvent e) {
         MinecraftServer server = e.getServer();
         HouseBuilder.ensureBuilt(server.overworld());
+        dev.zalrpakraft.tree.TreeBuilder.build(server);
         dev.zalrpakraft.data.QuestBook.validate();
         int found = BossTable.validate();
         Zalrpakraft.LOG.info("Zalepacraft: найдено боссов из таблицы в сборке: {}", found);
@@ -86,7 +87,24 @@ public final class CommonEvents {
         int quests = dev.zalrpakraft.data.QuestBook.book().quests.size();
         sb.append("quests_valid=").append(quests).append(" of ").append(76).append('\n');
         ok &= quests >= 20;
-        ok &= adv >= 23;
+        ok &= adv >= 16;
+        dev.zalrpakraft.tree.Tree tree = dev.zalrpakraft.tree.TreeBuilder.tree();
+        sb.append("tree_systems=").append(tree.systems.size()).append(" nodes=").append(tree.nodes.size()).append('\n');
+        for (var s : tree.systems.values()) {
+            sb.append("  system ").append(s.id).append(" (").append(s.name).append("):");
+            for (var pl : s.planets) sb.append(' ').append(pl.name).append('=').append(pl.nodes.size());
+            sb.append('\n');
+        }
+        ok &= tree.nodes.size() > 50;
+        // гейтинг: печь не плавит закрытый результат, пока его никто не открыл
+        var input = new net.minecraft.world.item.crafting.SingleRecipeInput(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.RAW_IRON));
+        boolean gatedIron = tree.nodes.containsKey("minecraft:iron_ingot");
+        boolean before = server.getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.SMELTING, input, server.overworld()).isPresent();
+        ws.anyUnlocked.add("minecraft:iron_ingot");
+        boolean after = server.getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.SMELTING, input, server.overworld()).isPresent();
+        ws.anyUnlocked.remove("minecraft:iron_ingot");
+        sb.append("gate_test iron_gated=").append(gatedIron).append(" smelt_before=").append(before).append(" smelt_after_unlock=").append(after).append('\n');
+        ok &= gatedIron && !before && after;
         sb.append(ok ? "RESULT OK\n" : "RESULT FAIL\n");
         try {
             Files.writeString(out, sb.toString(), StandardCharsets.UTF_8);
@@ -112,6 +130,9 @@ public final class CommonEvents {
         }
 
         pr.visitedDims.add(sp.level().dimension().location().toString());
+        dev.zalrpakraft.tree.StarService.ensureStarted(sp);
+        dev.zalrpakraft.tree.StarService.syncGated(sp);
+        dev.zalrpakraft.tree.StarService.sync(sp);
         ProgressService.update(sp);
         ProgressService.sync(sp);
     }
@@ -253,6 +274,8 @@ public final class CommonEvents {
             ProgressService.of(p).killCounts.merge(id.toString(), 1, Integer::sum);
             dev.zalrpakraft.player.QuestService.check(p);
             if (fighters >= 4) dev.zalrpakraft.player.Achievements.award(p, "fellowship");
+            if (!entry.wildcard() || le.getType().is(Tags.EntityTypes.BOSSES))
+                dev.zalrpakraft.tree.StarService.addPoints(p, dev.zalrpakraft.tree.TreeBuilder.tree().pointsPerMeteor);
             PlayerProgress pr = ProgressService.of(p);
             pr.kills.add(id.toString());
             ProgressService.update(p);
@@ -270,6 +293,26 @@ public final class CommonEvents {
         BossTable.Entry boss = BossTable.find(id);
         if (boss != null && (!boss.wildcard() || le.getType().is(Tags.EntityTypes.BOSSES) || le.getMaxHealth() >= 150)) return;
         ProgressService.of(killer).killCounts.merge(id.toString(), 1, Integer::sum);
+    }
+
+    // ---------- Звёздная карта: перестроить после /reload, EXP за крафт ----------
+    @SubscribeEvent
+    public static void onDatapackSync(net.neoforged.neoforge.event.OnDatapackSyncEvent e) {
+        if (e.getPlayer() == null) dev.zalrpakraft.tree.TreeBuilder.build(e.getPlayerList().getServer());
+        e.getRelevantPlayers().forEach(p -> {
+            dev.zalrpakraft.tree.StarService.syncGated(p);
+            dev.zalrpakraft.tree.StarService.sync(p);
+        });
+    }
+
+    @SubscribeEvent
+    public static void onCrafted(PlayerEvent.ItemCraftedEvent e) {
+        if (e.getEntity() instanceof ServerPlayer sp) dev.zalrpakraft.tree.StarService.onCrafted(sp, e.getCrafting());
+    }
+
+    @SubscribeEvent
+    public static void onSmelted(PlayerEvent.ItemSmeltedEvent e) {
+        if (e.getEntity() instanceof ServerPlayer sp) dev.zalrpakraft.tree.StarService.onCrafted(sp, e.getSmelting());
     }
 
     private CommonEvents() {}

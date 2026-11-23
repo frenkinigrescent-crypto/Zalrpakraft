@@ -14,8 +14,11 @@ public final class ZNetwork {
         r.playToClient(SyncProgressPayload.TYPE, SyncProgressPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
             if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientHooks.onSync(p.tag());
         }));
-        r.playToClient(OpenMapPayload.TYPE, OpenMapPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
-            if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientHooks.openMap(p.mapJson(), p.progress());
+        r.playToClient(TreeViewPayload.TYPE, TreeViewPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientHooks.onTreeView(p.view(), p.json(), p.mapJson(), p.progress());
+        }));
+        r.playToClient(StarSyncPayload.TYPE, StarSyncPayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.ClientTree.apply(p.tag());
         }));
         r.playToClient(PlaquePayload.TYPE, PlaquePayload.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
             if (FMLEnvironment.dist.isClient()) dev.zalrpakraft.client.PlaqueOverlay.push(p.id(), p.icon(), p.frame());
@@ -30,7 +33,31 @@ public final class ZNetwork {
         ctx.enqueueWork(() -> {
             if (ctx.player() instanceof ServerPlayer sp) {
                 String a = p.action();
-                if (a.equals("open_map")) {
+                if (a.equals("selftest_setup") && !System.getProperty("zalrpakraft.clienttest", "").isEmpty()) {
+                    PlayerProgress pr = ProgressService.of(sp);
+                    pr.journalRead = pr.houseFound = pr.tableOpened = true;
+                    pr.starPoints += 8;
+                    var t = dev.zalrpakraft.tree.TreeBuilder.tree();
+                    var big = t.systems.values().stream().max(java.util.Comparator.comparingInt(dev.zalrpakraft.tree.Tree.SystemDef::size)).orElse(null);
+                    if (big != null) {
+                        int k = 0;
+                        for (String id : big.planets.get(0).nodes) {
+                            var n = t.nodes.get(id);
+                            if (n.parents.isEmpty() && k++ < 4) pr.unlockedItems.add(id);
+                        }
+                        for (String id : big.planets.get(0).nodes) {
+                            var n = t.nodes.get(id);
+                            if (!n.parents.isEmpty() && pr.unlockedItems.contains(n.parents.get(0)) && k++ < 7) pr.unlockedItems.add(id);
+                        }
+                    }
+                    pr.starExp = 64;
+                    ProgressService.sync(sp);
+                    dev.zalrpakraft.tree.StarService.openGalaxy(sp);
+                } else if (a.startsWith("tree_system:")) {
+                    dev.zalrpakraft.tree.StarService.openSystem(sp, a.substring(12));
+                } else if (a.startsWith("unlock:")) {
+                    dev.zalrpakraft.tree.StarService.unlock(sp, a.substring(7));
+                } else if (a.equals("open_map")) {
                     PlayerProgress pr = ProgressService.of(sp);
                     if (!pr.tableOpened) {
                         sp.displayClientMessage(net.minecraft.network.chat.Component.translatable("zalrpakraft.map.need_table")

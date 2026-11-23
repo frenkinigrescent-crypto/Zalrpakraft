@@ -58,6 +58,17 @@ public final class ZClientEvents {
             StarSky.render(e.getGuiGraphics(), sc.width, sc.height, -1, -1);
         }
 
+        /** Закрытые на звёздной карте предметы: подсказка в описании. */
+        @SubscribeEvent
+        public static void tooltip(net.neoforged.neoforge.event.entity.player.ItemTooltipEvent e) {
+            if (ClientTree.GATED.isEmpty() || ClientTree.allows(e.getItemStack())) return;
+            String where = ClientTree.where(e.getItemStack());
+            e.getToolTip().add(net.minecraft.network.chat.Component.translatable("zalrpakraft.star.locked_tip")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            if (where != null) e.getToolTip().add(net.minecraft.network.chat.Component.literal("  " + where)
+                    .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
+
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
             IntroController.clientTick();

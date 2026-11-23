@@ -20,6 +20,7 @@ public final class IntroController {
     }
 
     public static void start() {
+        if (ClientSelfTest.ENABLED) return;
         tick = 0;
     }
 
