@@ -130,13 +130,14 @@ public class StarMapScreen extends Screen {
     private float planetFit() {
         float r = 60;
         for (PNode n : planets.get(planetIdx).nodes) r = Math.max(r, (float) Math.hypot(n.x, n.y) + 24);
-        return Mth.clamp((Math.min(width, height - 30) / 2f) / r, 0.35f, 1.6f);
+        // большие планеты не ужимаем до нечитаемого: остальное — колесом и перетаскиванием
+        return Mth.clamp((Math.min(width, height - 30) / 2f) / r, 0.8f, 1.6f);
     }
 
     @Override
     protected void init() {
         if (level == Level.GALAXY) fitGalaxy();
-        addRenderableWidget(new StarButton(width - 128, 6, 120, 18, Component.translatable("zalrpakraft.book.title"),
+        addRenderableWidget(new StarButton(width - 124, height - 24, 116, 18, Component.translatable("zalrpakraft.book.title"),
                 () -> PacketDistributor.sendToServer(new SimplePayload("open_quests"))));
     }
 
@@ -294,8 +295,10 @@ public class StarMapScreen extends Screen {
         float sr = 30 * zoom + 2;
         for (int i = 4; i >= 1; i--) disc(g, cx, cy, sr * (1 + i * 0.3f), ((int) (22 / (float) i) << 24) | (planets.get(0).color & 0xFFFFFF));
         sun(g, cx, cy, sr, planets.get(0).color);
-        g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 14), 0xFFFFE6A6);
-        g.drawCenteredString(font, planets.get(0).name, (int) cx, (int) (cy + sr + 5), 0xFFE6DDF8);
+        g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 12), 0xFFFFE6A6);
+        int tw = font.width(planets.get(0).name);
+        g.fill((int) cx - tw / 2 - 3, (int) cy - 5, (int) cx + tw / 2 + 3, (int) cy + 6, 0x90000000);
+        g.drawCenteredString(font, planets.get(0).name, (int) cx, (int) cy - 4, 0xFFFFF4E0);
         if (dist(mx, my, cx, cy) < sr) tip = planetTip(0);
         // планеты
         for (int i = 1; i < planets.size(); i++) {
@@ -344,10 +347,16 @@ public class StarMapScreen extends Screen {
         for (int i = 4; i >= 1; i--) disc(g, cx, cy, pr * (1 + i * 0.22f), ((int) (26 / (float) i) << 24) | (p.color & 0xFFFFFF));
         sun(g, cx, cy, pr, p.color);
         dottedCircle(g, cx, cy, pr + 4, 0xA0FFE08A);
-        g.drawCenteredString(font, p.name, (int) cx, (int) (cy + pr + 8), 0xFFFFE6A6);
         // узлы
         List<Component> tip = null;
         float nr = 15 * zoom;
+        // подпись планеты — поверх, на тёмной плашке
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 300);
+        int tw = font.width(p.name);
+        g.fill((int) cx - tw / 2 - 3, (int) cy - 5, (int) cx + tw / 2 + 3, (int) cy + 6, 0xA0000000);
+        g.drawCenteredString(font, p.name, (int) cx, (int) cy - 4, 0xFFFFE6A6);
+        g.pose().popPose();
         for (PNode n : p.nodes) {
             float x = sx(n.x), y = sy(n.y);
             if (x < -30 || y < -30 || x > width + 30 || y > height + 30) continue;
@@ -367,11 +376,15 @@ public class StarMapScreen extends Screen {
                 g.pose().popPose();
                 if (!un && !av) g.fill((int) (x - nr), (int) (y - nr), (int) (x + nr), (int) (y + nr), 0x00000000);
             }
-            g.pose().pushPose();
-            g.pose().translate(0, 0, 200);
-            if (un || av) g.drawString(font, String.valueOf(n.cost), (int) (x + nr * 0.55f), (int) (y + nr * 0.35f), un ? 0xFFFFD27A : 0xFFE88A8A, true);
-            else lock(g, (int) (x + nr * 0.45f), (int) (y + nr * 0.3f));
-            g.pose().popPose();
+            if (zoom >= 0.55f) {
+                float ls = Math.min(1f, zoom);
+                g.pose().pushPose();
+                g.pose().translate(x + nr * 0.5f, y + nr * 0.3f, 200);
+                g.pose().scale(ls, ls, 1);
+                if (un || av) g.drawString(font, String.valueOf(n.cost), 0, 0, un ? 0xFFFFD27A : 0xFFE88A8A, true);
+                else lock(g, 0, 0);
+                g.pose().popPose();
+            }
             if (dist(mx, my, x, y) < nr + 2) tip = nodeTip(n, un, av, afford);
         }
         return tip;
