@@ -185,11 +185,23 @@ public class StarMapScreen extends Screen {
             case PLANET -> tip = renderPlanet(g, mx, my, t);
         }
         renderHud(g);
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 450);
         super.render(g, mx, my, pt);
+        g.pose().popPose();
         if (tip != null) g.renderComponentTooltip(font, tip, mx, my);
     }
 
     private void renderHud(GuiGraphics g) {
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 400);
+        g.fillGradient(0, 0, width, 30, 0xE0080C1E, 0x00080C1E);
+        g.fillGradient(0, height - 30, width, height, 0x00080C1E, 0xE0080C1E);
+        hudContent(g);
+        g.pose().popPose();
+    }
+
+    private void hudContent(GuiGraphics g) {
         // очки и EXP
         int x = 8, y = 8;
         Component pts = Component.translatable("zalrpakraft.star.points", ClientTree.points);
