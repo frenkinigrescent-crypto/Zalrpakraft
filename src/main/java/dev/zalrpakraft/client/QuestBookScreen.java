@@ -86,6 +86,8 @@ public class QuestBookScreen extends Screen {
 
     @Override
     protected void init() {
+        addRenderableWidget(new StarButton(width - 116, 5, 108, 16, Component.translatable("zalrpakraft.map.title"),
+                () -> PacketDistributor.sendToServer(new SimplePayload("open_map"))));
         int dx = detailX(), dw = width - dx - 10;
         int bw = Math.min(110, (dw - 6) / 2);
         claimBtn = addRenderableWidget(new StarButton(dx, bottom() - 24, bw, 20, Component.translatable("zalrpakraft.book.claim"), () -> {

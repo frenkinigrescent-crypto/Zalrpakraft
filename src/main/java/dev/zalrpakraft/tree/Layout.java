@@ -75,7 +75,7 @@ final class Layout {
         double golden = Math.toRadians(137.5);
         for (int i = 0; i < list.size(); i++) {
             Tree.SystemDef s = list.get(i);
-            double r = i == 0 ? 0 : 130 * Math.sqrt(i);
+            double r = i == 0 ? 0 : 230 * Math.sqrt(i);
             s.x = (float) (Math.cos(i * golden) * r);
             s.y = (float) (Math.sin(i * golden) * r);
         }
