@@ -284,13 +284,9 @@ public class StarMapScreen extends Screen {
                     emblems.clear();
                     g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
                     for (Emblem e : emblems) drawEmblem(g, e);
-                    if (!planets.isEmpty()) { // подпись солнца — под ним, чтобы не закрывать значок
+                    if (!planets.isEmpty()) { // подпись солнца — над ним, под названием системы, чтобы не закрывать значок
                         float sr = 30 * zoom + 2;
-                        String nm = planets.get(0).name;
-                        int tw = font.width(nm);
-                        int ly = (int) (sy(0) + sr + 5);
-                        g.fill((int) sx(0) - tw / 2 - 3, ly - 2, (int) sx(0) + tw / 2 + 3, ly + 9, 0x90000000);
-                        g.drawCenteredString(font, nm, (int) sx(0), ly, 0xFFFFF4E0);
+                        g.drawCenteredString(font, planets.get(0).name, (int) sx(0), (int) (sy(0) - sr - 11), 0xFFB9A9D9);
                     }
                 }
             }
@@ -453,7 +449,7 @@ public class StarMapScreen extends Screen {
         for (int i = 4; i >= 1; i--) disc(g, cx, cy, sr * (1 + i * 0.3f), ((int) (22 / (float) i) << 24) | (planets.get(0).color & 0xFFFFFF));
         glassSun(g, cx, cy, sr, planets.get(0).color);
         emblems.add(new Emblem(cx, cy, sr * 1.3f, sysId, sysIcon));
-        g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 12), 0xFFFFE6A6);
+        g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 22), 0xFFFFE6A6);
         if (dist(mx, my, cx, cy) < sr) tip = planetTip(0);
         // планеты
         for (int i = 1; i < planets.size(); i++) {
