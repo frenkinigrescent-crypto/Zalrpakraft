@@ -24,23 +24,51 @@ final class Layout {
             g.sort(Comparator.<String>comparingInt(gd).thenComparing(Comparator.naturalOrder()));
             for (int i = 1; i < g.size(); i++) addSoft(all.get(g.get(i)), g.get(i - 1));
         }
-        // 2. не больше maxRoots входов: самые «ветвистые» становятся входами
+        // 2. не больше maxRoots входов: самые «ветвистые» остаются входами,
+        //    остальные ветки подвешиваются к САМОЙ ПОХОЖЕЙ звезде (общие ингредиенты, тот же материал), а не к случайному хабу
         List<String> left = new ArrayList<>();
         for (String id : pl.nodes) if (isRoot(all.get(id))) left.add(id);
         if (left.size() <= maxRoots) return;
-        Map<String, Integer> desc = new HashMap<>();
         Map<String, List<String>> children = new HashMap<>();
         for (String id : pl.nodes) for (String p : links(all.get(id))) children.computeIfAbsent(p, k -> new ArrayList<>()).add(id);
+        Map<String, Integer> desc = new HashMap<>();
         for (String r : left) desc.put(r, countDesc(r, children, new HashSet<>()));
         left.sort(Comparator.<String>comparingInt(r -> -desc.get(r)).thenComparingInt(gd).thenComparing(Comparator.naturalOrder()));
-        List<String> hubs = new ArrayList<>(left.subList(0, maxRoots));
-        int[] load = new int[hubs.size()];
-        for (String r : left.subList(maxRoots, left.size())) {
-            int best = 0;
-            for (int i = 1; i < hubs.size(); i++) if (load[i] < load[best]) best = i;
-            load[best] += 1 + desc.get(r);
-            addSoft(all.get(r), hubs.get(best));
+        Set<String> hubs = new LinkedHashSet<>(left.subList(0, maxRoots));
+        List<String> rest = new ArrayList<>(left.subList(maxRoots, left.size()));
+        rest.sort(Comparator.<String>comparingInt(gd).thenComparing(Comparator.naturalOrder()));
+        Map<String, Integer> load = new HashMap<>();
+        for (String r : rest) {
+            Tree.Node rn = all.get(r);
+            Set<String> mine = new HashSet<>();
+            collect(r, children, mine);
+            Set<String> want = new HashSet<>(rn.external);
+            String rStem = stem(r);
+            String best = null;
+            int bestScore = Integer.MIN_VALUE;
+            for (String c : pl.nodes) {
+                if (c.equals(r) || mine.contains(c)) continue;
+                Tree.Node cn = all.get(c);
+                int overlap = 0;
+                for (String x : cn.external) if (want.contains(x)) overlap++;
+                for (String x : cn.parents) if (want.contains(x)) overlap++;
+                int score = overlap * 4 + (stem(c).equals(rStem) ? 3 : 0) + (gd.applyAsInt(c) <= gd.applyAsInt(r) ? 1 : 0)
+                        - load.getOrDefault(c, 0) / 3 + (hubs.contains(c) ? 1 : 0);
+                if (overlap == 0 && !stem(c).equals(rStem) && !hubs.contains(c)) continue; // без родства — только к входам
+                if (score > bestScore || (score == bestScore && best != null && c.compareTo(best) < 0)) { bestScore = score; best = c; }
+            }
+            if (best == null) {
+                for (String h : hubs) if (best == null || load.getOrDefault(h, 0) < load.getOrDefault(best, 0)) best = h;
+            }
+            addSoft(rn, best);
+            load.merge(best, 1, Integer::sum);
+            children.computeIfAbsent(best, k -> new ArrayList<>()).add(r);
         }
+    }
+
+    private static void collect(String id, Map<String, List<String>> children, Set<String> out) {
+        if (!out.add(id)) return;
+        for (String c : children.getOrDefault(id, List.of())) collect(c, children, out);
     }
 
     static boolean isRoot(Tree.Node n) {
