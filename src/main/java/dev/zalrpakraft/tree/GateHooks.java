@@ -20,6 +20,24 @@ public final class GateHooks {
         return ServerLifecycleHooks.getCurrentServer();
     }
 
+    /** Рецепт пропускается, если открыт хоть один его результат (у кузни Lookin' Sharp их 10 на выбор). */
+    private static boolean allowed(Object holderOrRecipe) {
+        try {
+            Object r = holderOrRecipe;
+            if (r instanceof com.mojang.datafixers.util.Pair<?, ?> pair) r = pair.getSecond();
+            if (r instanceof RecipeHolder<?> h) r = h.value();
+            MinecraftServer s = server();
+            if (r instanceof Recipe<?> rec && s != null) {
+                List<ItemStack> outs = RecipeOutputs.all(rec, s.registryAccess());
+                if (outs.isEmpty()) return true;
+                for (ItemStack o : outs) if (StarService.machineAllowed(o)) return true;
+                return false;
+            }
+        } catch (Throwable ignored) {
+        }
+        return true;
+    }
+
     private static ItemStack result(Object holderOrRecipe) {
         try {
             Object r = holderOrRecipe;
@@ -40,7 +58,7 @@ public final class GateHooks {
 
     public static boolean serverAllows(RecipeManager rm, Object holder) {
         if (!isServerManager(rm)) return true;
-        return StarService.machineAllowed(result(holder));
+        return allowed(holder);
     }
 
     public static List<?> filter(RecipeManager rm, List<?> list) {
@@ -53,7 +71,7 @@ public final class GateHooks {
         List<Object> out = null;
         for (int i = 0; i < list.size(); i++) {
             Object o = list.get(i);
-            if (!StarService.machineAllowed(result(o))) {
+            if (!allowed(o)) {
                 if (out == null) out = new ArrayList<>(list.subList(0, i));
             } else if (out != null) out.add(o);
         }
@@ -62,7 +80,7 @@ public final class GateHooks {
 
     public static boolean machineAllowsRecipe(Recipe<?> recipe) {
         if (server() == null || TreeBuilder.tree() == Tree.EMPTY) return true;
-        return StarService.machineAllowed(result(recipe));
+        return allowed(recipe);
     }
 
     public static boolean playerAllows(Player player, ItemStack stack) {

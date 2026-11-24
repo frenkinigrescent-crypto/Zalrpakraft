@@ -9,12 +9,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Верстак и сетка 2×2: закрытый предмет нельзя забрать из слота результата (ингредиенты остаются на месте). */
+/** Верстак, сетка 2×2 и кузня Lookin' Sharp: закрытый предмет нельзя забрать из слота результата (ингредиенты остаются на месте). */
 @Mixin(Slot.class)
 public abstract class SlotMixin {
     @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
     private void zalepacraft$gatePickup(Player player, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object) this instanceof ResultSlot slot && !GateHooks.playerAllows(player, slot.getItem()))
-            cir.setReturnValue(false);
+        Slot self = (Slot) (Object) this;
+        boolean result = self instanceof ResultSlot
+                || (self.container instanceof net.minecraft.world.inventory.ResultContainer && self.getClass().getName().startsWith("earth.terrarium.lookinsharp."));
+        if (result && !GateHooks.playerAllows(player, self.getItem())) cir.setReturnValue(false);
     }
 }

@@ -1,5 +1,5 @@
 {
- "_version": 4,
+ "_version": 5,
  "_readme": "Звёздная карта в стиле Create: Constellation. Системы — моды (аддоны присоединяются к родительскому моду по зависимостям), планеты — направления. Узлы строятся автоматически из рецептов: для каждого предмета берётся самый простой рецепт, тег в рецепте — одна связь (самый доступный вариант). Здесь — правила и баланс.",
  "exp_per_point": 150,
  "starting_points": 4,
@@ -27,7 +27,11 @@
   "minecraft",
   "zalrpakraft",
   "neoforge",
-  "c"
+  "c",
+  "dousedflames",
+  "antiqueatlas",
+  "projectvibrantjourneys",
+  "yagm"
  ],
  "own_progression": {
   "_readme": "Моды со своей книгой и своей прогрессией. Их предметы НЕ закрываются картой (и предметы их аддонов тоже). В галактике у них отдельное солнце: книга мода, как её получить и рецепт.",
@@ -70,7 +74,8 @@
  },
  "system_icons": {
   "_readme": "Что лежит внутри солнца системы. Если у мода квадратный логотип — показывается он; иначе этот предмет. Не указано — самый «нужный» предмет системы (чаще всего идёт в другие крафты).",
-  "create": "create:cogwheel"
+  "create": "create:cogwheel",
+  "lookinsharp": "lookinsharp:forging_station"
  },
  "merge": {},
  "names": {
@@ -226,6 +231,59 @@
       "peculiar_bell",
       "haunted_bell",
       "nozzle"
+     ]
+    }
+   ]
+  },
+  "lookinsharp": {
+   "sun": {
+    "name": "Кузня",
+    "color": "#C9A66B"
+   },
+   "rules": [
+    {
+     "id": "netherite",
+     "name": "Незерит",
+     "color": "#5A4A5E",
+     "category": "complex",
+     "keywords": [
+      "netherite_"
+     ]
+    },
+    {
+     "id": "diamond",
+     "name": "Алмаз",
+     "color": "#5FD3E0",
+     "category": "complex",
+     "keywords": [
+      "diamond_"
+     ]
+    },
+    {
+     "id": "golden",
+     "name": "Золото",
+     "color": "#F2C94C",
+     "category": "medium",
+     "keywords": [
+      "golden_"
+     ]
+    },
+    {
+     "id": "iron",
+     "name": "Железо",
+     "color": "#C8C8D0",
+     "category": "medium",
+     "keywords": [
+      "iron_"
+     ]
+    },
+    {
+     "id": "early",
+     "name": "Дерево и камень",
+     "color": "#9C7A54",
+     "keywords": [
+      "wooden_",
+      "stone_"
      ]
     }
    ]

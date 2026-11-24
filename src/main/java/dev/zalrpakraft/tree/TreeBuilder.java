@@ -63,34 +63,35 @@ public final class TreeBuilder {
         // 1. Рецепты: что получается и из чего. Каждый слот рецепта — набор вариантов (тег = несколько предметов).
         Map<Item, List<Rec>> recipesOf = new HashMap<>();
         Set<Item> stonecut = new HashSet<>();
+        Map<Item, Item> firstOf = new HashMap<>(); // вариант → первый результат того же рецепта (кузня Lookin' Sharp)
         for (RecipeHolder<?> h : recipes) {
             Recipe<?> r = h.value();
-            ItemStack out;
-            try {
-                out = r.getResultItem(reg);
-            } catch (Exception e) {
-                continue;
-            }
-            if (out == null || out.isEmpty()) continue;
-            Item item = out.getItem();
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-            if (excluded.contains(id.getNamespace())) continue;
-            if (r.getType() == RecipeType.STONECUTTING) stonecut.add(item);
-            List<Item[]> slots = new ArrayList<>();
-            try {
-                for (Ingredient in : r.getIngredients()) {
-                    ItemStack[] opts = in.getItems();
-                    if (opts.length == 0) continue;
-                    LinkedHashSet<Item> set = new LinkedHashSet<>();
-                    for (ItemStack st : opts) if (!st.isEmpty()) set.add(st.getItem());
-                    if (set.isEmpty() || set.contains(item)) continue; // перекраска/улучшение «из самого себя» — не связь
-                    slots.add(set.toArray(new Item[0]));
+            List<ItemStack> outs = RecipeOutputs.all(r, reg);
+            if (outs.isEmpty()) continue;
+            Item firstItem = outs.get(0).getItem();
+            if (r.getType() == RecipeType.STONECUTTING) stonecut.add(firstItem);
+            for (int oi = 0; oi < outs.size(); oi++) {
+                ItemStack out = outs.get(oi);
+                Item item = out.getItem();
+                ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                if (excluded.contains(id.getNamespace())) continue;
+                if (oi > 0) firstOf.putIfAbsent(item, firstItem);
+                List<Item[]> slots = new ArrayList<>();
+                try {
+                    for (Ingredient in : r.getIngredients()) {
+                        ItemStack[] opts = in.getItems();
+                        if (opts.length == 0) continue;
+                        LinkedHashSet<Item> set = new LinkedHashSet<>();
+                        for (ItemStack st : opts) if (!st.isEmpty()) set.add(st.getItem());
+                        if (set.isEmpty() || set.contains(item)) continue; // перекраска/улучшение «из самого себя» — не связь
+                        slots.add(set.toArray(new Item[0]));
+                    }
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
+                ResourceLocation typeId = BuiltInRegistries.RECIPE_TYPE.getKey(r.getType());
+                recipesOf.computeIfAbsent(item, k -> new ArrayList<>())
+                        .add(new Rec(h.id().toString() + (oi > 0 ? "#" + oi : ""), typeId == null ? "" : typeId.toString(), out.getCount(), slots));
             }
-            ResourceLocation typeId = BuiltInRegistries.RECIPE_TYPE.getKey(r.getType());
-            recipesOf.computeIfAbsent(item, k -> new ArrayList<>())
-                    .add(new Rec(h.id().toString(), typeId == null ? "" : typeId.toString(), out.getCount(), slots));
         }
         // переработка (инструмент → самородки) и распаковка (блок → 9 слитков) — не путь крафта
         for (Map.Entry<Item, List<Rec>> e : recipesOf.entrySet()) {
@@ -143,6 +144,7 @@ public final class TreeBuilder {
         int sunReq = cfg.has("planet_unlock_sun_nodes") ? cfg.get("planet_unlock_sun_nodes").getAsInt() : 5;
         JsonObject names = cfg.has("names") ? cfg.getAsJsonObject("names") : new JsonObject();
         JsonObject planetRules = cfg.has("planets") ? cfg.getAsJsonObject("planets") : new JsonObject();
+        Map<String, String> ruleCat = new HashMap<>(); // категория из правила планеты (не ниже неё)
 
         // группировка
         Map<String, List<Item>> bySystem = new LinkedHashMap<>();
@@ -178,7 +180,11 @@ public final class TreeBuilder {
                         JsonObject ro = re.getAsJsonObject();
                         boolean hit = false;
                         for (JsonElement kw : ro.getAsJsonArray("keywords")) if (id.getPath().contains(kw.getAsString())) { hit = true; break; }
-                        if (hit) { pid = ro.get("id").getAsString(); pname = ro.get("name").getAsString(); pcolor = parseColor(ro.get("color").getAsString()); break; }
+                        if (hit) {
+                            pid = ro.get("id").getAsString(); pname = ro.get("name").getAsString(); pcolor = parseColor(ro.get("color").getAsString());
+                            if (ro.has("category")) ruleCat.put(id.toString(), ro.get("category").getAsString());
+                            break;
+                        }
                     }
                 } else {                                             // общий случай — по типу предмета
                     String[] c = genericCategory(item);
@@ -227,6 +233,8 @@ public final class TreeBuilder {
                     JsonObject ov = overrides.has(nid) ? overrides.getAsJsonObject(nid) : null;
                     n.category = ov != null && ov.has("category") ? ov.get("category").getAsString()
                             : d >= complexDepth ? "complex" : d >= medDepth ? "medium" : "light";
+                    if ((ov == null || !ov.has("category")) && ruleCat.containsKey(nid) && rank(ruleCat.get(nid)) > rank(n.category))
+                        n.category = ruleCat.get(nid);
                     JsonObject cat = cats.has(n.category) ? cats.getAsJsonObject(n.category) : cats.getAsJsonObject("light");
                     n.cost = ov != null && ov.has("cost") ? ov.get("cost").getAsInt() : cat.get("cost").getAsInt();
                     n.exp = ov != null && ov.has("exp") ? ov.get("exp").getAsInt() : cat.get("exp").getAsInt();
@@ -236,6 +244,12 @@ public final class TreeBuilder {
                         if (iid.equals(nid)) continue;
                         if (inPlanet.contains(iid)) n.parents.add(iid);
                         else if (n.external.size() < 4) n.external.add(iid);
+                    }
+                    // варианты из одного рецепта (кузня) растут от первого результата
+                    Item first = firstOf.get(item);
+                    if (first != null) {
+                        String fid = BuiltInRegistries.ITEM.getKey(first).toString();
+                        if (inPlanet.contains(fid) && !fid.equals(nid) && !n.parents.contains(fid)) n.soft.add(fid);
                     }
                     // рецепт из многих закрытых частей — на ступень сложнее
                     if (ov == null || !ov.has("category")) {
@@ -305,6 +319,10 @@ public final class TreeBuilder {
         Zalrpakraft.LOG.info("Zalepacraft: звёздная карта — систем {}, узлов {} ({} мс); свои пути: {}", tree.systems.size(), tree.nodes.size(),
                 System.currentTimeMillis() - t0, ownNs);
         return tree;
+    }
+
+    private static int rank(String cat) {
+        return "complex".equals(cat) ? 2 : "medium".equals(cat) ? 1 : 0;
     }
 
     // ==================== рецепты ====================
