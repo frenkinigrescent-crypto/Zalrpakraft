@@ -18,6 +18,7 @@ public final class TreeJson {
             int total = 0, done = 0;
             for (Tree.Planet pl : s.planets) for (String n : pl.nodes) { total++; if (pr.unlockedItems.contains(n)) done++; }
             o.addProperty("total", total);
+            o.addProperty("icon", s.own ? s.book : s.icon);
             if (s.own) {
                 o.addProperty("own", true);
                 o.addProperty("book", s.book);
@@ -38,6 +39,7 @@ public final class TreeJson {
         o.addProperty("id", s.id);
         o.addProperty("name", s.name);
         o.addProperty("color", s.color);
+        o.addProperty("icon", s.own ? s.book : s.icon);
         JsonArray pls = new JsonArray();
         for (Tree.Planet pl : s.planets) {
             JsonObject po = new JsonObject();

@@ -264,6 +264,30 @@ public final class TreeBuilder {
             }
             tree.systems.put(sys, sd);
         }
+        // 5б. Иконка системы: из конфига или предмет, который чаще всего идёт в крафты других предметов этой системы
+        JsonObject icons = cfg.has("system_icons") ? cfg.getAsJsonObject("system_icons") : new JsonObject();
+        for (Tree.SystemDef sd : tree.systems.values()) {
+            if (icons.has(sd.id) && BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(icons.get(sd.id).getAsString()))) {
+                sd.icon = icons.get(sd.id).getAsString();
+                continue;
+            }
+            Map<String, Integer> used = new HashMap<>();
+            for (Tree.Planet pl : sd.planets) for (String nid : pl.nodes) {
+                Tree.Node n = tree.nodes.get(nid);
+                for (String p : n.parents) used.merge(p, 1, Integer::sum);
+                for (String p : n.external) {
+                    Tree.Node pn = tree.nodes.get(p);
+                    if (pn != null && pn.system.equals(sd.id)) used.merge(p, 1, Integer::sum);
+                }
+            }
+            String best = null;
+            for (Map.Entry<String, Integer> e : used.entrySet()) {
+                if (best == null || e.getValue() > used.get(best) || (e.getValue().equals(used.get(best)) && e.getKey().compareTo(best) < 0)) best = e.getKey();
+            }
+            if (best == null && !sd.planets.isEmpty() && !sd.planets.get(0).nodes.isEmpty()) best = sd.planets.get(0).nodes.get(0);
+            sd.icon = best == null ? "" : best;
+        }
+
         // 6. Солнца модов со своей прогрессией: книга, как её получить, рецепт
         for (String key : own.keySet()) {
             if (key.startsWith("_") || !own.get(key).isJsonObject()) continue;

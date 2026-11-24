@@ -40,6 +40,8 @@ public final class Tree {
         /** Мод со своей прогрессией: ничего не закрыто, на солнце — книга мода и как её получить. */
         public boolean own;
         public String book = "", note = "";
+        /** Значимый предмет системы — лежит внутри полупрозрачного солнца (если у мода нет квадратного логотипа). */
+        public String icon = "";
         public List<String[]> steps = new ArrayList<>(); // {item, text}
         public int size() {
             int n = 0;

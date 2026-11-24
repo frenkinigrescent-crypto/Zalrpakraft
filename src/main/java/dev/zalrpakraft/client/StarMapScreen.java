@@ -31,7 +31,8 @@ public class StarMapScreen extends Screen {
     enum Level { GALAXY, SYSTEM, PLANET }
 
     // ---- данные ----
-    private record Sys(String id, String name, int color, float x, float y, int total, int done, int[] planets, boolean own, ItemStack book) {}
+    private record Sys(String id, String name, int color, float x, float y, int total, int done, int[] planets, boolean own, ItemStack book, ItemStack icon) {}
+    private record Emblem(float x, float y, float size, String mod, ItemStack stack) {}
     private record PNode(String item, ItemStack stack, float x, float y, int cost, int exp, char cat, List<String> parents,
                          List<String> soft, List<String> external) {}
     private record Step(ItemStack stack, String text) {}
@@ -50,8 +51,8 @@ public class StarMapScreen extends Screen {
     private final List<Step> ownSteps = new ArrayList<>();
     private final List<String> ownMods = new ArrayList<>();
     // что нарисовать поверх всего
-    private final List<float[]> galaxyIcons = new ArrayList<>();
-    private final List<ItemStack> galaxyIconStacks = new ArrayList<>();
+    private final List<Emblem> emblems = new ArrayList<>();
+    private ItemStack sysIcon = ItemStack.EMPTY;
     private ItemStack recipeFor = ItemStack.EMPTY;
 
     // ---- вид ----
@@ -83,7 +84,8 @@ public class StarMapScreen extends Screen {
             boolean ow = s.has("own") && s.get("own").getAsBoolean();
             Sys sys = new Sys(s.get("id").getAsString(), s.get("name").getAsString(), s.get("color").getAsInt(),
                     s.get("x").getAsFloat(), s.get("y").getAsFloat(), s.get("total").getAsInt(), s.get("done").getAsInt(), pc,
-                    ow, ow && s.has("book") ? stackOf(s.get("book").getAsString()) : ItemStack.EMPTY);
+                    ow, ow && s.has("book") ? stackOf(s.get("book").getAsString()) : ItemStack.EMPTY,
+                    s.has("icon") ? stackOf(s.get("icon").getAsString()) : ItemStack.EMPTY);
             systems.add(sys);
             galaxyR = Math.max(galaxyR, (float) Math.hypot(sys.x, sys.y) + 60);
         }
@@ -105,6 +107,7 @@ public class StarMapScreen extends Screen {
         sysId = o.get("id").getAsString();
         sysName = o.get("name").getAsString();
         sysColor = o.get("color").getAsInt();
+        sysIcon = o.has("icon") ? stackOf(o.get("icon").getAsString()) : ItemStack.EMPTY;
         planets.clear();
         for (JsonElement pe : o.getAsJsonArray("planets")) {
             JsonObject p = pe.getAsJsonObject();
@@ -271,21 +274,25 @@ public class StarMapScreen extends Screen {
         recipeFor = ItemStack.EMPTY;
         switch (level) {
             case GALAXY -> {
-                galaxyIcons.clear();
-                galaxyIconStacks.clear();
+                emblems.clear();
                 g.drawManaged(() -> box[0] = renderGalaxy(g, mx, my, t));
-                for (int i = 0; i < galaxyIcons.size(); i++) {
-                    float[] ic = galaxyIcons.get(i);
-                    g.pose().pushPose();
-                    g.pose().translate(ic[0] - 8 * ic[2], ic[1] - 8 * ic[2], 0);
-                    g.pose().scale(ic[2], ic[2], 1);
-                    g.renderItem(galaxyIconStacks.get(i), 0, 0);
-                    g.pose().popPose();
-                }
+                for (Emblem e : emblems) drawEmblem(g, e);
             }
             case SYSTEM -> {
                 if (own) box[0] = renderOwn(g, mx, my, t);
-                else g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
+                else {
+                    emblems.clear();
+                    g.drawManaged(() -> box[0] = renderSystem(g, mx, my, t));
+                    for (Emblem e : emblems) drawEmblem(g, e);
+                    if (!planets.isEmpty()) { // подпись солнца — под ним, чтобы не закрывать значок
+                        float sr = 30 * zoom + 2;
+                        String nm = planets.get(0).name;
+                        int tw = font.width(nm);
+                        int ly = (int) (sy(0) + sr + 5);
+                        g.fill((int) sx(0) - tw / 2 - 3, ly - 2, (int) sx(0) + tw / 2 + 3, ly + 9, 0x90000000);
+                        g.drawCenteredString(font, nm, (int) sx(0), ly, 0xFFFFF4E0);
+                    }
+                }
             }
             case PLANET -> box[0] = renderPlanet(g, mx, my, t);
         }
@@ -383,16 +390,13 @@ public class StarMapScreen extends Screen {
             if (x < -80 || y < -80 || x > width + 80 || y > height + 80) continue;
             float r = sysRadius(s);
             for (int i = 4; i >= 1; i--) disc(g, x, y, r * (1 + i * 0.35f), ((int) (14 / (float) i * 1.4f) << 24) | s.color);
-            sun(g, x, y, r, s.color);
+            glassSun(g, x, y, r, s.color);
             if (s.own) {
-                // своё солнце: двойной венец и книга мода внутри
+                // своё солнце: двойной венец
                 ring(g, x, y, r + 3 + Mth.sin(t * 0.08f), 0xC0000000 | s.color);
                 dottedCircle(g, x, y, r + 8, 0x90000000 | s.color);
-                if (!s.book.isEmpty() && r > 6) {
-                    galaxyIcons.add(new float[]{x, y, Math.min(1.4f, r / 10f)});
-                    galaxyIconStacks.add(s.book);
-                }
             }
+            if (r > 5) emblems.add(new Emblem(x, y, r * 1.25f, s.own ? null : s.id, s.own ? s.book : s.icon));
             // крошечные планеты
             for (int i = 0; i < s.planets.length - 1; i++) {
                 double a = t * 0.01 * (1 + i * 0.3) + i * 2.1;
@@ -447,11 +451,9 @@ public class StarMapScreen extends Screen {
         // солнце
         float sr = 30 * zoom + 2;
         for (int i = 4; i >= 1; i--) disc(g, cx, cy, sr * (1 + i * 0.3f), ((int) (22 / (float) i) << 24) | (planets.get(0).color & 0xFFFFFF));
-        sun(g, cx, cy, sr, planets.get(0).color);
+        glassSun(g, cx, cy, sr, planets.get(0).color);
+        emblems.add(new Emblem(cx, cy, sr * 1.3f, sysId, sysIcon));
         g.drawCenteredString(font, sysName, (int) cx, (int) (cy - sr - 12), 0xFFFFE6A6);
-        int tw = font.width(planets.get(0).name);
-        g.fill((int) cx - tw / 2 - 3, (int) cy - 5, (int) cx + tw / 2 + 3, (int) cy + 6, 0x90000000);
-        g.drawCenteredString(font, planets.get(0).name, (int) cx, (int) cy - 4, 0xFFFFF4E0);
         if (dist(mx, my, cx, cy) < sr) tip = planetTip(0);
         // планеты
         for (int i = 1; i < planets.size(); i++) {
@@ -478,11 +480,10 @@ public class StarMapScreen extends Screen {
         int col = sysColor & 0xFFFFFF;
         g.drawManaged(() -> {
             for (int i = 5; i >= 1; i--) disc(g, cx, cy, sr * (1 + i * 0.28f), ((int) (26 / (float) i) << 24) | col);
-            sun(g, cx, cy, sr, col);
+            glassSun(g, cx, cy, sr, col);
             ring(g, cx, cy, sr + 6 + Mth.sin(t * 0.08f) * 1.5f, 0xC0000000 | col);
             dottedCircle(g, cx, cy, sr + 16, 0x80000000 | col);
             dottedCircle(g, cx, cy, sr + 30, 0x50000000 | col);
-            disc(g, cx, cy, 15, 0xC0101428);
         });
         if (!ownBook.isEmpty()) {
             g.pose().pushPose();
@@ -927,6 +928,39 @@ public class StarMapScreen extends Screen {
         disc(g, cx, cy, r, 0xFF000000 | (rgb & 0xFFFFFF));
         disc(g, cx - r * 0.25f, cy - r * 0.25f, r * 0.55f, 0x40FFFFFF);
         disc(g, cx - r * 0.35f, cy - r * 0.35f, r * 0.22f, 0x30FFFFFF);
+    }
+
+    /** Полупрозрачное «стеклянное» солнце: сквозь него виден значок мода. */
+    static void glassSun(GuiGraphics g, float cx, float cy, float r, int rgb) {
+        int c = rgb & 0xFFFFFF;
+        disc(g, cx, cy, r + 1, 0x700A0D1C);
+        disc(g, cx, cy, r, 0x5A000000 | c);
+        disc(g, cx, cy, r * 0.78f, 0x38000000 | c);
+        disc(g, cx - r * 0.3f, cy - r * 0.3f, r * 0.42f, 0x22FFFFFF);
+        disc(g, cx - r * 0.38f, cy - r * 0.38f, r * 0.16f, 0x30FFFFFF);
+        ring(g, cx, cy, r, 0xD0000000 | c);
+    }
+
+    /** Значок внутри солнца: квадратный логотип мода, иначе значимый предмет. */
+    private void drawEmblem(GuiGraphics g, Emblem e) {
+        ModIcons.Logo logo = e.mod() == null ? null : ModIcons.get(e.mod());
+        float size = e.size();
+        if (logo != null) {
+            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+            g.pose().pushPose();
+            g.pose().translate(e.x() - size / 2f, e.y() - size / 2f, 0);
+            g.pose().scale(size / logo.w(), size / logo.h(), 1);
+            g.blit(logo.tex(), 0, 0, 0, 0, logo.w(), logo.h(), logo.w(), logo.h());
+            g.pose().popPose();
+            return;
+        }
+        if (e.stack().isEmpty()) return;
+        float sc = size / 16f;
+        g.pose().pushPose();
+        g.pose().translate(e.x() - 8 * sc, e.y() - 8 * sc, 0);
+        g.pose().scale(sc, sc, 1);
+        g.renderItem(e.stack(), 0, 0);
+        g.pose().popPose();
     }
 
     static void ring(GuiGraphics g, float cx, float cy, float r, int col) {
