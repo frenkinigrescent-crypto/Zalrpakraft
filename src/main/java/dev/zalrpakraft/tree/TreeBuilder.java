@@ -239,8 +239,8 @@ public final class TreeBuilder {
                     }
                     // рецепт из многих закрытых частей — на ступень сложнее
                     if (ov == null || !ov.has("category")) {
-                        if (pars.size() >= 3 && n.category.equals("light")) n.category = "medium";
-                        else if (pars.size() >= 4 && n.category.equals("medium")) n.category = "complex";
+                        if (pars.size() >= 2 && n.category.equals("light")) n.category = "medium";
+                        else if (pars.size() >= 3 && n.category.equals("medium")) n.category = "complex";
                         JsonObject c2 = cats.has(n.category) ? cats.getAsJsonObject(n.category) : cats.getAsJsonObject("light");
                         if (ov == null || !ov.has("cost")) n.cost = c2.get("cost").getAsInt();
                         if (ov == null || !ov.has("exp")) n.exp = c2.get("exp").getAsInt();

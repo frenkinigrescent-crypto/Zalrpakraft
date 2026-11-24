@@ -113,7 +113,7 @@ public class StarMapScreen extends Screen {
                 JsonObject n = ne.getAsJsonObject();
                 String item = n.get("i").getAsString();
                 nodes.add(new PNode(item, stackOf(item), n.get("x").getAsFloat(), n.get("y").getAsFloat(), n.get("c").getAsInt(), n.get("e").getAsInt(),
-                        n.get("k").getAsString().charAt(0), strings(n, "p"), strings(n, "s"), strings(n, "x")));
+                        n.get("k").getAsString().charAt(0), strings(n, "p"), strings(n, "s"), strings(n, "ex")));
             }
             planets.add(new Pl(p.get("id").getAsString(), p.get("name").getAsString(), p.get("color").getAsInt(), nodes,
                     p.has("req") ? p.get("req").getAsInt() : 0));

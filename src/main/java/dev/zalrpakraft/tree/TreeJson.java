@@ -57,7 +57,7 @@ public final class TreeJson {
                 no.addProperty("k", n.category.charAt(0) + "");
                 if (!n.parents.isEmpty()) no.add("p", arr(n.parents));
                 if (!n.soft.isEmpty()) no.add("s", arr(n.soft));
-                if (!n.external.isEmpty()) no.add("x", arr(n.external));
+                if (!n.external.isEmpty()) no.add("ex", arr(n.external));
                 ns.add(no);
             }
             po.add("nodes", ns);

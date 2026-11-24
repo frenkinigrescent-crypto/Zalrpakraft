@@ -19,8 +19,8 @@
   }
  },
  "complexity": {
-  "medium_from_depth": 2,
-  "complex_from_depth": 4
+  "medium_from_depth": 1,
+  "complex_from_depth": 3
  },
  "ungate_decor": true,
  "excluded_namespaces": [
