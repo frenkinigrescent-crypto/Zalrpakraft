@@ -119,6 +119,31 @@ public final class TreeBuilder {
             gated.put(item, id.getNamespace());
         }
 
+        // 3б. Простая еда — без прокачки: один ингредиент-продукт (сырое мясо → жареное, нарезка на доске),
+        //     по цепочке (кусочки курицы → жареные кусочки). Блюда из нескольких продуктов остаются на карте.
+        if (!cfg.has("free_simple_food") || cfg.get("free_simple_food").getAsBoolean()) {
+            int freed = 0;
+            boolean changed = true;
+            while (changed) {
+                changed = false;
+                Iterator<Item> it = gated.keySet().iterator();
+                while (it.hasNext()) {
+                    Item item = it.next();
+                    if (!isFood(item)) continue;
+                    boolean simple = false;
+                    for (Rec rc : recipesOf.getOrDefault(item, List.of())) {
+                        if (rc.slots.size() != 1) continue;
+                        for (Item o : rc.slots.get(0)) {
+                            if (!gated.containsKey(o) && (isFood(o) || isCrop(o))) { simple = true; break; }
+                        }
+                        if (simple) break;
+                    }
+                    if (simple) { it.remove(); freed++; changed = true; }
+                }
+            }
+            simpleFood = freed;
+        }
+
         // 4. Сложность = длина САМОЙ ПРОСТОЙ цепочки крафта (минимум по рецептам, тег — самый доступный вариант)
         Map<Item, Integer> depth = new HashMap<>();
         Map<Item, Rec> primary = new HashMap<>();
@@ -319,6 +344,17 @@ public final class TreeBuilder {
         Zalrpakraft.LOG.info("Zalepacraft: звёздная карта — систем {}, узлов {} ({} мс); свои пути: {}", tree.systems.size(), tree.nodes.size(),
                 System.currentTimeMillis() - t0, ownNs);
         return tree;
+    }
+
+    public static int simpleFood;
+
+    private static boolean isFood(Item i) {
+        return i.components().has(net.minecraft.core.component.DataComponents.FOOD);
+    }
+
+    private static boolean isCrop(Item i) {
+        var h = i.builtInRegistryHolder();
+        return h.is(net.neoforged.neoforge.common.Tags.Items.CROPS) || h.is(net.neoforged.neoforge.common.Tags.Items.FOODS);
     }
 
     private static int rank(String cat) {

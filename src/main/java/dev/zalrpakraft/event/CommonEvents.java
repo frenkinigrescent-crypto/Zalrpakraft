@@ -156,6 +156,11 @@ public final class CommonEvents {
         sb.append("links real=").append(withParents).append(" path_only=").append(softOnly).append(" external=").append(ext)
                 .append(" bad=").append(bad).append(" light/medium/complex=").append(cat[0]).append('/').append(cat[1]).append('/').append(cat[2]).append('\n');
         ok &= bad == 0 && withParents > 20;
+        // простая еда открыта, блюда — нет
+        boolean steakFree = !tree.nodes.containsKey("minecraft:cooked_beef") && !tree.nodes.containsKey("minecraft:baked_potato");
+        boolean breadGated = tree.nodes.containsKey("minecraft:bread") && tree.nodes.containsKey("minecraft:rabbit_stew");
+        sb.append("simple_food freed=").append(dev.zalrpakraft.tree.TreeBuilder.simpleFood).append(" steak_free=").append(steakFree).append(" dishes_gated=").append(breadGated).append('\n');
+        ok &= steakFree && breadGated;
         // примеры: что нужно для пары известных предметов
         for (String probe : new String[]{"minecraft:piston", "minecraft:iron_pickaxe", "minecraft:iron_block", "minecraft:iron_nugget", "minecraft:comparator"}) {
             var n = tree.nodes.get(probe);
