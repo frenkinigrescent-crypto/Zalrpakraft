@@ -60,7 +60,8 @@ EYES = [
  ("eye_undying", "#2F8F4F", "#F7E26B", "round"),
  ("eye_stars", "#2A1659", "#C9B7FF", "star"),
 ]
-for e in EYES: eye(*e)
+# предметы рисует tools/item_art.py (ручной пиксель-арт)
+# for e in EYES: eye(*e)
 
 def orb(px, c, R, col, rim=True):
     for y in range(16):
@@ -152,7 +153,7 @@ RELICS = [
  ("eldritch_core","gear","#6A5E90","#E0A8FF"), ("warden_ward","scale","#2E2A44","#E0D0FF"),
  ("taint_heart","heart","#5A2A6A","#FF7AE0"), ("hierophant_eye","orb","#4A1030","#FF3A5A"),
 ]
-for r in RELICS: relic(*r)
+# for r in RELICS: relic(*r)
 
 def key(name, metal, gem):
     im = Image.new("RGBA",(16,16),(0,0,0,0)); px = im.load()
@@ -167,8 +168,8 @@ def key(name, metal, gem):
     for (x,y) in [(11,13),(12,12),(13,14),(10,12)]:
         if x<16 and y<16: px[x,y]=shade(m,0.8)
     im.save(os.path.join(ITEM, name+".png"))
-key("nether_key","#3A2A2A","#FF4A1A")
-key("paradise_key","#E8C24A","#FFFFFF")
+# key("nether_key","#3A2A2A","#FF4A1A")
+# key("paradise_key","#E8C24A","#FFFFFF")
 
 # дневник: рисуется отдельным скриптом по пиксельной карте (tools/journal_texture.py)
 
