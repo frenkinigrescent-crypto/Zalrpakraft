@@ -165,6 +165,7 @@ public final class TreeBuilder {
         tree.planetCompleteBonus = cfg.has("planet_complete_bonus") ? cfg.get("planet_complete_bonus").getAsInt() : 3;
         int ringStep = cfg.has("ring_cost_step") ? Math.max(1, cfg.get("ring_cost_step").getAsInt()) : 2;
         int maxCost = cfg.has("max_cost") ? cfg.get("max_cost").getAsInt() : 12;
+        JsonObject foodScale = cfg.has("food_cost_scale") ? cfg.getAsJsonObject("food_cost_scale") : new JsonObject();
         int maxRoots = cfg.has("max_entry_points") ? Math.max(1, cfg.get("max_entry_points").getAsInt()) : 3;
         int sunReq = cfg.has("planet_unlock_sun_nodes") ? cfg.get("planet_unlock_sun_nodes").getAsInt() : 5;
         JsonObject names = cfg.has("names") ? cfg.getAsJsonObject("names") : new JsonObject();
@@ -297,7 +298,18 @@ public final class TreeBuilder {
                 for (String nid : pl.nodes) {
                     Tree.Node n = tree.nodes.get(nid);
                     JsonObject ov = overrides.has(nid) ? overrides.getAsJsonObject(nid) : null;
-                    if (ov == null || !ov.has("cost")) n.cost = Math.min(maxCost, n.cost + n.depth / ringStep);
+                    if (ov == null || !ov.has("cost")) {
+                        n.cost = Math.min(maxCost, n.cost + n.depth / ringStep);
+                        // блюда отдельных модов дешевле (food_cost_scale: {"farmersdelight": 0.5})
+                        String ns = nid.substring(0, nid.indexOf(':'));
+                        if (foodScale.has(ns)) {
+                            Item it = BuiltInRegistries.ITEM.get(ResourceLocation.parse(nid));
+                            Rec pr = primary.get(it);
+                            boolean dish = isFood(it) || it.builtInRegistryHolder().is(net.neoforged.neoforge.common.Tags.Items.FOODS)
+                                    || (pr != null && pr.type.endsWith(":cooking"));
+                            if (dish) n.cost = Math.max(1, (int) Math.round(n.cost * foodScale.get(ns).getAsDouble()));
+                        }
+                    }
                 }
                 if (pi > 0) pl.requiresSun = Math.min(sunReq, sd.planets.get(0).nodes.size());
             }

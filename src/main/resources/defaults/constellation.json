@@ -1,5 +1,5 @@
 {
- "_version": 6,
+ "_version": 7,
  "_readme": "Звёздная карта в стиле Create: Constellation. Системы — моды (аддоны присоединяются к родительскому моду по зависимостям), планеты — направления. Узлы строятся автоматически из рецептов: для каждого предмета берётся самый простой рецепт, тег в рецепте — одна связь (самый доступный вариант). Здесь — правила и баланс.",
  "exp_per_point": 150,
  "starting_points": 4,
@@ -24,6 +24,10 @@
  },
  "ungate_decor": true,
  "free_simple_food": true,
+ "food_cost_scale": {
+  "_readme": "Множитель цены блюд (еда и всё из кастрюли) для модов. 0.5 — вдвое дешевле.",
+  "farmersdelight": 0.5
+ },
  "excluded_namespaces": [
   "minecraft",
   "zalrpakraft",
@@ -303,6 +307,39 @@
   },
   "create:andesite_alloy": {
    "category": "light"
+  },
+  "starcatcher:starcatcher_rod": {
+   "gated": false
+  },
+  "starcatcher:starcatcher_guide": {
+   "gated": false
+  },
+  "starcatcher:hook": {
+   "gated": false
+  },
+  "starcatcher:worm": {
+   "gated": false
+  },
+  "starcatcher:bobber": {
+   "gated": false
+  },
+  "farmersdelight:flint_knife": {
+   "gated": false
+  },
+  "farmersdelight:rice": {
+   "gated": false
+  },
+  "farmersdelight:cooked_rice": {
+   "gated": false
+  },
+  "farmersdelight:onion": {
+   "gated": false
+  },
+  "farmersdelight:tomato": {
+   "gated": false
+  },
+  "farmersdelight:wheat_dough": {
+   "gated": false
   }
  },
  "ring_cost_step": 2,
