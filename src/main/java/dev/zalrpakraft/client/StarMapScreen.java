@@ -514,7 +514,11 @@ public class StarMapScreen extends Screen {
         String crumb = Component.translatable("zalrpakraft.map.galaxy").getString();
         if (level != Level.GALAXY && sysName != null) crumb += "  ›  " + sysName;
         if (level == Level.PLANET && planetIdx < planets.size()) crumb += "  ›  " + planets.get(planetIdx).name;
-        g.drawCenteredString(font, crumb, width / 2, 8, 0xFFE9DDFF);
+        int left = 160, right = search != null ? search.getX() - 8 : width - 8;
+        crumb = font.plainSubstrByWidth(crumb, Math.max(40, right - left));
+        int cx = Math.min(width / 2, right - font.width(crumb) / 2);
+        cx = Math.max(cx, left + font.width(crumb) / 2);
+        g.drawCenteredString(font, crumb, cx, 8, 0xFFE9DDFF);
         Component hint = Component.translatable(level == Level.GALAXY ? "zalrpakraft.map.hint.galaxy" : "zalrpakraft.map.hint.inner");
         g.drawString(font, hint, 8, height - 11, 0xFF5E5675, false);
         if (pendingSystem != null) g.drawCenteredString(font, Component.translatable("zalrpakraft.map.loading"), width / 2, height / 2, 0xFFB79CFF);
