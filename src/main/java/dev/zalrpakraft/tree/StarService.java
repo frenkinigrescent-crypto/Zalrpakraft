@@ -154,13 +154,20 @@ public final class StarService {
     /** Список закрываемых предметов и где они на карте (для подсказок и предсказания на клиенте). */
     public static void syncGated(ServerPlayer p) {
         CompoundTag where = new CompoundTag();
+        CompoundTag loc = new CompoundTag(); // для поиска: «система|планета|подпись»
         Tree t = TreeBuilder.tree();
         for (Tree.Node n : t.nodes.values()) {
             Tree.SystemDef s = t.systems.get(n.system);
-            where.putString(n.item, s.name + " → " + s.planets.get(n.planet).name);
+            String label = s.name + " → " + s.planets.get(n.planet).name;
+            where.putString(n.item, label);
+            loc.putString(n.item, s.id + "|" + n.planet + "|" + label);
+        }
+        for (Tree.SystemDef s : t.systems.values()) {
+            if (s.own && !s.book.isEmpty()) loc.putString(s.book, s.id + "|-1|" + s.name);
         }
         CompoundTag root = new CompoundTag();
         root.put("gated", where);
+        root.put("loc", loc);
         PacketDistributor.sendToPlayer(p, new StarSyncPayload(root));
     }
 

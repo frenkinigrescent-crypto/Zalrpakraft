@@ -63,6 +63,20 @@ public class StarMapScreen extends Screen {
     private int ticks;
     private final List<float[]> stars = new ArrayList<>();
     private String pendingSystem;
+    // ---------- поиск ----------
+    private record Hit(String item, ItemStack stack, Component name, String sys, int planet, String label) {}
+    private record Entry(String item, ItemStack stack, String nameLow, String sys, int planet, String label) {}
+    private static final List<Entry> INDEX = new ArrayList<>();
+    private static int indexVersion = -1;
+    private static String searchText = "";
+    private net.minecraft.client.gui.components.EditBox search;
+    private final List<Hit> hits = new ArrayList<>();
+    private final Set<String> matchItems = new HashSet<>();
+    private final Set<String> matchSystems = new HashSet<>();
+    private String focusItem;
+    private int focusUntil;
+    private String pendingFocusSys, pendingFocusItem;
+    private int pendingFocusPlanet = -2;
 
     public StarMapScreen() {
         super(Component.translatable("zalrpakraft.map.title"));
@@ -143,6 +157,157 @@ public class StarMapScreen extends Screen {
             tZoom = systemFit();
         }
         pendingSystem = null;
+        if (pendingFocusSys != null && pendingFocusSys.equals(sysId)) {
+            if (pendingFocusPlanet >= 0) {
+                enterPlanet(pendingFocusPlanet);
+                focusNode(pendingFocusItem);
+            }
+            pendingFocusSys = null;
+        }
+    }
+
+    // ==================== ПОИСК ====================
+    private static void rebuildIndex() {
+        if (indexVersion == ClientTree.locVersion) return;
+        INDEX.clear();
+        for (Map.Entry<String, String> e : ClientTree.LOC.entrySet()) {
+            ItemStack st = stackOf(e.getKey());
+            if (st.isEmpty()) continue;
+            String[] p = e.getValue().split("\\|", 3);
+            if (p.length < 3) continue;
+            int pl;
+            try { pl = Integer.parseInt(p[1]); } catch (NumberFormatException ex) { continue; }
+            INDEX.add(new Entry(e.getKey(), st, st.getHoverName().getString().toLowerCase(Locale.ROOT), p[0], pl, p[2]));
+        }
+        indexVersion = ClientTree.locVersion;
+    }
+
+    private void updateSearch(String q) {
+        searchText = q;
+        hits.clear();
+        matchItems.clear();
+        matchSystems.clear();
+        String s = q.trim().toLowerCase(Locale.ROOT);
+        if (s.length() < 2) return;
+        rebuildIndex();
+        List<Entry> found = new ArrayList<>();
+        for (Entry e : INDEX) {
+            if (e.nameLow().contains(s) || e.item().contains(s)) {
+                found.add(e);
+                matchItems.add(e.item());
+                matchSystems.add(e.sys());
+            }
+        }
+        found.sort(Comparator.<Entry>comparingInt(e -> e.nameLow().startsWith(s) ? 0 : 1)
+                .thenComparingInt(e -> e.nameLow().length()).thenComparing(Entry::nameLow));
+        for (int i = 0; i < Math.min(8, found.size()); i++) {
+            Entry e = found.get(i);
+            hits.add(new Hit(e.item(), e.stack(), e.stack().getHoverName(), e.sys(), e.planet(), e.label()));
+        }
+    }
+
+    /** Самотест поиска. */
+    public void testSearch(String q) {
+        setFocused(search);
+        search.setFocused(true);
+        search.setValue(q);
+    }
+
+    public void testGoFirst() {
+        if (!hits.isEmpty()) goTo(hits.get(0));
+    }
+
+    private boolean resultsShown() {
+        return search != null && search.isFocused() && searchText.trim().length() >= 2;
+    }
+
+    private int[] resultsBox() {
+        int w = Math.max(search.getWidth() + 60, 230);
+        int x = Math.min(search.getX(), width - w - 4);
+        int rows = Math.max(1, hits.size());
+        return new int[]{x, search.getY() + 19, w, rows * 20 + 4};
+    }
+
+    private void goTo(Hit h) {
+        search.setFocused(false);
+        setFocused(null);
+        if (h.planet() < 0) { // солнце своего пути
+            requestSystem(h.sys());
+            return;
+        }
+        if (level != Level.GALAXY && h.sys().equals(sysId) && h.planet() < planets.size()) {
+            enterPlanet(h.planet());
+            focusNode(h.item());
+            return;
+        }
+        pendingFocusSys = h.sys();
+        pendingFocusPlanet = h.planet();
+        pendingFocusItem = h.item();
+        requestSystem(h.sys());
+    }
+
+    private void focusNode(String item) {
+        if (planetIdx >= planets.size()) return;
+        for (PNode n : planets.get(planetIdx).nodes) {
+            if (n.item.equals(item)) {
+                camX = n.x;
+                camY = n.y;
+                tZoom = Math.max(tZoom, 1.3f);
+                focusItem = item;
+                focusUntil = ticks + 120;
+                return;
+            }
+        }
+    }
+
+    private void renderSearchMarks(GuiGraphics g, float t) {
+        if (level == Level.PLANET && planetIdx < planets.size()) {
+            g.drawManaged(() -> {
+                for (PNode n : planets.get(planetIdx).nodes) {
+                    float x = sx(n.x), y = sy(n.y);
+                    if (x < -20 || y < -20 || x > width + 20 || y > height + 20) continue;
+                    if (n.item.equals(focusItem) && ticks < focusUntil) {
+                        float pulse = 13 * zoom + 4 + Mth.sin(t * 0.3f) * 2.5f;
+                        ring(g, x, y, pulse, 0xFFFFE07A);
+                        ring(g, x, y, pulse + 1.5f, 0x90FFE07A);
+                    } else if (matchItems.contains(n.item)) {
+                        ring(g, x, y, 12 * zoom + 3, 0xC0FFD27A);
+                    }
+                }
+            });
+        } else if (level == Level.GALAXY && !matchSystems.isEmpty()) {
+            g.drawManaged(() -> {
+                for (Sys s : systems) {
+                    if (!matchSystems.contains(s.id)) continue;
+                    dottedCircle(g, sx(s.x), sy(s.y), sysRadius(s) + 12 + Mth.sin(t * 0.15f) * 2, 0xE0FFD27A);
+                }
+            });
+        }
+    }
+
+    private void renderResults(GuiGraphics g, int mx, int my) {
+        if (!resultsShown()) return;
+        int[] b = resultsBox();
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 480);
+        g.fill(b[0] - 1, b[1] - 1, b[0] + b[2] + 1, b[1] + b[3] + 1, 0xFF6A5AA8);
+        g.fill(b[0], b[1], b[0] + b[2], b[1] + b[3], 0xF20C1022);
+        if (hits.isEmpty()) {
+            g.drawString(font, Component.translatable("zalrpakraft.map.search.none"), b[0] + 6, b[1] + 8, 0xFF8C8399, false);
+        }
+        for (int i = 0; i < hits.size(); i++) {
+            Hit h = hits.get(i);
+            int y = b[1] + 2 + i * 20;
+            boolean hover = mx >= b[0] && mx < b[0] + b[2] && my >= y && my < y + 20;
+            if (hover) g.fill(b[0] + 1, y, b[0] + b[2] - 1, y + 20, 0x40B79CFF);
+            g.renderItem(h.stack(), b[0] + 3, y + 2);
+            boolean open = ClientTree.UNLOCKED.contains(h.item()) || !ClientTree.GATED.containsKey(h.item());
+            String nm = font.plainSubstrByWidth(h.name().getString(), b[2] - 40);
+            g.drawString(font, nm, b[0] + 23, y + 2, open ? 0xFF9BE07A : 0xFFE9DDFF, false);
+            String lb = font.plainSubstrByWidth((h.planet() < 0 ? "☀ " : "") + h.label(), b[2] - 40);
+            g.drawString(font, lb, b[0] + 23, y + 11, 0xFF7A7094, false);
+        }
+        g.pose().popPose();
     }
 
     private static ItemStack stackOf(String id) {
@@ -183,6 +348,14 @@ public class StarMapScreen extends Screen {
     @Override
     protected void init() {
         if (level == Level.GALAXY) fitGalaxy();
+        int sw = Mth.clamp(width / 4, 120, 180);
+        search = new net.minecraft.client.gui.components.EditBox(font, width - sw - 8, 6, sw, 16, Component.translatable("zalrpakraft.map.search"));
+        search.setHint(Component.translatable("zalrpakraft.map.search.hint").withStyle(ChatFormatting.DARK_GRAY));
+        search.setMaxLength(48);
+        search.setValue(searchText);
+        search.setResponder(this::updateSearch);
+        addRenderableWidget(search);
+        updateSearch(searchText);
         addRenderableWidget(new StarButton(width - 124, height - 24, 116, 18, Component.translatable("zalrpakraft.book.title"),
                 () -> PacketDistributor.sendToServer(new SimplePayload("open_quests"))));
     }
@@ -293,11 +466,14 @@ public class StarMapScreen extends Screen {
             case PLANET -> box[0] = renderPlanet(g, mx, my, t);
         }
         List<Component> tip = box[0];
+        renderSearchMarks(g, t);
         renderHud(g);
         g.pose().pushPose();
         g.pose().translate(0, 0, 450);
         super.render(g, mx, my, pt);
         g.pose().popPose();
+        renderResults(g, mx, my);
+        if (resultsShown()) tip = null;
         if (!recipeFor.isEmpty()) {
             RecipeView.Shown rv = RecipeView.find(recipeFor);
             g.pose().pushPose();
@@ -798,7 +974,16 @@ public class StarMapScreen extends Screen {
     // ==================== ВВОД ====================
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        if (resultsShown()) {
+            int[] b = resultsBox();
+            if (mx >= b[0] && mx < b[0] + b[2] && my >= b[1] && my < b[1] + b[3]) {
+                int i = (int) ((my - b[1] - 2) / 20);
+                if (button == 0 && i >= 0 && i < hits.size()) { goTo(hits.get(i)); click(); }
+                return true;
+            }
+        }
         if (super.mouseClicked(mx, my, button)) return true;
+        if (search != null && search.isFocused()) { search.setFocused(false); setFocused(null); }
         if (button == 1) { back(); return true; }
         if (button != 0) return false;
         float t = ticks;
@@ -879,6 +1064,17 @@ public class StarMapScreen extends Screen {
 
     @Override
     public boolean keyPressed(int key, int scan, int mods) {
+        if (search != null && search.isFocused()) {
+            if (key == GLFW.GLFW_KEY_ESCAPE) { search.setFocused(false); setFocused(null); return true; }
+            if ((key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) && !hits.isEmpty()) { goTo(hits.get(0)); click(); return true; }
+            search.keyPressed(key, scan, mods);
+            return true; // пока пишешь — карта не реагирует на буквы
+        }
+        if (search != null && (key == GLFW.GLFW_KEY_F && (mods & GLFW.GLFW_MOD_CONTROL) != 0 || key == GLFW.GLFW_KEY_SLASH)) {
+            setFocused(search);
+            search.setFocused(true);
+            return true;
+        }
         if (ZClientEvents.MAP_KEY.matches(key, scan)) { onClose(); return true; }
         if (key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_C) {
             if (level == Level.GALAXY && key != GLFW.GLFW_KEY_ESCAPE) return true;

@@ -131,7 +131,15 @@ public final class ClientSelfTest {
                     if (mc.screen instanceof StarMapScreen sm) sm.requestSystem("_test");
                 }
                 case 360 -> shot(mc, "zk_16_own.png");
-                case 370 -> {
+                case 362 -> {
+                    if (mc.screen instanceof StarMapScreen sm) sm.testSearch("piston");
+                }
+                case 368 -> shot(mc, "zk_17_search.png");
+                case 372 -> {
+                    if (mc.screen instanceof StarMapScreen sm) sm.testGoFirst();
+                }
+                case 420 -> shot(mc, "zk_18_found.png");
+                case 430 -> {
                     Zalrpakraft.LOG.info("Zalepacraft clienttest: DONE");
                     mc.stop();
                 }

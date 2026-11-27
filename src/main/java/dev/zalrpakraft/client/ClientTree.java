@@ -14,6 +14,9 @@ import java.util.Set;
 /** Клиентская копия: какие предметы закрыты, где они на карте, что открыто, очки и EXP. */
 public final class ClientTree {
     public static final Map<String, String> GATED = new HashMap<>();
+    /** Для поиска по карте: предмет → «система|планета|подпись» (планета -1 — солнце «своего пути»). */
+    public static final Map<String, String> LOC = new HashMap<>();
+    public static int locVersion;
     public static final Set<String> UNLOCKED = new HashSet<>();
     public static int points, exp, expPerPoint = 100;
 
@@ -22,6 +25,12 @@ public final class ClientTree {
             GATED.clear();
             CompoundTag g = t.getCompound("gated");
             for (String k : g.getAllKeys()) GATED.put(k, g.getString(k));
+        }
+        if (t.contains("loc")) {
+            LOC.clear();
+            CompoundTag g = t.getCompound("loc");
+            for (String k : g.getAllKeys()) LOC.put(k, g.getString(k));
+            locVersion++;
         }
         if (t.contains("points")) {
             points = t.getInt("points");

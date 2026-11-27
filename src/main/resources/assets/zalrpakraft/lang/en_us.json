@@ -240,5 +240,8 @@
  "item.zalrpakraft.taint_heart": "Heart of Taint",
  "item.zalrpakraft.taint_heart.desc": "Can replace the Maze Pearl in the Eye of the Abyss",
  "item.zalrpakraft.hierophant_eye": "Hierophant's Eye",
- "item.zalrpakraft.hierophant_eye.desc": "Can replace the Nether Star in the Eye of Stars"
+ "item.zalrpakraft.hierophant_eye.desc": "Can replace the Nether Star in the Eye of Stars",
+ "zalrpakraft.map.search": "Search",
+ "zalrpakraft.map.search.hint": "Search… (Ctrl+F)",
+ "zalrpakraft.map.search.none": "Nothing found"
 }

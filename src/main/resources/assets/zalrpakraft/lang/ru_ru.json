@@ -240,5 +240,8 @@
  "item.zalrpakraft.taint_heart": "Сердце порчи",
  "item.zalrpakraft.taint_heart.desc": "Можно вместо Жемчуга Лабиринта в Глазе Бездны",
  "item.zalrpakraft.hierophant_eye": "Око Иерофанта",
- "item.zalrpakraft.hierophant_eye.desc": "Можно вместо звезды Незера в Глазе Звёзд"
+ "item.zalrpakraft.hierophant_eye.desc": "Можно вместо звезды Незера в Глазе Звёзд",
+ "zalrpakraft.map.search": "Поиск",
+ "zalrpakraft.map.search.hint": "Поиск… (Ctrl+F)",
+ "zalrpakraft.map.search.none": "Ничего не найдено"
 }
