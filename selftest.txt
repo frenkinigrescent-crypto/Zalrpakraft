@@ -1,0 +1,26 @@
+house=BlockPos{x=-42, y=78, z=83}
+table_placed=true
+map_nodes=28
+recipes=14
+advancements=16
+quests_valid=26 of 86
+tree_systems=2 nodes=436
+  system minecraft (Minecraft):
+    Основы: nodes=123 entries=3 needsSun=0 costs=2x51 3x6 4x28 5x37 6x1 
+    Механизмы: nodes=80 entries=3 needsSun=5 costs=2x24 4x9 5x24 6x14 7x9 
+    Строительство: nodes=167 entries=3 needsSun=5 costs=2x47 3x24 4x38 5x36 6x11 7x10 8x1 
+    Снаряжение: nodes=56 entries=3 needsSun=5 costs=2x5 3x2 4x8 5x15 6x13 7x9 8x4 
+    Кухня: nodes=10 entries=3 needsSun=5 costs=2x4 4x4 5x2 
+  system _test (Свой путь (тест)):
+gate_test iron_gated=true smelt_before=false smelt_after_unlock=true
+depth_mining surface=1.0 y0=0.78571427 bottom=0.5
+depth_mobs zombie_hp deep=38.92857360839844 top=20.0 dmg deep=4.703571474552154 top=3.0
+own_system=true planets=0
+links real=118 path_only=303 external=201 bad=0 light/medium/complex=168/259/9
+simple_food freed=8 steak_free=true dishes_gated=true
+probe minecraft:piston cat=medium cost=4 parents=[minecraft:redstone] soft=[] ext=[minecraft:iron_ingot]
+probe minecraft:iron_pickaxe cat=medium cost=7 parents=[] soft=[minecraft:iron_leggings] ext=[minecraft:iron_ingot, minecraft:stick]
+probe minecraft:iron_block cat=medium cost=5 parents=[] soft=[minecraft:iron_bars] ext=[minecraft:iron_ingot]
+probe minecraft:iron_nugget cat=light cost=2 parents=[] soft=[minecraft:iron_ingot] ext=[]
+probe minecraft:comparator cat=complex cost=6 parents=[] soft=[minecraft:furnace] ext=[minecraft:redstone_torch, minecraft:quartz, minecraft:stone]
+RESULT OK
